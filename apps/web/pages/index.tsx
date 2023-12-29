@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import Router from "next/router";
 import { HStack, Container, Alert, AlertIcon, Heading, Text, Flex, Button } from "@chakra-ui/react";
-import { CurrentUserContext } from "ui/components/providers/CurrentUserProvider";
+import CurrentUserContext from "ui/contexts/CurrentUserContext";
 import Layout from "ui/components/layouts/layout";
 import Hero from "ui/components/shared/Hero";
 import AuctionCard, { AuctionCardSkeleton } from "ui/components/auctions/AuctionCard";

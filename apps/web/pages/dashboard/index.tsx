@@ -12,8 +12,8 @@ import {
   TabPanel,
   Grid,
 } from "@chakra-ui/react";
+import CurrentUserContext from "ui/contexts/CurrentUserContext";
 import Layout from "ui/components/layouts/layout";
-import { CurrentUserContext } from "ui/components/providers/CurrentUserProvider";
 import EarlyUserReward from "ui/components/dashboard/EarlyUserReward";
 import VeReward from "ui/components/dashboard/VeReward";
 import MyAuctions from "ui/components/dashboard/MyAuctions";

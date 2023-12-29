@@ -1,10 +1,10 @@
 import { useContext, useEffect } from "react";
 import { chakra, Alert, AlertIcon, useColorMode, useToast } from "@chakra-ui/react";
 import { useAccount, useDisconnect, useNetwork } from "wagmi";
-import { CurrentUserContext } from "../providers/CurrentUserProvider";
 import { getChain } from "lib/utils/chain";
 import { useIsMounted } from "../../hooks/useIsMounted";
 import { useLocale } from "../../hooks/useLocale";
+import CurrentUserContext from "../../contexts/CurrentUserContext";
 import Header from "./Header";
 import Footer from "./Footer";
 

@@ -23,7 +23,7 @@ import { ChevronDownIcon } from "@chakra-ui/icons";
 import Router from "next/router";
 import { useAccount, useEnsAvatar, useEnsName, useDisconnect, useNetwork } from "wagmi";
 import { useLocale } from "../../hooks/useLocale";
-import { CurrentUserContext } from "../providers/CurrentUserProvider";
+import CurrentUserContext from "../../contexts/CurrentUserContext";
 import SignInButton from "../shared/SignInButton";
 import ProviderLogo from "../shared/ProviderLogo";
 import ConnectButton from "../shared/connectButton";
