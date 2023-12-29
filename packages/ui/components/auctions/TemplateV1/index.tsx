@@ -191,9 +191,9 @@ export default memo(function DetailPage({
             }
             alt={metaData.title}
           />
-          <Box px={{ base: 0, md: 8 }}>
+          <Box px={{ base: 0, md: 8 }} w={{ base: "full", md: "auto" }}>
             <Heading>{metaData.title ? metaData.title : "Unnamed Auction"}</Heading>
-            <HStack spacing={4} mt={1}>
+            <HStack spacing={{ base: 4, lg: 4 }} mt={1}>
               <chakra.p fontSize={"sm"}>
                 <Tag mr={1} verticalAlign={"top"} size="sm">
                   Token
@@ -207,31 +207,38 @@ export default memo(function DetailPage({
                   )}
                   target={"_blank"}
                   fontSize={{ base: "xs", lg: "sm" }}
+                  display={{ base: "block", lg: "inline" }}
                 >
-                  {tokenAmountFormat(
-                    auction.allocatedAmount,
-                    Number(auction.auctionToken.decimals),
-                    getDecimalsForView(
-                      getBigNumber(auction.allocatedAmount),
+                  <chakra.span fontSize={"sm"}>
+                    {tokenAmountFormat(
+                      auction.allocatedAmount,
                       Number(auction.auctionToken.decimals),
-                    ),
-                  )}{" "}
-                  {auction.auctionToken.symbol}
+                      getDecimalsForView(
+                        getBigNumber(auction.allocatedAmount),
+                        Number(auction.auctionToken.decimals),
+                      ),
+                    )}{" "}
+                  </chakra.span>
+                  <chakra.span fontSize={"xs"}>{auction.auctionToken.symbol}</chakra.span>
                   <ExternalLinkIcon ml={1} />
                 </Link>
               </chakra.p>
               <chakra.p fontSize={"sm"}>
                 <Tag mr={1} verticalAlign={"top"} size="sm">
-                  Contract
+                  Auction contract
                 </Tag>
                 <Link
                   ml={1}
+                  fontFamily={"'Meiryo', 'Osaka'"}
+                  letterSpacing={"-0.5px"}
+                  fontSize={"xs"}
                   href={getEtherscanLink(
                     getChain(Number(process.env.NEXT_PUBLIC_CHAIN_ID)).name.toLowerCase(),
                     auction.id as `0x${string}`,
                     "address",
                   )}
                   target={"_blank"}
+                  display={{ base: "block", lg: "inline" }}
                 >
                   <chakra.span
                     display={{ base: "none", lg: "inline" }}
