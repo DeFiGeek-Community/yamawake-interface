@@ -73,10 +73,10 @@ export default function Footer() {
           <HStack fontSize={"xs"} spacing={1} color={"gray.400"}>
             <chakra.span>Current interface version: </chakra.span>
             <Link
-              href={`https://github.com/DeFiGeek-Community/bulk-auction-interface/commit/${process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA}`}
+              href={`https://github.com/DeFiGeek-Community/bulk-auction-interface/commit/${process.env.NEXT_PUBLIC_GIT_ID}`}
               target={"_blank"}
             >
-              {`${process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA?.substring(0, 7)}`}
+              {`${process.env.NEXT_PUBLIC_GIT_ID?.substring(0, 7)}`}
             </Link>
           </HStack>
         </Flex>
