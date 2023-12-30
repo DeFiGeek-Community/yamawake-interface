@@ -45,7 +45,7 @@ export default function AuctionFormWrapper(props: AuctionFormWrapperParams) {
         </Link>
       </FormLabel>
       <Select
-        isDisabled={true}
+        isDisabled={!templateData || templateData.templates.length < 2}
         id="templateName"
         name="templateName"
         defaultValue={

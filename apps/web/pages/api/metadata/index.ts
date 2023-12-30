@@ -62,7 +62,7 @@ const requireContractOwner = (
 
 const requireAvailableNetwork = (req: NextApiRequest) => {
   if (!req.session.siwe) throw new Error("Sign in required");
-  if (!availableNetwork.includes(req.session.siwe.chainId)) throw new Error("Wrong network");
+  if (!availableNetwork.includes(req.session.siwe.chainId)) throw new Error(`Wrong network`);
 };
 
 const getTokenInfo = async (tokenAddress: `0x${string}`, provider: PublicClient) => {
