@@ -81,7 +81,7 @@ export default function AuctionPage() {
                   </Button>
                 )}
                 {!isLoadingActiveAuctions && activeAuctions.length === 0 && (
-                  <Flex minH={"25vh"} justifyContent="center" alignItems={"center"}>
+                  <Flex w={"full"} minH={"25vh"} justifyContent="center" alignItems={"center"}>
                     <Text fontSize={"lg"} opacity={".75"} textAlign={"center"}>
                       {t("NO_SALE")}
                     </Text>
@@ -142,7 +142,7 @@ export default function AuctionPage() {
                   </Button>
                 )}
                 {!isLoadingClosedAuctions && closedAuctions.length === 0 && (
-                  <Flex minH={"25vh"} justifyContent="center" alignItems={"center"}>
+                  <Flex w={"full"} minH={"25vh"} justifyContent="center" alignItems={"center"}>
                     <Text fontSize={"lg"} opacity={".75"} textAlign={"center"}>
                       {t("NO_SALE")}
                     </Text>

@@ -59,7 +59,7 @@ export default function MyAuctions() {
           </Button>
         )}
         {!isLoadingMyAuctions && myAuctions && myAuctions.length === 0 && (
-          <Flex minH={"25vh"} justifyContent="center" alignItems={"center"}>
+          <Flex w={"full"} minH={"25vh"} justifyContent="center" alignItems={"center"}>
             <Text fontSize={"lg"} opacity={".75"} textAlign={"center"}>
               {t("NO_SALE")}
             </Text>
