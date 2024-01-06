@@ -32,6 +32,7 @@
     "abitype": "^0.10.3",
     "big.js": "^6.2.1",
     "date-fns": "^2.30.0",
+    "date-fns-timezone": "^0.1.4",
     "dotenv-cli": "^7.3.0",
     "formik": "^2.4.5",
     "framer-motion": "^10.16.16",

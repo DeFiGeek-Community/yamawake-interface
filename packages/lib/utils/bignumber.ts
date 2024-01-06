@@ -2,7 +2,7 @@ import Big from "big.js";
 Big.PE = 100;
 
 export default Big;
-export type BigNumberValueType = Big | number | string;
+export type BigNumberValueType = Big | number | string | bigint;
 
 export function add(v1: BigNumberValueType, v2: BigNumberValueType): Big {
   const a = getBigNumber(v1);
@@ -40,9 +40,12 @@ export function divideToNum(v1: BigNumberValueType, v2: BigNumberValueType): num
   return divide(v1, v2).toNumber();
 }
 
-export function getBigNumber(val: BigNumberValueType | string): Big {
+export function getBigNumber(val: BigNumberValueType): Big {
   if (val instanceof Big) {
     return val;
+  }
+  if (typeof val === "bigint") {
+    val = val.toString();
   }
   return new Big(val);
 }
