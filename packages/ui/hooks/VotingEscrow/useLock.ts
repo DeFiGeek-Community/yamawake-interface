@@ -1,7 +1,9 @@
 import { usePrepareContractWrite, useContractWrite, useWaitForTransaction } from "wagmi";
 import VotingEscrowABI from "lib/constants/abis/VotingEscrow.json";
+import { LockType } from "lib/types/VotingEscrow";
 
-export default function useCreateLock({
+export default function useLock({
+  type,
   value,
   unlockTime,
   onSuccessWrite,
@@ -9,6 +11,7 @@ export default function useCreateLock({
   onSuccessConfirm,
   onErrorConfirm,
 }: {
+  type: LockType;
   value: Big;
   unlockTime: number | null;
   onSuccessWrite?: (data: any) => void;
@@ -19,16 +22,38 @@ export default function useCreateLock({
   writeFn: ReturnType<typeof useContractWrite>;
   waitFn: ReturnType<typeof useWaitForTransaction>;
 } {
-  const WEEK = 3600 * 24 * 7;
+  const enabled = () => {
+    switch (type) {
+      case LockType.CREATE_LOCK:
+        return value.gt(0) && !!unlockTime && unlockTime > new Date().getTime() / 1000;
+      case LockType.INCREASE_AMOUNT:
+        return value.gt(0);
+      case LockType.INCREASE_UNLOCK_TIME:
+        return !!unlockTime && unlockTime > new Date().getTime() / 1000;
+    }
+  };
+
+  const args = () => {
+    switch (type) {
+      case LockType.CREATE_LOCK:
+        return [value.toString(), unlockTime];
+      case LockType.INCREASE_AMOUNT:
+        return [value.toString()];
+      case LockType.INCREASE_UNLOCK_TIME:
+        return [unlockTime];
+    }
+  };
+
   const config = {
     address: process.env.NEXT_PUBLIC_VE_ADDRESS as `0x${string}`,
     abi: VotingEscrowABI,
+    functionName: type.toString(),
+    args: args(),
+    enabled: enabled(),
   };
+
   const { config: writeConfig } = usePrepareContractWrite({
     ...config,
-    functionName: "createLock",
-    args: [value.toString(), unlockTime],
-    enabled: value.gt(0) && !!unlockTime && unlockTime > new Date().getTime() / 1000,
   });
 
   const writeFn = useContractWrite({

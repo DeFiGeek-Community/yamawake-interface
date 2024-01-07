@@ -17,6 +17,8 @@ import useBalanceOf from "../../../hooks/VotingEscrow/useBalanceOf";
 import useLocked from "../../../hooks/VotingEscrow/useLocked";
 import NewLockForm from "./NewLockForm";
 import { tokenAmountFormat } from "lib/utils";
+import IncreaseUnlockTimeForm from "./IncreaseUnlockTimeForm";
+import IncreaseAmountForm from "./IncreaseAmountForm";
 
 export default function VotingEscrow({ address }: { address?: `0x${string}` }) {
   const { t } = useLocale();
@@ -78,27 +80,9 @@ export default function VotingEscrow({ address }: { address?: `0x${string}` }) {
         Number(locked.data[1]) > new Date().getTime() / 1000 && (
           <>
             <HStack spacing={4}>
-              <Button variant={"solid"} colorScheme="green" size={"sm"} onClick={onOpen}>
-                {t("INCREASE_AMOUNT")}
-              </Button>
-              <Button variant={"solid"} colorScheme="green" size={"sm"} onClick={onOpen}>
-                {t("EXTEND_LOCK")}
-              </Button>
+              <IncreaseAmountForm address={address} />
+              <IncreaseUnlockTimeForm address={address} />
             </HStack>
-            <Modal
-              isOpen={isOpen}
-              onClose={onClose}
-              closeOnOverlayClick={false}
-              blockScrollOnMount={false}
-              isCentered={true}
-            >
-              <ModalOverlay />
-              <ModalContent>
-                <ModalHeader>{t("CREATE_NEW_LOCK")}</ModalHeader>
-                <ModalCloseButton />
-                <ModalBody pb={6}></ModalBody>
-              </ModalContent>
-            </Modal>
           </>
         )}
     </>
