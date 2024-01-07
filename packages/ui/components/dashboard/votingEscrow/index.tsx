@@ -13,10 +13,10 @@ import {
 } from "@chakra-ui/react";
 import { useLocale } from "../../../hooks/useLocale";
 import { QuestionIcon } from "@chakra-ui/icons";
-import VotingEscrow from "./VotingEsctow";
+import LockStats from "./LockStats";
 import Reward from "./Rewards";
 
-export default function VeReward({ address }: { address?: `0x${string}` }) {
+export default function VotingEscrow({ address }: { address?: `0x${string}` }) {
   const { t } = useLocale();
 
   return (
@@ -29,7 +29,7 @@ export default function VeReward({ address }: { address?: `0x${string}` }) {
           </Tooltip>
         </Heading>
         <Divider mt={2} mb={4} />
-        <VotingEscrow address={address} />
+        <LockStats address={address} />
         <Divider variant="dashed" py={2} />
         <Reward address={address} />
       </CardBody>

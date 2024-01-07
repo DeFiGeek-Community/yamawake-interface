@@ -1,16 +1,4 @@
-import {
-  Button,
-  HStack,
-  Spinner,
-  chakra,
-  useDisclosure,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalCloseButton,
-} from "@chakra-ui/react";
+import { Button, HStack, Spinner, chakra, useDisclosure } from "@chakra-ui/react";
 import { format } from "date-fns";
 import { useLocale } from "../../../hooks/useLocale";
 import useBalanceOf from "../../../hooks/VotingEscrow/useBalanceOf";
@@ -19,10 +7,10 @@ import NewLockForm from "./NewLockForm";
 import { tokenAmountFormat } from "lib/utils";
 import IncreaseUnlockTimeForm from "./IncreaseUnlockTimeForm";
 import IncreaseAmountForm from "./IncreaseAmountForm";
+import WithdrawButton from "./WithdrawButton";
 
-export default function VotingEscrow({ address }: { address?: `0x${string}` }) {
+export default function LockStats({ address }: { address?: `0x${string}` }) {
   const { t } = useLocale();
-  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const { readFn: balance } = useBalanceOf(address);
   const { readFn: locked } = useLocked(address);
@@ -67,24 +55,20 @@ export default function VotingEscrow({ address }: { address?: `0x${string}` }) {
       </HStack>
       {typeof locked.data === "undefined" && <Spinner />}
 
-      {!!locked.data && locked.data[1] === 0n && <NewLockForm address={address} />}
-      {!!locked.data &&
-        locked.data[1] !== 0n &&
-        Number(locked.data[1]) <= new Date().getTime() / 1000 && (
-          <Button variant={"solid"} colorScheme="green" size={"sm"} onClick={() => {}}>
-            {t("WITHDRAW")}
-          </Button>
-        )}
-      {!!locked.data &&
-        locked.data[1] !== 0n &&
-        Number(locked.data[1]) > new Date().getTime() / 1000 && (
-          <>
-            <HStack spacing={4}>
+      <HStack spacing={4} justifyContent={"flex-end"} mt={2}>
+        {!!locked.data && locked.data[1] === 0n && <NewLockForm address={address} />}
+        {!!locked.data &&
+          locked.data[1] !== 0n &&
+          Number(locked.data[1]) <= new Date().getTime() / 1000 && <WithdrawButton />}
+        {!!locked.data &&
+          locked.data[1] !== 0n &&
+          Number(locked.data[1]) > new Date().getTime() / 1000 && (
+            <>
               <IncreaseAmountForm address={address} />
               <IncreaseUnlockTimeForm address={address} />
-            </HStack>
-          </>
-        )}
+            </>
+          )}
+      </HStack>
     </>
   );
 }
