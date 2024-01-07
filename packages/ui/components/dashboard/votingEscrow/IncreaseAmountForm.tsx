@@ -13,7 +13,7 @@ export default function IncreaseAmountForm({
   return (
     <>
       <Button variant={"solid"} colorScheme="green" size={"sm"} onClick={onOpen} {...props}>
-        {t("INCREASE_AMOUNT")}
+        {t("VE_INCREASE_AMOUNT")}
       </Button>
       {isOpen && (
         <FormModal

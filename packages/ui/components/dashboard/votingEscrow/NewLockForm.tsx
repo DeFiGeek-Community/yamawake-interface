@@ -13,7 +13,7 @@ export default function NewLockForm({
   return (
     <>
       <Button variant={"solid"} colorScheme="green" size={"sm"} onClick={onOpen} {...props}>
-        {t("CREATE_NEW_LOCK")}
+        {t("VE_CREATE_LOCK")}
       </Button>
       {isOpen && (
         <FormModal

@@ -196,9 +196,9 @@ export default function FormModal({ address, type, isOpen, onClose }: FormModalP
           <ModalOverlay />
           <ModalContent>
             <ModalHeader>
-              {type === LockType.CREATE_LOCK && t("CREATE_LOCK")}
-              {type === LockType.INCREASE_AMOUNT && t("INCREASE_AMOUNT")}
-              {type === LockType.INCREASE_UNLOCK_TIME && t("INCREASE_UNLOCK_TIME")}
+              {type === LockType.CREATE_LOCK && t("VE_CREATE_LOCK")}
+              {type === LockType.INCREASE_AMOUNT && t("VE_INCREASE_AMOUNT")}
+              {type === LockType.INCREASE_UNLOCK_TIME && t("VE_INCREASE_UNLOCK_TIME")}
             </ModalHeader>
             <ModalCloseButton />
             <ModalBody pb={6}>
@@ -211,15 +211,7 @@ export default function FormModal({ address, type, isOpen, onClose }: FormModalP
                         isInvalid={!!formikProps.errors.value && !!formikProps.touched.value}
                       >
                         <Flex justifyContent={"space-between"}>
-                          <FormLabel alignItems={"baseline"}>
-                            {t("ALLOCATION_TO_THE_SALE")}
-                            <Tooltip
-                              hasArrow
-                              label={t("INPUT_THE_AMOUNT_OF_TOKENS_TO_BE_ALLOCATED")}
-                            >
-                              <QuestionIcon mb={1} ml={1} />
-                            </Tooltip>
-                          </FormLabel>
+                          <FormLabel alignItems={"baseline"}>{t("INPUT_LOCK_AMOUNT")}</FormLabel>
                         </Flex>
 
                         <Flex alignItems={"center"}>
@@ -263,12 +255,7 @@ export default function FormModal({ address, type, isOpen, onClose }: FormModalP
                     mt={4}
                     isInvalid={!!formikProps.errors.unlockTime && !!formikProps.touched.unlockTime}
                   >
-                    <FormLabel alignItems={"baseline"}>
-                      {t("START_DATE_END_DATE")}
-                      <Tooltip hasArrow label={t("INPUT_THE_DURATION_OF_THE_TOKEN_SALE")}>
-                        <QuestionIcon mb={1} ml={1} />
-                      </Tooltip>
-                    </FormLabel>
+                    <FormLabel alignItems={"baseline"}>{t("SELECT_UNLOCK_DATE")}</FormLabel>
                     <Flex alignItems={"center"}>
                       <chakra.div>
                         <DatePicker
@@ -419,7 +406,9 @@ export default function FormModal({ address, type, isOpen, onClose }: FormModalP
                         isLoading={writeFn.isLoading || waitFn.isLoading}
                         isDisabled={chain?.unsupported || !writeFn.write || !formikProps.isValid}
                       >
-                        {type === LockType.CREATE_LOCK ? t("CREATE_LOCK") : t("INCREASE_AMOUNT")}
+                        {type === LockType.CREATE_LOCK
+                          ? t("VE_CREATE_LOCK")
+                          : t("VE_INCREASE_AMOUNT")}
                       </Button>
                     ) : (
                       <Button
@@ -449,7 +438,7 @@ export default function FormModal({ address, type, isOpen, onClose }: FormModalP
                       isLoading={writeFn.isLoading || waitFn.isLoading}
                       isDisabled={chain?.unsupported || !writeFn.write || !formikProps.isValid}
                     >
-                      {t("INCREASE_UNLOCK_TIME")}
+                      {t("VE_INCREASE_UNLOCK_TIME")}
                     </Button>
                   </>
                 )}

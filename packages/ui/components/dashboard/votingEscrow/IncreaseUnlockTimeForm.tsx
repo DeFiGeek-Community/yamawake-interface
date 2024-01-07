@@ -13,7 +13,7 @@ export default function IncreaseUnlockTimeForm({
   return (
     <>
       <Button variant={"solid"} colorScheme="green" size={"sm"} onClick={onOpen} {...props}>
-        {t("INCREASE_UNLOCK_TIME")}
+        {t("VE_INCREASE_UNLOCK_TIME")}
       </Button>
       {isOpen && (
         <FormModal

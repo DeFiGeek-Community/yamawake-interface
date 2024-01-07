@@ -136,4 +136,12 @@ export default {
   TARGET_TOTAL_RAISED_EXPLANATION:
     "このオークションの目標調達額です。目標調達額を達成した後も入札は可能です。",
   TEMPLATE_EXPLANATION: "各テンプレートの説明 ",
+
+  // VotingEscrow
+  VE_CREATE_LOCK: "ロックする",
+  VE_INCREASE_AMOUNT: "ロック額を増額",
+  VE_INCREASE_UNLOCK_TIME: "ロック期間を延長",
+  VE_WITHDRAW: "引き出す",
+  INPUT_LOCK_AMOUNT: "ロック額",
+  SELECT_UNLOCK_DATE: "ロック期間を選択",
 };

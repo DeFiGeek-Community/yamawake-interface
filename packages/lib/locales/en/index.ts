@@ -137,4 +137,12 @@ export default {
   TARGET_TOTAL_RAISED_EXPLANATION:
     "The target amount of this auction. Users can buy even after this value is achieved.",
   TEMPLATE_EXPLANATION: "Explanation of Each Template ",
+
+  // VotingEscrow
+  VE_CREATE_LOCK: "Create lock",
+  VE_INCREASE_AMOUNT: "Increase lock amount",
+  VE_INCREASE_UNLOCK_TIME: "Increase lock",
+  VE_WITHDRAW: "Withdraw YMWK",
+  INPUT_LOCK_AMOUNT: "Input lock amount",
+  SELECT_UNLOCK_DATE: "Select unlock date",
 };
