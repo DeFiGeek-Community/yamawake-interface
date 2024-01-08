@@ -60,14 +60,24 @@ export default function FormModal({ address, type, isOpen, onClose }: FormModalP
     value: 0,
     unlockTime: null,
   };
-  const handleSubmit = () => {};
+  const handleSubmit = () => {
+    writeFn?.write!();
+  };
   const validateLockForm = (value: LockFormValues) => {
     const errors: any = {};
     if (
+      (type === LockType.CREATE_LOCK || type === LockType.INCREASE_AMOUNT) &&
       typeof balance === "bigint" &&
       Big(balance.toString()).lt(Big(value.value).mul(Big(1e18)))
     ) {
       errors.value = `Not enough balance`;
+    }
+    if (
+      (type === LockType.CREATE_LOCK || type === LockType.INCREASE_UNLOCK_TIME) &&
+      value.unlockTime &&
+      value.unlockTime < new Date().getTime()
+    ) {
+      errors.unlockTime = `Unlock time should be in the future`;
     }
     return errors;
   };
@@ -83,6 +93,7 @@ export default function FormModal({ address, type, isOpen, onClose }: FormModalP
     targetAddress: process.env.NEXT_PUBLIC_YMWK_ADDRESS as `0x${string}`,
     owner: address as `0x${string}`,
     spender: process.env.NEXT_PUBLIC_VE_ADDRESS as `0x${string}`,
+    amount: BigInt(formikProps.values.value) * BigInt(1e18),
     onSuccessWrite(data) {
       toast({
         title: t("TRANSACTION_SENT"),
@@ -126,7 +137,9 @@ export default function FormModal({ address, type, isOpen, onClose }: FormModalP
   const { writeFn, waitFn } = useLock({
     type: type,
     value: Big(formikProps.values.value).mul(1e18),
-    unlockTime: formikProps.values.unlockTime ? formikProps.values.unlockTime / 1000 : null,
+    unlockTime: formikProps.values.unlockTime
+      ? Math.floor(formikProps.values.unlockTime / 1000)
+      : null,
     onSuccessWrite(data) {
       toast({
         title: t("TRANSACTION_SENT"),
@@ -134,7 +147,6 @@ export default function FormModal({ address, type, isOpen, onClose }: FormModalP
         duration: 5000,
         render: (props) => <TxSentToast txid={data.hash} {...props} />,
       });
-      onClose();
     },
     onErrorWrite(e) {
       toast({
@@ -149,6 +161,7 @@ export default function FormModal({ address, type, isOpen, onClose }: FormModalP
         status: "success",
         duration: 5000,
       });
+      onClose();
     },
     onErrorConfirm(e) {
       toast({
@@ -236,18 +249,17 @@ export default function FormModal({ address, type, isOpen, onClose }: FormModalP
                     <Flex alignItems={"center"}>
                       <chakra.div>
                         <DatePicker
-                          onEnter={() => {
-                            formikProps.setTouched({ unlockTime: true });
-                            setTimeout(formikProps.validateForm, 200);
+                          onEnter={async () => {
+                            await formikProps.setTouched({ unlockTime: true });
+                            await formikProps.validateForm();
                           }}
-                          onBlur={(value: any) => {
-                            setTimeout(formikProps.validateForm, 200);
+                          onBlur={async (value: any) => {
+                            await formikProps.validateForm();
                           }}
-                          onChangeCalendarDate={(value) => {
-                            if (!value) return;
+                          onChangeCalendarDate={async (value) => {
                             const unlockTime: Date = value;
-                            formikProps.setFieldValue("unlockTime", unlockTime.getTime());
-                            setTimeout(formikProps.validateForm, 200);
+                            await formikProps.setFieldValue("unlockTime", unlockTime.getTime());
+                            await formikProps.validateForm();
                           }}
                           oneTap={true}
                           format="yyyy-MM-dd"
@@ -370,8 +382,7 @@ export default function FormModal({ address, type, isOpen, onClose }: FormModalP
                 )}
                 {(type === LockType.CREATE_LOCK || type === LockType.INCREASE_AMOUNT) && (
                   <>
-                    {approvals.allowance &&
-                    Big(approvals.allowance.toString()).gte(
+                    {Big(approvals.allowance.toString()).gte(
                       multiply(Big(formikProps.values.value.toString()), Big(10).pow(18)),
                     ) ? (
                       <Button
@@ -379,7 +390,8 @@ export default function FormModal({ address, type, isOpen, onClose }: FormModalP
                         w={"full"}
                         variant="solid"
                         colorScheme="green"
-                        onClick={() => writeFn.write!()}
+                        type="submit"
+                        // onClick={() => writeFn.write!()}
                         isLoading={writeFn.isLoading || waitFn.isLoading}
                         isDisabled={chain?.unsupported || !writeFn.write || !formikProps.isValid}
                       >
@@ -411,7 +423,8 @@ export default function FormModal({ address, type, isOpen, onClose }: FormModalP
                       w={"full"}
                       variant="solid"
                       colorScheme="green"
-                      onClick={() => writeFn.write!()}
+                      type="submit"
+                      // onClick={() => writeFn.write!()}
                       isLoading={writeFn.isLoading || waitFn.isLoading}
                       isDisabled={chain?.unsupported || !writeFn.write || !formikProps.isValid}
                     >
