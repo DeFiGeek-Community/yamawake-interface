@@ -109,78 +109,41 @@ export default function FormModal({ address, type, isOpen, onClose }: FormModalP
     enabled: !!address,
   });
 
-  const { writeFn, waitFn } =
-    type === LockType.CREATE_LOCK
-      ? useLock({
-          type: type,
-          value: Big(formikProps.values.value).mul(1e18),
-          unlockTime: formikProps.values.unlockTime ? formikProps.values.unlockTime / 1000 : null,
-          onSuccessWrite(data) {
-            toast({
-              title: t("TRANSACTION_SENT"),
-              status: "success",
-              duration: 5000,
-              render: (props) => <TxSentToast txid={data.hash} {...props} />,
-            });
-            onClose();
-          },
-          onErrorWrite(e) {
-            toast({
-              description: e.message,
-              status: "error",
-              duration: 5000,
-            });
-          },
-          onSuccessConfirm(data) {
-            toast({
-              title: t("TRANSACTION_CONFIRMED"),
-              status: "success",
-              duration: 5000,
-            });
-          },
-          onErrorConfirm(e) {
-            toast({
-              description: e.message,
-              status: "error",
-              duration: 5000,
-            });
-          },
-        })
-      : useLock({
-          type: type,
-          value: Big(formikProps.values.value).mul(1e18),
-          unlockTime: formikProps.values.unlockTime ? formikProps.values.unlockTime / 1000 : null,
-          onSuccessWrite(data) {
-            toast({
-              title: t("TRANSACTION_SENT"),
-              status: "success",
-              duration: 5000,
-              render: (props) => <TxSentToast txid={data.hash} {...props} />,
-            });
-            onClose();
-          },
-          onErrorWrite(e) {
-            toast({
-              description: e.message,
-              status: "error",
-              duration: 5000,
-            });
-          },
-          onSuccessConfirm(data) {
-            toast({
-              title: t("TRANSACTION_CONFIRMED"),
-              status: "success",
-              duration: 5000,
-            });
-          },
-          onErrorConfirm(e) {
-            toast({
-              description: e.message,
-              status: "error",
-              duration: 5000,
-            });
-          },
-        });
+  const { writeFn, waitFn } = useLock({
+    type: type,
+    value: Big(formikProps.values.value).mul(1e18),
+    unlockTime: formikProps.values.unlockTime ? formikProps.values.unlockTime / 1000 : null,
+    onSuccessWrite(data) {
+      toast({
+        title: t("TRANSACTION_SENT"),
+        status: "success",
+        duration: 5000,
+        render: (props) => <TxSentToast txid={data.hash} {...props} />,
+      });
+      onClose();
+    },
+    onErrorWrite(e) {
+      toast({
+        description: e.message,
+        status: "error",
+        duration: 5000,
+      });
+    },
+    onSuccessConfirm(data) {
+      toast({
+        title: t("TRANSACTION_CONFIRMED"),
+        status: "success",
+        duration: 5000,
+      });
+    },
+    onErrorConfirm(e) {
+      toast({
+        description: e.message,
+        status: "error",
+        duration: 5000,
+      });
+    },
+  });
 
   return (
     <>

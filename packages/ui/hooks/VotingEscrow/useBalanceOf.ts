@@ -16,8 +16,6 @@ export default function useBalanceOf(address?: `0x${string}`): {
     watch: true,
   });
 
-  console.log(!!address);
-
   return {
     readFn,
   };
