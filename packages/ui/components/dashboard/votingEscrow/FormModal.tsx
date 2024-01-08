@@ -91,10 +91,24 @@ export default function FormModal({ address, type, isOpen, onClose }: FormModalP
         render: (props) => <TxSentToast txid={data.hash} {...props} />,
       });
     },
+    onErrorWrite(e) {
+      toast({
+        description: e.message,
+        status: "error",
+        duration: 5000,
+      });
+    },
     onSuccessConfirm(data) {
       toast({
         title: t("APPROVAL_CONFIRMED"),
         status: "success",
+        duration: 5000,
+      });
+    },
+    onErrorConfirm(e) {
+      toast({
+        description: e.message,
+        status: "error",
         duration: 5000,
       });
     },
