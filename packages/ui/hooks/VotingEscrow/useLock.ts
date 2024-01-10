@@ -6,6 +6,7 @@ export default function useLock({
   type,
   value,
   unlockTime,
+  allowance,
   onSuccessWrite,
   onErrorWrite,
   onSuccessConfirm,
@@ -14,6 +15,7 @@ export default function useLock({
   type: LockType;
   value: Big;
   unlockTime: number | null;
+  allowance?: Big;
   onSuccessWrite?: (data: any) => void;
   onErrorWrite?: (error: Error) => void;
   onSuccessConfirm?: (data: any) => void;
@@ -25,9 +27,14 @@ export default function useLock({
   const enabled = () => {
     switch (type) {
       case LockType.CREATE_LOCK:
-        return value.gt(0) && !!unlockTime && unlockTime > new Date().getTime() / 1000;
+        return (
+          value.gt(0) &&
+          (!allowance || allowance.gte(value)) &&
+          !!unlockTime &&
+          unlockTime > new Date().getTime() / 1000
+        );
       case LockType.INCREASE_AMOUNT:
-        return value.gt(0);
+        return value.gt(0) && (!allowance || allowance.gte(value));
       case LockType.INCREASE_UNLOCK_TIME:
         return !!unlockTime && unlockTime > new Date().getTime() / 1000;
     }

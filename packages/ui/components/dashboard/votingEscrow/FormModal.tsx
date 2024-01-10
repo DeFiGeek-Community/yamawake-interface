@@ -11,7 +11,6 @@ import {
   ModalBody,
   ModalCloseButton,
   FormLabel,
-  Tooltip,
   FormErrorMessage,
   FormControl,
   NumberInputField,
@@ -24,11 +23,10 @@ import {
   GridItem,
   useToast,
 } from "@chakra-ui/react";
-import { QuestionIcon } from "@chakra-ui/icons";
 import { useContractRead, erc20ABI, useNetwork } from "wagmi";
 import { DatePicker, CustomProvider } from "rsuite";
 import { jaJP, enUS } from "rsuite/locales";
-import { format, addYears, addWeeks, addMonths, addDays } from "date-fns";
+import { format, addYears, addWeeks, addMonths } from "date-fns";
 import { tokenAmountFormat, getStartOfDayInUTC, getRoundedWeekTimestamp } from "lib/utils";
 import { LockType } from "lib/types/VotingEscrow";
 import Big, { multiply } from "lib/utils/bignumber";
@@ -140,6 +138,7 @@ export default function FormModal({ address, type, isOpen, onClose }: FormModalP
     unlockTime: formikProps.values.unlockTime
       ? Math.floor(formikProps.values.unlockTime / 1000)
       : null,
+    allowance: Big(approvals.allowance.toString()),
     onSuccessWrite(data) {
       toast({
         title: t("TRANSACTION_SENT"),
