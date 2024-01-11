@@ -1,4 +1,5 @@
-import { Button, HStack, VStack, Spinner, chakra, useToast } from "@chakra-ui/react";
+import { Button, HStack, VStack, Spinner, Tooltip, Text, chakra, useToast } from "@chakra-ui/react";
+import { QuestionIcon } from "@chakra-ui/icons";
 import { useLocale } from "../../../hooks/useLocale";
 import useTokens from "../../../hooks/FeeDistributor/useTokens";
 import useClaimableTokens from "../../../hooks/Gauge/useClaimableTokens";
@@ -48,7 +49,12 @@ export default function Reward({ address }: { address?: `0x${string}` }) {
   return (
     <>
       <HStack justifyContent={"space-between"} alignItems={"baseline"} mt={4}>
-        <chakra.p color={"gray.400"}>{t("REWARDS")}</chakra.p>
+        <chakra.p color={"gray.400"}>
+          {t("REWARDS")}
+          <Tooltip hasArrow label={<Text whiteSpace={"pre-wrap"}>{t("REWARDS_HELP")}</Text>}>
+            <QuestionIcon fontSize={"md"} mb={1} ml={1} />
+          </Tooltip>
+        </chakra.p>
         <VStack spacing={4} alignItems={"end"}>
           <HStack spacing={2}>
             <chakra.div fontSize={"2xl"}>

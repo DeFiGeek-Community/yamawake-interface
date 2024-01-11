@@ -1,18 +1,6 @@
-import {
-  Button,
-  useToast,
-  Card,
-  CardBody,
-  Heading,
-  Tooltip,
-  Divider,
-  HStack,
-  chakra,
-  CardFooter,
-  VStack,
-} from "@chakra-ui/react";
-import { useLocale } from "../../../hooks/useLocale";
+import { Card, CardBody, Heading, Tooltip, Divider, Text } from "@chakra-ui/react";
 import { QuestionIcon } from "@chakra-ui/icons";
+import { useLocale } from "../../../hooks/useLocale";
 import LockStats from "./LockStats";
 import Reward from "./Rewards";
 
@@ -23,8 +11,8 @@ export default function VotingEscrow({ address }: { address?: `0x${string}` }) {
     <Card flex={1}>
       <CardBody>
         <Heading fontSize={"xl"}>
-          {t("VE_YMWK_REWARD")}
-          <Tooltip hasArrow label={t("COMMING_SOON")}>
+          {t("VE_YMWK")}
+          <Tooltip hasArrow label={<Text whiteSpace={"pre-wrap"}>{t("VE_YMWK_REWARD_HELP")}</Text>}>
             <QuestionIcon fontSize={"md"} mb={1} ml={1} />
           </Tooltip>
         </Heading>
