@@ -24,6 +24,7 @@ import "assets/css/rsuite-override.css";
 const now = new Date().getTime();
 export default function useAuctionForm({
   address,
+  templateName,
   onSubmitSuccess,
   onSubmitError,
   onContractWriteSuccess,
@@ -32,6 +33,7 @@ export default function useAuctionForm({
   onApprovalTxConfirmed,
 }: {
   address: `0x${string}`;
+  templateName: `0x${string}`;
   onSubmitSuccess?: (result: any) => void;
   onSubmitError?: (e: any) => void;
   onContractWriteSuccess?: (result: any) => void;
@@ -54,7 +56,7 @@ export default function useAuctionForm({
   const [creatingAuction, setCreatingAuction] = useAtom(creatingAuctionAtom);
   const { t } = useLocale();
   const emptyAuction: AuctionForm = {
-    templateName: TEMPLATE_V1_NAME,
+    templateName: templateName,
     token: null,
     startingAt: now + 60 * 60 * 24 * 7 * 1000,
     eventDuration: 60 * 60 * 24 * 7,

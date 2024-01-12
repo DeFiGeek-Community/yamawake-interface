@@ -41,12 +41,14 @@ import TxSentToast from "../../shared/TxSentToast";
 
 export default function AuctionForm({
   address,
+  templateName,
   onSubmitSuccess,
   onSubmitError,
   onApprovalTxSent,
   onApprovalTxConfirmed,
 }: {
   address: `0x${string}`;
+  templateName: `0x${string}`;
   onSubmitSuccess?: (result: any) => void;
   onSubmitError?: (e: Error) => void;
   onApprovalTxSent?: (result: any) => void;
@@ -72,6 +74,7 @@ export default function AuctionForm({
     getTransactionRawData,
   } = useAuctionForm({
     address: address as `0x${string}`,
+    templateName,
     onSubmitSuccess: (result) => {
       onSubmitSuccess
         ? onSubmitSuccess(result)

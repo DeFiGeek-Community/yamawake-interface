@@ -79,7 +79,7 @@ export default function AuctionFormWrapper(props: AuctionFormWrapperParams) {
         // Add conditions below as needed
       }
       {(templateName === TEMPLATE_V1_NAME || templateName === TEMPLATE_V1_5_NAME) && (
-        <TemplateV1AuctionForm {...props} />
+        <TemplateV1AuctionForm templateName={templateName} {...props} />
       )}
     </>
   );
