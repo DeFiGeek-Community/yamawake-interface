@@ -10,7 +10,7 @@ import {
   SkeletonText,
 } from "@chakra-ui/react";
 import { AuctionProps } from "lib/types/Auction";
-import { TEMPLATE_V1_NAME } from "lib/constants/templates";
+import { TEMPLATE_V1_NAME, TEMPLATE_V1_5_NAME } from "lib/constants/templates";
 import V1 from "./TemplateV1/AuctionCardContent";
 
 export default function AuctionCard({
@@ -23,6 +23,8 @@ export default function AuctionCard({
   // Add auction card components as needed
   switch (auctionProps.templateAuctionMap.templateName) {
     case TEMPLATE_V1_NAME:
+      return <V1 auctionProps={auctionProps} editable={editable} />;
+    case TEMPLATE_V1_5_NAME:
       return <V1 auctionProps={auctionProps} editable={editable} />;
     default:
       return <AuctionCardSkeleton />;
