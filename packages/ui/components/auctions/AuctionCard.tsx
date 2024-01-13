@@ -27,7 +27,8 @@ export default function AuctionCard({
     case TEMPLATE_V1_5_NAME:
       return <V1 auctionProps={auctionProps} editable={editable} />;
     default:
-      return <AuctionCardSkeleton />;
+      // Return null for unknown templateName
+      return null;
   }
 }
 
