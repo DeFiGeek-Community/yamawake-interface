@@ -108,6 +108,7 @@ export default function AuctionFormModal({
         unwatch && unwatch();
         setContractAddress(args.deployedAddress as `0x${string}`);
         setTx(undefined);
+        onDeployConfirmed && onDeployConfirmed();
       }
     },
   });
