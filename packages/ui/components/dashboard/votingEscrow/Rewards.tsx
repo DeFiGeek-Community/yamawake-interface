@@ -6,6 +6,7 @@ import useClaimableTokens from "../../../hooks/Gauge/useClaimableTokens";
 import useMint from "../../../hooks/Minter/useMint";
 import TxSentToast from "../../shared/TxSentToast";
 import FeeReward from "./FeeReward";
+import { etherAmountFormat } from "lib/utils";
 
 export default function Reward({ address }: { address?: `0x${string}` }) {
   const { t } = useLocale();
@@ -60,7 +61,7 @@ export default function Reward({ address }: { address?: `0x${string}` }) {
             <chakra.div fontSize={"2xl"}>
               {typeof claimableTokens.data === "undefined" && <Spinner />}
               {!!claimableTokens.data && typeof claimableTokens.data.result === "bigint" && (
-                <>{claimableTokens.data.result.toString()}</>
+                <>{etherAmountFormat(claimableTokens.data.result, 6)}</>
               )}
               <chakra.span color={"gray.400"} fontSize={"lg"} ml={1}>
                 YMWK

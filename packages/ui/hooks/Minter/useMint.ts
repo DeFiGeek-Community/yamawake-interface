@@ -18,13 +18,13 @@ export default function useMint({
   waitFn: ReturnType<typeof useWaitForTransaction>;
 } {
   const config = {
-    address: process.env.NEXT_PUBLIC_MIINTER_ADDRESS as `0x${string}`,
+    address: process.env.NEXT_PUBLIC_MINTER_ADDRESS as `0x${string}`,
     abi: MinterABI,
   };
   const { config: claimConfig } = usePrepareContractWrite({
     ...config,
     functionName: "mint",
-    args: [address],
+    args: [process.env.NEXT_PUBLIC_GAUGE_ADDRESS],
     enabled: !!address,
   });
 

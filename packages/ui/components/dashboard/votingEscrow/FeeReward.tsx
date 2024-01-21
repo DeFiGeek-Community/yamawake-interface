@@ -3,6 +3,7 @@ import { useLocale } from "../../../hooks/useLocale";
 import { zeroAddress } from "viem";
 import useClaim from "../../../hooks/FeeDistributor/useClaim";
 import TxSentToast from "../../shared/TxSentToast";
+import { tokenAmountFormat } from "lib/utils";
 
 export default function Reward({
   address,
@@ -52,7 +53,7 @@ export default function Reward({
       <chakra.div fontSize={"2xl"}>
         {typeof prepareFn.data === "undefined" && <Spinner />}
         {!!prepareFn.data && typeof prepareFn.data.result === "bigint" && (
-          <>{prepareFn.data.result.toString()}</>
+          <>{tokenAmountFormat(prepareFn.data.result, 18, 6)}</>
         )}
         <chakra.span color={"gray.400"} fontSize={"lg"} ml={1}>
           {token === zeroAddress ? "ETH" : "TODO"}
