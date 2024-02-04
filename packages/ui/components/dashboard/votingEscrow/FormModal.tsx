@@ -27,7 +27,7 @@ import { useContractRead, erc20ABI, useNetwork } from "wagmi";
 import { DatePicker, CustomProvider } from "rsuite";
 import { jaJP, enUS } from "rsuite/locales";
 import { format, addYears, addWeeks, addMonths } from "date-fns";
-import { tokenAmountFormat, getStartOfDayInUTC, getRoundedWeekTimestamp } from "lib/utils";
+import { tokenAmountFormat, getRoundedWeekTimestamp } from "lib/utils";
 import { LockType } from "lib/types/VotingEscrow";
 import Big, { multiply } from "lib/utils/bignumber";
 import TxSentToast from "../../shared/TxSentToast";
@@ -275,7 +275,7 @@ export default function FormModal({ address, type, isOpen, onClose }: FormModalP
                               : null
                           }
                           shouldDisableDate={(date: Date) =>
-                            getStartOfDayInUTC(date) % (3600 * 24 * 7) !== 0 ||
+                            date.setUTCHours(0, 0, 0, 0) % (3600 * 24 * 7) !== 0 ||
                             date.getTime() < new Date().getTime() ||
                             date.getTime() > addYears(new Date(), 4).getTime()
                           }
@@ -390,7 +390,6 @@ export default function FormModal({ address, type, isOpen, onClose }: FormModalP
                         variant="solid"
                         colorScheme="green"
                         type="submit"
-                        // onClick={() => writeFn.write!()}
                         isLoading={writeFn.isLoading || waitFn.isLoading}
                         isDisabled={chain?.unsupported || !writeFn.write || !formikProps.isValid}
                       >

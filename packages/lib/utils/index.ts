@@ -1,7 +1,5 @@
 import { ETHER_DECIMALS_FOR_VIEW } from "../constants";
 import Big, { BigNumberValueType, add, divide, multiply, getBigNumber } from "./bignumber";
-import { format } from "date-fns";
-import { convertToTimeZone } from "date-fns-timezone";
 
 export const capitalize = function (str: string) {
   if (typeof str !== "string" || !str) return str;
@@ -170,12 +168,6 @@ export const getDecimalsForView = (amount: Big, decimals: number): number => {
   } else {
     return Math.min(10 - digits, decimals);
   }
-};
-
-export const getStartOfDayInUTC = (date: Date): number => {
-  return new Date(
-    format(convertToTimeZone(date, { timeZone: "UTC" }), "yyyy-MM-dd 00:00:00+00"),
-  ).getTime();
 };
 
 export const getRoundedWeekTimestamp = (date?: Date): number => {
