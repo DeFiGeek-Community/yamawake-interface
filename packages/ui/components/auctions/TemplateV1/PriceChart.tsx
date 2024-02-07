@@ -30,7 +30,6 @@ ChartJS.register(
 );
 
 export default function PriceChart({ auction }: { auction: TemplateV1 }) {
-  console.log("rerendered chart!!");
   const [options, setOptions] = useState({});
   let defaultData = {
     datasets: [
