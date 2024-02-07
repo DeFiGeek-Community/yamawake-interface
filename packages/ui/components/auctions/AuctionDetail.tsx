@@ -1,7 +1,6 @@
 import { TEMPLATE_V1_NAME } from "lib/constants/templates";
 import { AuctionProps, MetaData } from "lib/types/Auction";
 import Render500 from "../errors/500";
-import { ApolloQueryResult } from "@apollo/client";
 import { KeyedMutator } from "swr";
 import TemplateV1Detail from "./TemplateV1";
 import {
@@ -18,7 +17,7 @@ import { memo } from "react";
 
 export type DetailPageParams = {
   auctionProps: AuctionProps;
-  refetchAuction: () => Promise<ApolloQueryResult<any>>;
+  refetchAuction: KeyedMutator<any>;
   metaData: MetaData;
   refetchMetaData: KeyedMutator<any>;
   address: `0x${string}` | undefined;

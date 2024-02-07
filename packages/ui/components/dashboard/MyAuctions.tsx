@@ -2,7 +2,7 @@ import { useAccount } from "wagmi";
 import { chakra, Flex, Button, Text, HStack, useDisclosure } from "@chakra-ui/react";
 import { AddIcon } from "@chakra-ui/icons";
 import { AuctionProps } from "lib/types/Auction";
-import { QueryType } from "lib/apollo/query";
+import { QueryType } from "lib/graphql/query";
 import AuctionFormModal from "../auctions/AuctionFormModal";
 import AuctionCard, { AuctionCardSkeleton } from "../auctions/AuctionCard";
 import { useLocale } from "../../hooks/useLocale";
