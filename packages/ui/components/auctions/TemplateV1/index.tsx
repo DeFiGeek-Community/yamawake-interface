@@ -337,7 +337,7 @@ export default memo(function DetailPage({
                         >
                           <FormLabel alignItems={"baseline"}>
                             {t("CONTRIBUTE_AMOUNT")}
-                            <Tooltip hasArrow label={"Input the amount you wish to contribute"}>
+                            <Tooltip hasArrow label={t("INPUT_THE_AMOUNT_YOU_WISH_TO_CONTRIBUTE")}>
                               <QuestionIcon mb={1} ml={1} />
                             </Tooltip>
                           </FormLabel>
