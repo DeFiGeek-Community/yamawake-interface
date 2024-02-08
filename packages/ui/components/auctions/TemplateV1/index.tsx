@@ -87,7 +87,7 @@ export default memo(function DetailPage({
   const [started, setStarted] = useState<boolean>(false);
   const [ended, setEnded] = useState<boolean>(false);
 
-  const { data: rateData, refetch: updateRate } = useRate(chain ? chain.id : null);
+  const { data: rateData, refetch: updateRate } = useRate(Number(process.env.NEXT_PUBLIC_CHAIN_ID));
 
   useInterval(() => {
     setStarted(auction.startingAt * 1000 <= new Date().getTime());
