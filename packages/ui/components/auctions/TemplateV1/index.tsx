@@ -87,7 +87,7 @@ export default memo(function DetailPage({
   const [started, setStarted] = useState<boolean>(false);
   const [ended, setEnded] = useState<boolean>(false);
 
-  const { data: rateData, refetch: updateRate } = useRate(chain ? chain.id : null);
+  const { data: rateData, refetch: updateRate } = useRate(Number(process.env.NEXT_PUBLIC_CHAIN_ID));
 
   useInterval(() => {
     setStarted(auction.startingAt * 1000 <= new Date().getTime());
@@ -337,7 +337,7 @@ export default memo(function DetailPage({
                         >
                           <FormLabel alignItems={"baseline"}>
                             {t("CONTRIBUTE_AMOUNT")}
-                            <Tooltip hasArrow label={"Input the amount you wish to contribute"}>
+                            <Tooltip hasArrow label={t("INPUT_THE_AMOUNT_YOU_WISH_TO_CONTRIBUTE")}>
                               <QuestionIcon mb={1} ml={1} />
                             </Tooltip>
                           </FormLabel>

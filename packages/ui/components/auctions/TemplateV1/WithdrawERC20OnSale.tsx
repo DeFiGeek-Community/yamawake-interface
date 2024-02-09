@@ -1,6 +1,6 @@
 import { QuestionIcon } from "@chakra-ui/icons";
 import { chakra, useToast, Button, Tooltip, Flex, Box, Heading } from "@chakra-ui/react";
-import { useContractRead, erc20ABI } from "wagmi";
+import { useContractRead, erc20ABI, useNetwork } from "wagmi";
 import useWithdrawERC20OnSale from "../../../hooks/useWithdrawERC20OnSale";
 import { TemplateV1 } from "lib/types/Auction";
 import { getDecimalsForView, tokenAmountFormat } from "lib/utils";
@@ -56,6 +56,7 @@ export default function WithdrawERC20({ auction, onSuccessConfirm }: Props) {
       balance !== 0n,
   });
   const { t } = useLocale();
+  const { chain } = useNetwork();
 
   return (
     <Box>
@@ -84,7 +85,9 @@ export default function WithdrawERC20({ auction, onSuccessConfirm }: Props) {
         </chakra.p>
         <Button
           variant={"solid"}
-          isDisabled={!balance || balance === 0n || !withdrawERC20WriteFn.write}
+          isDisabled={
+            chain?.unsupported || !balance || balance === 0n || !withdrawERC20WriteFn.write
+          }
           isLoading={withdrawERC20WriteFn.isLoading || withdrawERC20WaitFn.isLoading}
           onClick={withdrawERC20WriteFn.write}
         >

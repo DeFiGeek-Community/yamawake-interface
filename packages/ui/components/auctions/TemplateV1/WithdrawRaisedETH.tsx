@@ -1,6 +1,6 @@
 import { InfoIcon, QuestionIcon } from "@chakra-ui/icons";
 import { useToast, Box, Heading, chakra, Button, Tooltip, Flex } from "@chakra-ui/react";
-import { useBalance } from "wagmi";
+import { useBalance, useNetwork } from "wagmi";
 import useWithdrawRaisedETH from "../../../hooks/useWithdrawRaisedETH";
 import { TemplateV1 } from "lib/types/Auction";
 import { tokenAmountFormat } from "lib/utils";
@@ -52,6 +52,7 @@ export default function WithdrawRaisedETH({ auction, onSuccessConfirm }: Props) 
       balanceData.value !== BigInt(0),
   });
   const { t } = useLocale();
+  const { chain } = useNetwork();
 
   return (
     <Box>
@@ -70,7 +71,12 @@ export default function WithdrawRaisedETH({ auction, onSuccessConfirm }: Props) 
         </chakra.p>
         <Button
           variant={"solid"}
-          isDisabled={!balanceData || balanceData.value === BigInt(0) || !withdrawETHWriteFn.write}
+          isDisabled={
+            chain?.unsupported ||
+            !balanceData ||
+            balanceData.value === BigInt(0) ||
+            !withdrawETHWriteFn.write
+          }
           isLoading={withdrawETHWriteFn.isLoading || withdrawETHWaitFn.isLoading}
           onClick={withdrawETHWriteFn.write}
         >

@@ -8,7 +8,7 @@ import AuctionCard, { AuctionCardSkeleton } from "ui/components/auctions/Auction
 import { useSWRAuctions } from "ui/hooks/useAuctions";
 import { useLocale } from "ui/hooks/useLocale";
 import { AuctionProps } from "lib/types/Auction";
-import { QueryType } from "lib/apollo/query";
+import { QueryType } from "lib/graphql/query";
 import MetaTags from "ui/components/layouts/MetaTags";
 
 export default function Web() {
