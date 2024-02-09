@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Modal,
   ModalOverlay,
@@ -8,17 +8,18 @@ import {
   ModalCloseButton,
 } from "@chakra-ui/react";
 import { useToast, useColorMode } from "@chakra-ui/react";
-import { useAccount, useContractEvent, useWaitForTransaction } from "wagmi";
+import { useAccount } from "wagmi";
 import { CustomProvider } from "rsuite";
 import { useAtom } from "jotai";
-import FactoryABI from "lib/constants/abis/Factory.json";
-import { creatingAuctionAtom, waitingCreationTxAtom } from "lib/store";
+import { creatingAuctionAtom } from "lib/store";
 import { Steps } from "./Steps";
 import MetaDataForm from "./TemplateV1/MetaDataForm";
 import useMetaDataForm from "../../hooks/TemplateV1/useMetaDataForm";
 import { useLocale } from "../../hooks/useLocale";
 import TxSentToast from "../shared/TxSentToast";
 import AuctionFormWrapper from "./AuctionFormWrapper";
+import { useSafeWaitForTransaction } from "../../hooks/useSafeWaitForTransaction";
+import { decodeEventLog, parseAbi } from "viem";
 
 type AuctionFormModalProps = {
   isOpen: boolean;
@@ -44,13 +45,9 @@ export default function AuctionFormModal({
   const [contractAddress, setContractAddress] = useState<`0x${string}` | undefined>(undefined);
   const { t } = useLocale();
   const [tx, setTx] = useState<string | undefined>(undefined);
-  const txRef = useRef(tx);
   const [creatingAuction, setCreatingAuction] = useAtom(creatingAuctionAtom);
-  useEffect(() => {
-    txRef.current = tx;
-  }, [tx]);
 
-  const waitFn = useWaitForTransaction({
+  const waitFn = useSafeWaitForTransaction({
     hash: tx as `0x${string}`,
     enabled: !!tx,
     onSuccess(data) {
@@ -61,6 +58,7 @@ export default function AuctionFormModal({
       });
     },
     onError(e) {
+      handleClose();
       toast({
         description: e.message,
         status: "error",
@@ -68,6 +66,26 @@ export default function AuctionFormModal({
       });
     },
   });
+
+  useEffect(() => {
+    if (waitFn.isSuccess && !!waitFn.data) {
+      for (let i = 0; i < waitFn.data.logs.length; i++) {
+        try {
+          const topics = decodeEventLog({
+            abi: parseAbi(["event Deployed(bytes32, address)"]),
+            data: waitFn.data.logs[i].data,
+            topics: waitFn.data.logs[i].topics,
+          });
+          setContractAddress(topics.args[1]);
+          setTx(undefined);
+          onDeployConfirmed && onDeployConfirmed();
+          break;
+        } catch (e) {
+          continue;
+        }
+      }
+    }
+  }, [waitFn.isSuccess]);
 
   const handleClose = () => {
     metaFormikProps.resetForm();
@@ -95,21 +113,6 @@ export default function AuctionFormModal({
         status: "error",
         duration: 5000,
       });
-    },
-  });
-
-  const unwatch = useContractEvent({
-    address: process.env.NEXT_PUBLIC_FACTORY_ADDRESS as `0x${string}`,
-    abi: FactoryABI,
-    eventName: "Deployed",
-    listener: (logs: any[]) => {
-      const { args, transactionHash } = logs[0];
-      if ((transactionHash as string).toLowerCase() === (txRef.current as string).toLowerCase()) {
-        unwatch && unwatch();
-        setContractAddress(args.deployedAddress as `0x${string}`);
-        setTx(undefined);
-        onDeployConfirmed && onDeployConfirmed();
-      }
     },
   });
 

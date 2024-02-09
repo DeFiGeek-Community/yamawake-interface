@@ -1,8 +1,9 @@
-import { useAccount, useNetwork } from "wagmi";
-import { Button, ButtonProps, useDisclosure } from "@chakra-ui/react";
+import { useAccount, useNetwork, usePublicClient } from "wagmi";
+import { Button, ButtonProps, useDisclosure, useToast } from "@chakra-ui/react";
 import { SignInParams } from "lib/types";
 import { useSIWE } from "../../hooks/Auth/useSIWE";
 import { useLocale } from "../../hooks/useLocale";
+import { isContractWallet } from "lib/utils/safe";
 import ProvidersList from "./ProvidersList";
 
 export default function SignInButton({
@@ -19,9 +20,11 @@ export default function SignInButton({
   const { address: connectedAddress, isConnected } = useAccount({
     onConnect: async () => {},
   });
+  const publicClient = usePublicClient();
 
   const { chain } = useNetwork();
   const { t } = useLocale();
+  const toast = useToast({ position: "top-right", isClosable: true });
   const { loading, signIn } = useSIWE();
   const title = buttonProps.title ? buttonProps.title : t("SIGN_IN_WITH_ETHEREUM");
 
@@ -68,6 +71,18 @@ export default function SignInButton({
             address: `0x${string}`;
             chainId: number;
           }) => {
+            try {
+              const { isSafe: isSafeWallet } = await isContractWallet(publicClient, address);
+              if (isSafeWallet) {
+                toast({
+                  title: t("SIGN_SAFE_ACCOUNT"),
+                  status: "success",
+                  duration: 10000,
+                });
+              }
+            } catch (e) {
+              console.log("Failed to check safe wallet");
+            }
             await processSignIn({
               title: title,
               targetAddress: address,

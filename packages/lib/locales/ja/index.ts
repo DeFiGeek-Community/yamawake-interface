@@ -140,6 +140,7 @@ export default {
   TARGET_TOTAL_RAISED_EXPLANATION:
     "このオークションの目標調達額です。目標調達額を達成した後も入札は可能です。",
   TEMPLATE_EXPLANATION: "各テンプレートの説明 ",
+  SIGN_SAFE_ACCOUNT: "このページから離れずにSafeアカウントで署名してください",
 
   // VotingEscrow
   VE_CREATE_LOCK: "ロックする",

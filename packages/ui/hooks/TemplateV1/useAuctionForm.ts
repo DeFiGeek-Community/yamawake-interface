@@ -1,7 +1,6 @@
 import {
   usePrepareContractWrite,
   useContractWrite,
-  useWaitForTransaction,
   erc20ABI,
   useContractRead,
   useToken,
@@ -10,7 +9,7 @@ import { isAddress } from "viem";
 import { AbiCoder, Interface } from "ethers";
 import { useAtom } from "jotai";
 import { useDebounce } from "use-debounce";
-import { useFormik, FormikProps, FormikValues } from "formik";
+import { useFormik, FormikProps } from "formik";
 import useApprove from "../useApprove";
 import { useLocale } from "../useLocale";
 import { AuctionForm } from "lib/types/Auction";

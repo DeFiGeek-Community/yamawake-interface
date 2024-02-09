@@ -1,4 +1,3 @@
-import { DocumentNode } from "@apollo/client";
 import { KeyedMutator, SWRConfiguration } from "swr";
 import useSWRInfinite from "swr/infinite";
 import {
@@ -9,11 +8,10 @@ import {
   LIST_CLOSED_SALE_QUERY,
   LIST_MY_SALE_QUERY,
   LIST_PARTICIPATED_SALE_QUERY,
-} from "lib/apollo/query";
-import { AuctionProps } from "lib/types/Auction";
-import client from "lib/apollo/client";
+} from "lib/graphql/query";
+import { AuctionProps, BaseAuction } from "lib/types/Auction";
+import client from "lib/graphql/client";
 import { zeroAddress } from "viem";
-import { useCallback } from "react";
 
 interface SWRAuctionStore {
   auctions: AuctionProps[];
@@ -24,6 +22,10 @@ interface SWRAuctionStore {
   loadMoreAuctions: () => void;
   mutate: KeyedMutator<AuctionProps[][]>;
 }
+
+type QueryResponse = {
+  auctions: BaseAuction[];
+};
 
 type AuctionsParams = {
   first?: number;
@@ -40,7 +42,7 @@ export const useSWRAuctions = (
   config: AuctionsParams & SWRConfiguration,
   queryType: QueryType = QueryType.ACTIVE_AND_UPCOMING,
 ): SWRAuctionStore => {
-  const getQuery = (queryType: QueryType): DocumentNode => {
+  const getQuery = (queryType: QueryType): string => {
     switch (queryType) {
       case QueryType.ACTIVE_AND_UPCOMING:
         return LIST_ACTIVE_AND_UPCOMING_SALE_QUERY;
@@ -72,15 +74,15 @@ export const useSWRAuctions = (
 
   const fetcher = async (
     params: {
-      query: DocumentNode;
+      query: string;
       variables: { skip: number; first: number; now: number; id: string };
     } | null,
   ) => {
     let auctions: AuctionProps[] = [];
     if (params === null) return auctions;
     try {
-      const result = await client.query(params);
-      auctions = result.data.auctions;
+      const result = await client.request<QueryResponse>(params.query, params.variables);
+      auctions = result.auctions;
     } catch (e) {
       console.error(e);
     }

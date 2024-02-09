@@ -56,12 +56,12 @@ export default function MetaDataForm({
                   onChange={formikProps.handleChange}
                   value={formikProps.values.id}
                   placeholder={
-                    waitFn && waitFn.isLoading
+                    waitFn && (waitFn.isLoading || waitFn.isIdle)
                       ? t("WAITING_FOR_THE_TRANSACTION_TO_BE_CONFIRMED")
                       : ""
                   }
                 />
-                {waitFn && waitFn.isLoading && <Spinner />}
+                {waitFn && (waitFn.isLoading || waitFn.isIdle) && <Spinner />}
               </HStack>
               <FormErrorMessage>{formikProps.errors.id}</FormErrorMessage>
             </FormControl>
@@ -296,10 +296,10 @@ export default function MetaDataForm({
             colorScheme="blue"
             type="submit"
             isLoading={formikProps.isSubmitting}
-            isDisabled={waitFn && waitFn.isLoading}
-            leftIcon={waitFn && waitFn.isLoading ? <Spinner /> : undefined}
+            isDisabled={waitFn && (waitFn.isLoading || waitFn.isIdle)}
+            leftIcon={waitFn && (waitFn.isLoading || waitFn.isIdle) ? <Spinner /> : undefined}
           >
-            {waitFn && waitFn.isLoading
+            {waitFn && (waitFn.isLoading || waitFn.isIdle)
               ? t("PLEASE_WAIT_FOR_THE_TRANSACTION_TO_BE_CONFIRMED")
               : t("SAVE_SALE_INFORMATION")}
           </Button>
