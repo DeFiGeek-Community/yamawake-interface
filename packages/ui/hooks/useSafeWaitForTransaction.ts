@@ -5,13 +5,14 @@ import { useEffect, useState } from "react";
 import { useAccount, useNetwork, useWaitForTransaction } from "wagmi";
 import { WaitForTransactionArgs } from "wagmi/actions";
 
-export const useSafeWaitForTransaction = (
-  config: Parameters<typeof useWaitForTransaction>[0],
-): ReturnType<typeof useWaitForTransaction> & {
+type UseSafeWaitForTransactionReturn = ReturnType<typeof useWaitForTransaction> & {
   isSafeWallet?: boolean;
   resolvedTxHash?: `0x${string}`;
   resolvingPromise?: Promise<void | `0x${string}` | undefined>;
-} => {
+};
+export const useSafeWaitForTransaction = (
+  config: Parameters<typeof useWaitForTransaction>[0],
+): UseSafeWaitForTransactionReturn => {
   const { address } = useAccount();
   const { isSafe: isSafeWallet } = useIsContractWallet(address);
   const { chain } = useNetwork();
