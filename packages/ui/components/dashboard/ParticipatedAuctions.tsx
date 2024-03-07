@@ -1,8 +1,8 @@
 import { useAccount } from "wagmi";
-import { Flex, Button, Text, Stack } from "@chakra-ui/react";
+import { Flex, Button, Text, HStack } from "@chakra-ui/react";
 import { AuctionProps } from "lib/types/Auction";
-import { QueryType } from "lib/apollo/query";
-import AuctionCard, { AuctionCardSkeleton } from "../AuctionCard";
+import { QueryType } from "lib/graphql/query";
+import AuctionCard, { AuctionCardSkeleton } from "../auctions/AuctionCard";
 import { useLocale } from "../../hooks/useLocale";
 import { useSWRAuctions } from "../../hooks/useAuctions";
 
@@ -22,7 +22,7 @@ export default function ParticipatedAuctions() {
   const { t } = useLocale();
 
   return (
-    <Stack mt={4} spacing={8}>
+    <HStack mt={4} spacing={8} w={"full"} flexWrap={"wrap"}>
       {isLoadingParticipatedAuctions || !participatedAuctions ? (
         <>
           <AuctionCardSkeleton />
@@ -51,6 +51,6 @@ export default function ParticipatedAuctions() {
             </Text>
           </Flex>
         )}
-    </Stack>
+    </HStack>
   );
 }

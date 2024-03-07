@@ -1,4 +1,9 @@
-import { useContractRead, useContractWrite, useWaitForTransaction } from "wagmi";
+import {
+  useContractRead,
+  usePrepareContractWrite,
+  useContractWrite,
+  useWaitForTransaction,
+} from "wagmi";
 import DistributorABI from "lib/constants/abis/Distributor.json";
 
 export default function useEarlyUserReward({
@@ -27,12 +32,18 @@ export default function useEarlyUserReward({
     functionName: "scores",
     args: [address],
     watch: true,
+    enabled: !!address,
   });
 
-  const writeFn = useContractWrite<typeof DistributorABI, "claim">({
+  const { config: claimConfig } = usePrepareContractWrite({
     ...config,
     functionName: "claim",
     args: [address],
+    enabled: !!address && !!readFn.data,
+  });
+
+  const writeFn = useContractWrite({
+    ...claimConfig,
     onSuccess(data) {
       onSuccessWrite && onSuccessWrite(data);
     },

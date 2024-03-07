@@ -38,6 +38,8 @@ const config: any = createConfig({
         projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_ID!,
         qrModalOptions: {
           themeVariables: {
+            // Type error Workaround
+            // @ts-ignore
             "--wcm-z-index": "2000",
           },
         },

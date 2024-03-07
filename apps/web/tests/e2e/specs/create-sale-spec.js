@@ -223,10 +223,12 @@ describe("create-auction-spec", () => {
             expect(allocatedAmount.toString()).to.eq(multiply(TOKEN_AMOUNT, Big(10).pow(decimals)).toString());
             expect(minRaisedAmount.toString()).to.eq(multiply(MIN_RAISED_AMOUNT, Big(10).pow(decimals)).toString());
           });
-          cy.getMetamaskWalletAddress().then(expect(owner).to.eq(address));
-          expect(startingAt).to.eq(start.getTime() / 1000);
-          expect(closingAt).to.eq(end.getTime() / 1000);
-          expect(erc20onsale).to.eq(Cypress.env("AUCTION_TOKEN"));
+          cy.getMetamaskWalletAddress().then(()=>{
+            expect(owner).to.eq(address)
+            expect(startingAt).to.eq(start.getTime() / 1000);
+            expect(closingAt).to.eq(end.getTime() / 1000);
+            expect(erc20onsale).to.eq(Cypress.env("AUCTION_TOKEN"));
+          });
         });
       });
   });

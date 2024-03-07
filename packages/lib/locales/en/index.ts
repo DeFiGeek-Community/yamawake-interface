@@ -57,7 +57,7 @@ export default {
   YOU_CAN_CHOOSE_THE_TYPE_OF_TOKEN_SALE: "You can choose the type of token auction",
   TOKEN_ADDRESS: "Token address",
   INPUT_THE_ADDRESS_OF_THE_TOKEN_YOU_WOULD_LIKE_TO_ALLOCATE_TO_THIS_SALE:
-    "Input the address of the token you would like to allocate to this auction",
+    "Input the address of the token you would like to allocate to this auction. \nThis auction template can handle only standard ERC20 tokens. We don't recommend auctioning tokens that have special characteristics, such as rebase tokens and fee-on-transfer tokens.",
   DONT_HAVE_A_TOKEN_YET: "Don't have a token yet?",
   START_DATE_END_DATE: "Start date - End date",
   INPUT_THE_DURATION_OF_THE_TOKEN_SALE:
@@ -134,4 +134,8 @@ export default {
   TEMPLATE: "Template",
   TOO_SMALL_ALLOCATION:
     "The token allocation amount is too small, and some participants may receive 0 token allocation (less than token decimals). Those who receive 0 allocation can initiate a refund request. Please consider to increase the allocation amount. Please note token allocation to each bidder is calculated by rounding down, and the aggregated amount of fraction tokens (less than token decimals) for each bidder will remain locked in the contract address forever(it cannot be withdrawn). ",
+  TARGET_TOTAL_RAISED_EXPLANATION:
+    "The target amount of this auction. Users can buy even after this value is achieved.",
+  TEMPLATE_EXPLANATION: "Explanation of Each Template ",
+  SIGN_SAFE_ACCOUNT: "Please sign the message from your Safe account without leaving this page.",
 };

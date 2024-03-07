@@ -1,4 +1,10 @@
-export const COINGECKO_URL = "https://api.coingecko.com/api/v3/simple/price";
+export const CHAINLINK_PRICE_FEED: { [key: string]: { [key: number]: `0x${string}` } } = {
+  "ETH-USD": {
+    1: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419",
+    5: "0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e",
+    11155111: "0x694AA1769357215DE4FAC081bf1f309aDC325306",
+  },
+};
 
 export const ETHER_DECIMALS_FOR_VIEW = 3;
 

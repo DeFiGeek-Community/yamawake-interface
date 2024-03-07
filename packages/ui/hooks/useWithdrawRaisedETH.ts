@@ -30,7 +30,7 @@ export default function useWithdrawRaisedETH({
 
   const prepareFn = usePrepareContractWrite({
     chainId: chain?.id,
-    address: targetAddress ? targetAddress : "0x00",
+    address: targetAddress || "0x00",
     abi: Template,
     functionName: "withdrawRaisedETH",
     enabled,

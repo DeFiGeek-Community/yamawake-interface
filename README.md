@@ -53,15 +53,15 @@ TEST_PROVIDER_ENDPOINT="http://localhost:8545"
 
 1. Add template name to packages/lib/constants/templates.ts
 
-2. Create a directory under packages/ui/components/templates and packages/ui/hooks
+2. Create a directory under packages/ui/components/auctions and packages/ui/hooks
 
 3. Add components and hooks as needed
 
 4. Add switch conditions to the following files
 
-- packages/ui/components/AuctionCard.tsx
-- packages/ui/components/templates/AuctionDetail.tsx
-- packages/ui/components/templates/AuctionFormWrapper.tsx
+- packages/ui/components/auctions/AuctionCard.tsx
+- packages/ui/components/auctions/AuctionDetail.tsx
+- packages/ui/components/auctions/AuctionFormWrapper.tsx
 
 ## Subgraph
 
@@ -69,15 +69,15 @@ TEST_PROVIDER_ENDPOINT="http://localhost:8545"
 
 ```bash
 cd subgraph
-graph codegen && graph build
-graph deploy --studio SUBGRAPH_NAME
+yarn codegen && yarn build
+yarn deploy --studio SUBGRAPH_NAME
 ```
 
 ### test
 
 ```bash
 cd subgraph
-graph test
+yarn test
 ```
 
 ### CI

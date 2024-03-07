@@ -1,7 +1,12 @@
 import useSWR, { SWRResponse } from "swr";
 import { zeroAddress } from "viem";
-import client from "lib/apollo/client";
-import { GET_SALE_QUERY } from "lib/apollo/query";
+import client from "lib/graphql/client";
+import { GET_SALE_QUERY } from "lib/graphql/query";
+import { BaseAuction } from "lib/types/Auction";
+
+type QueryResponse = {
+  auction: BaseAuction;
+};
 
 const useAuction = (
   id: `0x${string}`,
@@ -12,18 +17,15 @@ const useAuction = (
   }).toString();
 
   const fetcher = async (key: string): Promise<any | undefined> => {
-    const result = await client.query({
-      query: GET_SALE_QUERY,
-      variables: {
-        id: id as string,
-        address: (address as `0x${string}`).toLowerCase(),
-      },
+    const result = await client.request<QueryResponse>(GET_SALE_QUERY, {
+      id: id as string,
+      address: (address as `0x${string}`).toLowerCase(),
     });
-    return { auction: result.data.auction };
+    return { auction: result.auction };
   };
 
   return useSWR<any | undefined, Error>(`/api/auctions/${id}?${params}`, fetcher, {
-    errorRetryCount: 2,
+    errorRetryCount: 5,
   });
 };
 

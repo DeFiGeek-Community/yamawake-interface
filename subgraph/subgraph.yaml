@@ -4,11 +4,11 @@ schema:
 dataSources:
   - kind: ethereum
     name: Factory
-    network: goerli
+    network: sepolia
     source:
-      address: "0xA7c550b30f1b96BA861580d6bCD23981D22e6fCd"
+      address: "0x42dB4F8C91b228d6B56bA949C650B2AD2051fa7B"
       abi: Factory
-      startBlock: 9731614
+      startBlock: 4978698
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -30,7 +30,7 @@ dataSources:
 templates:
   - kind: ethereum
     name: BaseTemplate
-    network: goerli
+    network: sepolia
     source:
       abi: BaseTemplate
     mapping:

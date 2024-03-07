@@ -106,7 +106,7 @@ export const etherAmountFormat = (
   if (smallValueNotation && amountInBig.gt(0) && amountInBig.lt(0.001)) {
     return "< 0.001";
   } else {
-    return formatEtherInBig(amount).toFixed(precision);
+    return amountInBig.toFixed(precision);
   }
 };
 

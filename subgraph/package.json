@@ -4,15 +4,17 @@
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",
-    "deploy": "graph deploy --node https://api.studio.thegraph.com/deploy/ bulk-auction-subgraph",
-    "create-local": "graph create --node http://localhost:8020/ bulk-auction-subgraph",
-    "remove-local": "graph remove --node http://localhost:8020/ bulk-auction-subgraph",
-    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 bulk-auction-subgraph",
+    "deploy": "graph deploy",
+    "create-local": "graph create --node http://localhost:8020/ yamawake",
+    "remove-local": "graph remove --node http://localhost:8020/ yamawake",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 yamawake",
     "test": "graph test"
   },
   "dependencies": {
-    "@graphprotocol/graph-cli": "0.49.0",
-    "@graphprotocol/graph-ts": "0.29.1"
+    "@graphprotocol/graph-cli": "^0.64.0",
+    "@graphprotocol/graph-ts": "^0.32.0"
   },
-  "devDependencies": { "matchstick-as": "0.5.0" }
+  "devDependencies": {
+    "matchstick-as": "^0.6.0"
+  }
 }

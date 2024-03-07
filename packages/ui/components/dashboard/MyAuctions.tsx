@@ -1,10 +1,10 @@
 import { useAccount } from "wagmi";
-import { chakra, Flex, Button, Text, Stack, useDisclosure } from "@chakra-ui/react";
+import { chakra, Flex, Button, Text, HStack, useDisclosure } from "@chakra-ui/react";
 import { AddIcon } from "@chakra-ui/icons";
 import { AuctionProps } from "lib/types/Auction";
-import { QueryType } from "lib/apollo/query";
-import AuctionFormModal from "../AuctionFormModal";
-import AuctionCard, { AuctionCardSkeleton } from "../AuctionCard";
+import { QueryType } from "lib/graphql/query";
+import AuctionFormModal from "../auctions/AuctionFormModal";
+import AuctionCard, { AuctionCardSkeleton } from "../auctions/AuctionCard";
 import { useLocale } from "../../hooks/useLocale";
 import { useSWRAuctions } from "../../hooks/useAuctions";
 
@@ -38,7 +38,7 @@ export default function MyAuctions() {
         onDeployConfirmed={mutateMyAuctions}
         onInformationSaved={() => setTimeout(mutateMyAuctions, 1000)}
       />
-      <Stack mt={4} spacing={8}>
+      <HStack mt={4} spacing={8} w={"full"} flexWrap={"wrap"}>
         {isLoadingMyAuctions || !myAuctions ? (
           <>
             <AuctionCardSkeleton />
@@ -65,7 +65,7 @@ export default function MyAuctions() {
             </Text>
           </Flex>
         )}
-      </Stack>
+      </HStack>
     </>
   );
 }

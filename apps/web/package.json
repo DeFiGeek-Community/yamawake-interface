@@ -15,28 +15,28 @@
   },
   "dependencies": {
     "assets": "workspace:*",
-    "cypress-wait-until": "^2.0.0",
+    "cypress-wait-until": "^2.0.1",
     "lib": "workspace:*",
-    "next": "latest",
+    "next": "^14.0.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "ui": "workspace:*"
   },
   "devDependencies": {
-    "@synthetixio/synpress": "3.7.2-beta.7",
-    "@types/node": "^20.4.5",
-    "@types/react": "^18.2.18",
-    "@types/react-dom": "^18.2.7",
+    "@synthetixio/synpress": "3.7.2-beta.9",
+    "@types/node": "^20.10.4",
+    "@types/react": "^18.2.45",
+    "@types/react-dom": "^18.2.18",
     "cypress": "^12.17.4",
     "cypress-dotenv": "^2.0.0",
     "dotenv": "^16.3.1",
     "env-cmd": "^10.1.0",
     "eslint-config-custom": "workspace:*",
-    "ethers": "^6.6.7",
-    "ethers5": "npm:ethers@5",
-    "start-server-and-test": "^2.0.0",
+    "ethers": "^6.9.0",
+    "ethers5": "npm:ethers@^5.7.2",
+    "start-server-and-test": "^2.0.3",
     "tsconfig": "workspace:*",
-    "typescript": "^5.1.6"
+    "typescript": "^5.3.3"
   },
   "browserslist": [
     ">0.2%",

@@ -19,7 +19,7 @@ export default function useRaised(
     abi: TemplateV1ABI as Abi,
   };
 
-  const { data, isError, refetch, isLoading } = useContractReads<
+  const { data, isError, status, refetch, isLoading } = useContractReads<
     ContractFunctionConfig<Abi, string>[],
     boolean,
     any
@@ -37,6 +37,7 @@ export default function useRaised(
         functionName: "totalRaised",
       },
     ],
+    allowFailure: false,
     enabled: typeof address !== "undefined",
   });
 
@@ -54,8 +55,8 @@ export default function useRaised(
   }
 
   return {
-    raised: data && data[0] ? getBigNumber(BigInt(data[0].result).toString()) : Big(0),
-    totalRaised: data && data[1] ? getBigNumber(BigInt(data[1].result).toString()) : Big(0),
+    raised: data && data[0] ? getBigNumber(BigInt(data[0]).toString()) : Big(0),
+    totalRaised: data && data[1] ? getBigNumber(BigInt(data[1]).toString()) : Big(0),
     isLoading,
     isError,
     refetch,

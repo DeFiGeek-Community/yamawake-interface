@@ -2,13 +2,13 @@ import { useRouter } from "next/router";
 import { useAccount } from "wagmi";
 import { useToast } from "@chakra-ui/react";
 import Layout from "ui/components/layouts/layout";
-import MetaTags from "ui/components/MetaTags";
+import MetaTags from "ui/components/layouts/MetaTags";
 import useAuction from "ui/hooks/useAuction";
 import useSWRMetaData from "ui/hooks/useSWRMetaData";
 import { useLocale } from "ui/hooks/useLocale";
 import { zeroAddress } from "viem";
 import CustomError from "../_error";
-import AuctionDetail, { SkeletonAuction } from "ui/components/templates/AuctionDetail";
+import AuctionDetail, { SkeletonAuction } from "ui/components/auctions/AuctionDetail";
 
 export default function AuctionPage() {
   const { address, isConnected, connector } = useAccount();

@@ -153,8 +153,8 @@ export const validateMetaData = (metaData: MetaData, minRaisedAmount?: number) =
   }
   if (
     metaData.targetTotalRaised &&
-    metaData.maximumTotalRaised &&
-    Number(metaData.targetTotalRaised) > Number(metaData.maximumTotalRaised)
+    (!metaData.maximumTotalRaised ||
+      Number(metaData.targetTotalRaised) > Number(metaData.maximumTotalRaised))
   ) {
     errors.maximumTotalRaised = "Maximum total raised must be bigger than Target total raised";
   }

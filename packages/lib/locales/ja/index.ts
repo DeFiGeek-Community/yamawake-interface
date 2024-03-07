@@ -57,7 +57,7 @@ export default {
   YOU_CAN_CHOOSE_THE_TYPE_OF_TOKEN_SALE: "トークンオークションのタイプを選択できます",
   TOKEN_ADDRESS: "トークンアドレス",
   INPUT_THE_ADDRESS_OF_THE_TOKEN_YOU_WOULD_LIKE_TO_ALLOCATE_TO_THIS_SALE:
-    "このオークションで配布するトークンのアドレスを入力してください",
+    "このオークションで配布するトークンのアドレスを入力してください。\nこのオークションテンプレートは、標準的なERC20トークンのみを扱うことができます。特殊な機能を持つトークン（リベーストークンやfee-on-transferトークンなど）のオークションはお勧めしません。",
   DONT_HAVE_A_TOKEN_YET: "トークンをお持ちでないですか？",
   START_DATE_END_DATE: "開始日時 - 終了日時",
   INPUT_THE_DURATION_OF_THE_TOKEN_SALE:
@@ -68,7 +68,7 @@ export default {
   THE_TOKEN_ALLOCATION_AMOUNT_IS_TOO_SMALL:
     "割当量が小さすぎるため、一部の参加者への割当が最小桁以下になり返金が必要になる可能性があります。返金者に割当てられたトークン回収不可能になります。割当量を増やすことを検討してください。",
   THE_SALE_WILL_BE_VOID_IF_THE_TOTAL_RAISED_IS_LESS_THAN_THIS_THRESHOLD:
-    "合計調達額がこの閾値を下回る場合、オークションは無効となり、調達した合計金額は返金されます。",
+    "合計調達額がこの閾値を下回る場合、オークションは無効となり、調達した金額は全額返金されます。",
   APPROVE_TOKEN: "トークンを承認",
   DEPLOY_SALE_CONTRACT: "オークションコントラクトをデプロイ",
   SALE_CONTRACT_ADDRESS: "オークションコントラクトアドレス",
@@ -133,4 +133,8 @@ export default {
   TEMPLATE: "テンプレート",
   TOO_SMALL_ALLOCATION:
     "トークンの割当て量が少なすぎるため、一部の参加者はトークンの割当てが0（最小単位より少ない額）になる可能性があります。割当てが0になった参加者は、返金の申請をすることができます。割当て量を増やすことを検討してください。各入札者へのトークン割り当ては、切り捨てで計算され、端数（最小単位より少ない額）の合計額は、永遠にコントラクトにロックされ、引き出しできないことにご注意ください。",
+  TARGET_TOTAL_RAISED_EXPLANATION:
+    "このオークションの目標調達額です。目標調達額を達成した後も入札は可能です。",
+  TEMPLATE_EXPLANATION: "各テンプレートの説明 ",
+  SIGN_SAFE_ACCOUNT: "このページから離れずにSafeアカウントで署名してください",
 };

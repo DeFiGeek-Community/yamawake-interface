@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useFormik, FormikProps } from "formik";
 import { MetaData, validateMetaData } from "lib/types/Auction";
 
@@ -12,16 +12,14 @@ export default function useMetaDataForm({
   contractId?: `0x${string}`;
   minRaisedAmount: number; // Numbers that take decimals into account. e.g. 10
   onSubmitSuccess?: (result: Response) => void;
-  onSubmitError?: (e: any) => void;
+  onSubmitError?: (e: Error) => void;
   auctionMetaData?: MetaData;
 }): {
   formikProps: FormikProps<MetaData>;
+  submitError: Error | null;
 } {
-  useEffect(() => {
-    formikProps.setFieldValue("id", contractId);
-  }, [contractId]);
-
-  const initMetaData: MetaData = {
+  const [submitError, setSubmitError] = useState<Error | null>(null);
+  let initMetaData: MetaData = {
     id: "",
     title: "",
     description: "",
@@ -32,6 +30,10 @@ export default function useMetaDataForm({
     targetTotalRaised: minRaisedAmount,
     maximumTotalRaised: minRaisedAmount,
   };
+
+  useEffect(() => {
+    formikProps.setFieldValue("id", contractId);
+  }, [contractId, minRaisedAmount]);
 
   const handleSubmit = async (auctionData: MetaData) => {
     try {
@@ -47,21 +49,23 @@ export default function useMetaDataForm({
         const errorText = await result.text();
         throw new Error(`${errorText}`);
       }
-      // if (!result.ok) throw new Error(result.statusText);
       onSubmitSuccess && onSubmitSuccess(result);
-    } catch (e: any) {
-      onSubmitError && onSubmitError(e);
+    } catch (e) {
+      const error = e instanceof Error ? e : new Error(String(e));
+      setSubmitError(error);
+      onSubmitError && onSubmitError(error);
     }
   };
 
   const formikProps = useFormik({
     enableReinitialize: true,
-    initialValues: auctionMetaData ? auctionMetaData : initMetaData,
+    initialValues: auctionMetaData || initMetaData,
     onSubmit: handleSubmit,
     validate: (value: MetaData) => validateMetaData(value, minRaisedAmount),
   });
 
   return {
     formikProps,
+    submitError,
   };
 }

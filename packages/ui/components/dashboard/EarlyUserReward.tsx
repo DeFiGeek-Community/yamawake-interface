@@ -16,7 +16,7 @@ import { useLocale } from "../../hooks/useLocale";
 import { QuestionIcon } from "@chakra-ui/icons";
 import useEarlyUserReward from "../../hooks/useEarlyUserReward";
 import { formatEtherInBig } from "lib/utils";
-import TxSentToast from "../TxSentToast";
+import TxSentToast from "../shared/TxSentToast";
 
 export default function EarlyUserReward({ address }: { address: `0x${string}` }) {
   const toast = useToast({ position: "top-right", isClosable: true });
@@ -61,8 +61,8 @@ export default function EarlyUserReward({ address }: { address: `0x${string}` })
         </Heading>
         <Divider mt={2} mb={4} />
         <HStack justifyContent={"space-between"}>
-          <chakra.p color={"gray.400"}>{t("CLAIMABLE")}</chakra.p>
-          <chakra.p fontSize={"2xl"}>
+          <chakra.div color={"gray.400"}>{t("CLAIMABLE")}</chakra.div>
+          <chakra.div fontSize={"2xl"}>
             {readFn.isLoading || typeof readFn.data === "undefined" ? (
               <Spinner />
             ) : (
@@ -71,7 +71,7 @@ export default function EarlyUserReward({ address }: { address: `0x${string}` })
             <chakra.span color={"gray.400"} fontSize={"lg"} ml={1}>
               YMWK
             </chakra.span>
-          </chakra.p>
+          </chakra.div>
         </HStack>
       </CardBody>
       <CardFooter pt={0} justifyContent={"flex-end"}>
@@ -84,7 +84,7 @@ export default function EarlyUserReward({ address }: { address: `0x${string}` })
           }
           isDisabled={(typeof readFn.data === "bigint" && readFn.data === 0n) || !writeFn.write}
           onClick={() => {
-            writeFn.write!();
+            writeFn.write?.();
           }}
           variant={"solid"}
           colorScheme="green"
