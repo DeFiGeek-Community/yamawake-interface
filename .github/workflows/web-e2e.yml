@@ -70,7 +70,6 @@ jobs:
       - name: Create env file for Yamawake
         run: |
           touch yamawake/.env
-          echo ETHERSCAN_API_KEY=${{ secrets.ETHERSCAN_API_KEY }} >> yamawake/.env
           echo INFURA_API_TOKEN=${{ secrets.INFURA_API_TOKEN }} >> yamawake/.env
           echo FOUNDATION_PRIVATE_KEY=${{ secrets.PRIVATE_KEY }} >> yamawake/.env
 
@@ -101,10 +100,10 @@ jobs:
           echo TEST_TOKEN=${{ vars.TEST_TOKEN }} >> yamawake-interface/.env
           echo NEXT_PUBLIC_WALLET_CONNECT_ID=${{ secrets.WALLET_CONNECT_ID }} >> yamawake-interface/.env
           echo NEXT_PUBLIC_INFURA_API_TOKEN=${{ secrets.INFURA_API_TOKEN }} >> yamawake-interface/.env
-          echo AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} >> yamawake-interface/.env
-          echo AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} >> yamawake-interface/.env
-          echo AWS_REGION=${{ secrets.AWS_REGION }} >> yamawake-interface/.env
-          echo AWS_DYNAMO_TABLE_NAME=${{ secrets.AWS_DYNAMO_TABLE_NAME }} >> yamawake-interface/.env
+          echo _AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} >> yamawake-interface/.env
+          echo _AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} >> yamawake-interface/.env
+          echo _AWS_REGION=${{ secrets.AWS_REGION }} >> yamawake-interface/.env
+          echo _AWS_DYNAMO_TABLE_NAME=${{ secrets.AWS_DYNAMO_TABLE_NAME }} >> yamawake-interface/.env
           echo NEXT_PUBLIC_SUBGRAPH_ENDPOINT=${{ vars.SUBGRAPH_ENDPOINT }} >> yamawake-interface/.env
           echo TEST_PRIVATE_KEY=${{ secrets.PRIVATE_KEY }} >> yamawake-interface/.env
           echo TEST_PROVIDER_ENDPOINT=http://localhost:8545 >> yamawake-interface/.env
