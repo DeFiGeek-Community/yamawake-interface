@@ -33,7 +33,7 @@ export default function AuctionFormWrapper(props: AuctionFormWrapperParams) {
           <QuestionIcon mb={1} ml={1} />
         </Tooltip>
         <Link
-          href="https://docs.yamawake.xyz/shi-yang-shui-ming/template"
+          href="https://docs.yamawake.xyz/shi-yang-shuo-ming/template/templatev1"
           target="_blank"
           float={"right"}
           ml={4}
