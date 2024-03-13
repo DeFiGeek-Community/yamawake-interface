@@ -25,7 +25,8 @@ export const useLocale = () => {
   };
 
   useEffect(() => {
-    const defaultLocale = new Date().getTimezoneOffset() === -540 ? "ja" : "en";
+    const userLanguage = navigator.language.split("-")[0].toLowerCase();
+    const defaultLocale = ["ja", "en"].includes(userLanguage) ? userLanguage : "en";
     const value = (localStorage.getItem("locale") as "ja" | "en") || defaultLocale;
     setLocale(value);
   }, []);
