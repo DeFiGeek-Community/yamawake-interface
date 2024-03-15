@@ -26,6 +26,13 @@ const config: any = createConfig({
   autoConnect: true,
   connectors: [
     new MetaMaskConnector({ chains }),
+    new InjectedConnector({
+      chains,
+      options: {
+        name: "Injected Wallet",
+        shimDisconnect: false,
+      },
+    }),
     new CoinbaseWalletConnector({
       chains,
       options: {
@@ -45,13 +52,6 @@ const config: any = createConfig({
         },
       },
     }),
-    // new InjectedConnector({
-    //   chains,
-    //   options: {
-    //     name: 'Injected',
-    //     shimDisconnect: false,
-    //   },
-    // }),
   ],
   publicClient,
   webSocketPublicClient,

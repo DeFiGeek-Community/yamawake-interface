@@ -68,7 +68,7 @@ export default function ProvidersList({
                     {!connector.ready && " (unsupported)"}
                     {isLoading && connector.id === pendingConnector?.id && " (connecting)"}
                   </>
-                  <ProviderLogo width={"30px"} connectorId={connector.id} />
+                  <ProviderLogo width={"30px"} fontSize={"30px"} connectorId={connector.id} />
                 </Flex>
               </Button>
             ))}
