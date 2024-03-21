@@ -1,3 +1,4 @@
+import { mainnet, sepolia, arbitrum, hardhat } from "viem/chains";
 import { Chain, configureChains, createConfig } from "wagmi";
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import { infuraProvider } from "wagmi/providers/infura";
@@ -10,11 +11,11 @@ import { WalletConnectConnector } from "@wagmi/core/connectors/walletConnect";
 import { getChain } from "../utils/chain";
 
 function getSupportedChain(): Chain[] {
-  return [getChain(Number(process.env.NEXT_PUBLIC_CHAIN_ID))];
+  return [mainnet, sepolia, arbitrum, hardhat];
 }
 
 const { chains, publicClient, webSocketPublicClient } = configureChains<Chain>(
-  getSupportedChain(),
+  [getChain(Number(process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID!))],
   [
     infuraProvider({ apiKey: process.env.NEXT_PUBLIC_INFURA_API_TOKEN! }),
     alchemyProvider({ apiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY! }),
@@ -25,22 +26,22 @@ const { chains, publicClient, webSocketPublicClient } = configureChains<Chain>(
 const config: any = createConfig({
   autoConnect: true,
   connectors: [
-    new MetaMaskConnector({ chains }),
+    new MetaMaskConnector({ chains: getSupportedChain() }),
     new InjectedConnector({
-      chains,
+      chains: getSupportedChain(),
       options: {
         name: "Injected Wallet",
-        shimDisconnect: false,
+        shimDisconnect: true,
       },
     }),
     new CoinbaseWalletConnector({
-      chains,
+      chains: getSupportedChain(),
       options: {
         appName: "Yamawake",
       },
     }),
     new WalletConnectConnector({
-      chains,
+      chains: getSupportedChain(),
       options: {
         projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_ID!,
         qrModalOptions: {
