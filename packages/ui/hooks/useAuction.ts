@@ -1,8 +1,9 @@
 import useSWR, { SWRResponse } from "swr";
 import { zeroAddress } from "viem";
-import client from "lib/graphql/client";
 import { GET_SALE_QUERY } from "lib/graphql/query";
 import { BaseAuction } from "lib/types/Auction";
+import { useContext } from "react";
+import GraphqlClientContext from "../contexts/GraphqlClientContext";
 
 type QueryResponse = {
   auction: BaseAuction;
@@ -15,6 +16,8 @@ const useAuction = (
   const params = new URLSearchParams({
     address,
   }).toString();
+
+  const { client } = useContext(GraphqlClientContext);
 
   const fetcher = async (key: string): Promise<any | undefined> => {
     const result = await client.request<QueryResponse>(GET_SALE_QUERY, {

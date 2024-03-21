@@ -10,8 +10,9 @@ import {
   LIST_PARTICIPATED_SALE_QUERY,
 } from "lib/graphql/query";
 import { AuctionProps, BaseAuction } from "lib/types/Auction";
-import client from "lib/graphql/client";
 import { zeroAddress } from "viem";
+import { useContext } from "react";
+import GraphqlClientContext from "../contexts/GraphqlClientContext";
 
 interface SWRAuctionStore {
   auctions: AuctionProps[];
@@ -42,6 +43,7 @@ export const useSWRAuctions = (
   config: AuctionsParams & SWRConfiguration,
   queryType: QueryType = QueryType.ACTIVE_AND_UPCOMING,
 ): SWRAuctionStore => {
+  const { client } = useContext(GraphqlClientContext);
   const getQuery = (queryType: QueryType): string => {
     switch (queryType) {
       case QueryType.ACTIVE_AND_UPCOMING:

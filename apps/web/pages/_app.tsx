@@ -4,17 +4,20 @@ import { WagmiConfig } from "wagmi";
 import theme from "ui/themes";
 import config from "lib/connector";
 import { CurrentUserProvider } from "ui/components/providers/CurrentUserProvider";
+import { GraphqlClientProvider } from "ui/components/providers/GraphqlClientProvider";
 import "assets/css/styles.css";
 
 export default function MyApp({ Component, pageProps }: AppProps) {
   return (
     <WagmiConfig config={config}>
-      <ChakraProvider theme={theme}>
-        <CurrentUserProvider>
-          <ColorModeScript initialColorMode={"dark"} />
-          <Component {...pageProps} />
-        </CurrentUserProvider>
-      </ChakraProvider>
+      <GraphqlClientProvider>
+        <ChakraProvider theme={theme}>
+          <CurrentUserProvider>
+            <ColorModeScript initialColorMode={"dark"} />
+            <Component {...pageProps} />
+          </CurrentUserProvider>
+        </ChakraProvider>
+      </GraphqlClientProvider>
     </WagmiConfig>
   );
 }
