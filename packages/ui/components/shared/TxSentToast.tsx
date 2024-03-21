@@ -10,7 +10,7 @@ import {
   Link,
 } from "@chakra-ui/react";
 import { getEtherscanLink } from "lib/utils";
-import { getChain } from "lib/utils/chain";
+import { useNetwork } from "wagmi";
 
 export interface TxSentToast extends ToastProps {
   txid: `0x${string}`;
@@ -37,6 +37,7 @@ export default function TxSentToast(props: TxSentToast) {
         description: `toast-${id}-description`,
       }
     : undefined;
+  const { chain } = useNetwork();
 
   return (
     <Alert
@@ -57,14 +58,7 @@ export default function TxSentToast(props: TxSentToast) {
         {title && <AlertTitle id={ids?.title}>{title}</AlertTitle>}
         <AlertDescription display="block">
           {description}
-          <Link
-            href={getEtherscanLink(
-              getChain(Number(process.env.NEXT_PUBLIC_CHAIN_ID)).name.toLowerCase(),
-              txid,
-              "tx",
-            )}
-            target={"_blank"}
-          >
+          <Link href={getEtherscanLink(chain, txid, "tx")} target={"_blank"}>
             Etherscan <ExternalLinkIcon ml={1} />
           </Link>
         </AlertDescription>

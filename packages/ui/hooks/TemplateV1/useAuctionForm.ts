@@ -4,6 +4,7 @@ import {
   erc20ABI,
   useContractRead,
   useToken,
+  useNetwork,
 } from "wagmi";
 import { isAddress } from "viem";
 import { AbiCoder, Interface } from "ethers";
@@ -16,6 +17,7 @@ import { AuctionForm } from "lib/types/Auction";
 import Big, { multiply } from "lib/utils/bignumber";
 import FactoryABI from "lib/constants/abis/Factory.json";
 import { TEMPLATE_V1_NAME } from "lib/constants/templates";
+import { CONTRACT_ADDRESSES } from "lib/constants/contracts";
 import { creatingAuctionAtom, waitingCreationTxAtom } from "lib/store";
 import "rsuite/dist/rsuite-no-reset.min.css";
 import "assets/css/rsuite-override.css";
@@ -51,6 +53,7 @@ export default function useAuctionForm({
 } {
   const [waitingTx, setWaitingTx] = useAtom(waitingCreationTxAtom);
   const [creatingAuction, setCreatingAuction] = useAtom(creatingAuctionAtom);
+  const { chain } = useNetwork();
   const { t } = useLocale();
   const emptyAuction: AuctionForm = {
     templateName: TEMPLATE_V1_NAME,
@@ -186,14 +189,14 @@ export default function useAuctionForm({
   });
 
   const prepareFn = usePrepareContractWrite({
-    address: process.env.NEXT_PUBLIC_FACTORY_ADDRESS as `0x${string}`, //factory
+    address: chain ? CONTRACT_ADDRESSES[chain.id].FACTORY : "0x", //factory
     abi: FactoryABI,
     functionName: "deployAuction",
     args: [
       debouncedAuction.templateName, //TEMPLATE_V1_NAME
       getEncodedArgs(),
     ],
-    enabled: !!debouncedAuction.token && isAddress(debouncedAuction.token),
+    enabled: !!chain && !!debouncedAuction.token && isAddress(debouncedAuction.token),
   });
 
   const writeFn = useContractWrite({
@@ -213,7 +216,7 @@ export default function useAuctionForm({
   const approvals = useApprove({
     targetAddress: debouncedAuction.token,
     owner: address as `0x${string}`,
-    spender: process.env.NEXT_PUBLIC_FACTORY_ADDRESS as `0x${string}`,
+    spender: chain ? CONTRACT_ADDRESSES[chain.id].FACTORY : "0x",
     onSuccessWrite(data) {
       onApprovalTxSent && onApprovalTxSent(data);
     },
@@ -221,7 +224,7 @@ export default function useAuctionForm({
       onApprovalTxConfirmed && onApprovalTxConfirmed(data);
       prepareFn.refetch();
     },
-    enabled: !!debouncedAuction.token && isAddress(debouncedAuction.token),
+    enabled: !!chain && !!debouncedAuction.token && isAddress(debouncedAuction.token),
   });
 
   return {

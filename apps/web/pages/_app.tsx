@@ -8,13 +8,13 @@ import "assets/css/styles.css";
 
 export default function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <ChakraProvider theme={theme}>
-      <WagmiConfig config={config}>
+    <WagmiConfig config={config}>
+      <ChakraProvider theme={theme}>
         <CurrentUserProvider>
           <ColorModeScript initialColorMode={"dark"} />
           <Component {...pageProps} />
         </CurrentUserProvider>
-      </WagmiConfig>
-    </ChakraProvider>
+      </ChakraProvider>
+    </WagmiConfig>
   );
 }

@@ -39,7 +39,6 @@ module.exports = defineConfig({
     specPattern: 'tests/e2e/specs/**/*.{js,jsx,ts,tsx}',
     supportFile,
     env: {
-      FACTORY_ADDRESS: process.env.NEXT_PUBLIC_FACTORY_ADDRESS,
       PROVIDER_ENDPOINT: process.env.TEST_PROVIDER_ENDPOINT,
       PRIVATE_KEY: process.env.TEST_PRIVATE_KEY,
       AUCTION_TOKEN: process.env.TEST_TOKEN,

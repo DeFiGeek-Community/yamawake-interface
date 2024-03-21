@@ -3,8 +3,10 @@ import {
   usePrepareContractWrite,
   useContractWrite,
   useWaitForTransaction,
+  useNetwork,
 } from "wagmi";
 import DistributorABI from "lib/constants/abis/Distributor.json";
+import { CONTRACT_ADDRESSES } from "lib/constants/contracts";
 
 export default function useEarlyUserReward({
   address,
@@ -23,8 +25,9 @@ export default function useEarlyUserReward({
   writeFn: ReturnType<typeof useContractWrite>;
   waitFn: ReturnType<typeof useWaitForTransaction>;
 } {
+  const { chain } = useNetwork();
   const config = {
-    address: process.env.NEXT_PUBLIC_DISTRIBUTOR_ADDRESS as `0x${string}`,
+    address: chain ? CONTRACT_ADDRESSES[chain.id].DISTRIBUTOR : "0x",
     abi: DistributorABI,
   };
   const readFn = useContractRead<typeof DistributorABI, "scores", bigint>({
@@ -32,14 +35,14 @@ export default function useEarlyUserReward({
     functionName: "scores",
     args: [address],
     watch: true,
-    enabled: !!address,
+    enabled: !!chain && !!address,
   });
 
   const { config: claimConfig } = usePrepareContractWrite({
     ...config,
     functionName: "claim",
     args: [address],
-    enabled: !!address && !!readFn.data,
+    enabled: !!chain && !!address && !!readFn.data,
   });
 
   const writeFn = useContractWrite({

@@ -93,9 +93,6 @@ jobs:
       - name: Create env file for Yamawake interface
         run: |
           touch yamawake-interface/.env
-          echo NEXT_PUBLIC_FACTORY_ADDRESS=${{ vars.FACTORY_ADDRESS }} >> yamawake-interface/.env
-          echo NEXT_PUBLIC_DISTRIBUTOR_ADDRESS=${{ vars.DISTRIBUTOR_ADDRESS }} >> yamawake-interface/.env
-          echo NEXT_PUBLIC_YMWK_ADDRESS=${{ vars.YMWK_ADDRESS }} >> yamawake-interface/.env
           echo NEXT_PUBLIC_CHAIN_ID=${{ vars.DEFAULT_CHAIN_ID }} >> yamawake-interface/.env
           echo NETWORK_NAME=${{ vars.NETWORK_NAME }} >> yamawake-interface/.env
           echo TEST_TOKEN=${{ vars.TEST_TOKEN }} >> yamawake-interface/.env

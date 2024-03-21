@@ -200,11 +200,7 @@ export default memo(function DetailPage({
                 </Tag>
                 <Link
                   ml={1}
-                  href={getEtherscanLink(
-                    getChain(Number(process.env.NEXT_PUBLIC_CHAIN_ID)).name.toLowerCase(),
-                    auction.auctionToken.id as `0x${string}`,
-                    "token",
-                  )}
+                  href={getEtherscanLink(chain, auction.auctionToken.id as `0x${string}`, "token")}
                   target={"_blank"}
                   fontSize={{ base: "xs", lg: "sm" }}
                   display={{ base: "block", lg: "inline" }}
@@ -232,11 +228,7 @@ export default memo(function DetailPage({
                   fontFamily={"'Meiryo', 'Osaka'"}
                   letterSpacing={"-0.5px"}
                   fontSize={"xs"}
-                  href={getEtherscanLink(
-                    getChain(Number(process.env.NEXT_PUBLIC_CHAIN_ID)).name.toLowerCase(),
-                    auction.id as `0x${string}`,
-                    "address",
-                  )}
+                  href={getEtherscanLink(chain, auction.id as `0x${string}`, "address")}
                   target={"_blank"}
                   display={{ base: "block", lg: "inline" }}
                 >
