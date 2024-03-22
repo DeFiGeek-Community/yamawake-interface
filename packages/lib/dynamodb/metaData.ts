@@ -10,10 +10,10 @@ import { TEMPLATE_V1_NAME } from "../constants/templates";
 import { MetaData, validateMetaData } from "../types/Auction";
 
 const dbClient = new DynamoDBClient({
-  region: process.env.AWS_REGION as string,
+  region: process.env._AWS_REGION as string,
   credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID as string,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY as string,
+    accessKeyId: process.env._AWS_ACCESS_KEY_ID as string,
+    secretAccessKey: process.env._AWS_SECRET_ACCESS_KEY as string,
   },
 });
 
@@ -37,7 +37,7 @@ export async function scanMetaData(
   lastEvaluatedKeyCreatedAt?: string,
 ): Promise<MetaData[] | undefined> {
   const command = new ScanCommand({
-    TableName: process.env.AWS_DYNAMO_TABLE_NAME,
+    TableName: process.env._AWS_DYNAMO_TABLE_NAME,
     Limit: 10,
     ExclusiveStartKey:
       lastEvaluatedKeyId && lastEvaluatedKeyCreatedAt
@@ -52,7 +52,7 @@ export async function scanMetaData(
 
 export async function fetchMetaData(auctionId: string): Promise<MetaData | undefined> {
   const command = new GetItemCommand({
-    TableName: process.env.AWS_DYNAMO_TABLE_NAME,
+    TableName: process.env._AWS_DYNAMO_TABLE_NAME,
     Key: { AuctionId: { S: auctionId } },
   });
   const output = await dbClient.send(command);
@@ -62,7 +62,7 @@ export async function fetchMetaData(auctionId: string): Promise<MetaData | undef
 }
 
 export async function batchFetchMetaData(auctionIds: string[]): Promise<MetaData[]> {
-  const tableName = process.env.AWS_DYNAMO_TABLE_NAME as string;
+  const tableName = process.env._AWS_DYNAMO_TABLE_NAME as string;
   const command = new BatchGetItemCommand({
     RequestItems: {
       [tableName]: {
@@ -104,7 +104,7 @@ export async function addMetaData(auction: MetaData): Promise<MetaData | undefin
     TemplateName: { S: TEMPLATE_V1_NAME },
   };
   const command = new PutItemCommand({
-    TableName: process.env.AWS_DYNAMO_TABLE_NAME,
+    TableName: process.env._AWS_DYNAMO_TABLE_NAME,
     Item: item,
   });
   const output = await dbClient.send(command);
@@ -121,7 +121,7 @@ export async function updateAuction(auction: MetaData): Promise<MetaData | undef
   }
 
   const command = new UpdateItemCommand({
-    TableName: process.env.AWS_DYNAMO_TABLE_NAME,
+    TableName: process.env._AWS_DYNAMO_TABLE_NAME,
     Key: { AuctionId: { S: (auction.id as string).toLowerCase() } },
     UpdateExpression:
       "set Title = :Title, Description=:Description, Terms = :Terms, ProjectURL = :ProjectURL, LogoURL = :LogoURL, OtherURL = :OtherURL, TargetTotalRaised = :TargetTotalRaised, MaximumTotalRaised = :MaximumTotalRaised, TemplateName = :TemplateName",
