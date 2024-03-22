@@ -14,7 +14,14 @@
         "NEXT_PUBLIC_ALCHEMY_API_KEY",
         "NEXT_PUBLIC_GIT_ID",
         "NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA",
-        "NEXT_PUBLIC_SUBGRAPH_ENDPOINT"
+        "NEXT_PUBLIC_SUBGRAPH_ENDPOINT",
+        "IRON_SESSION_COOKIE_NAME",
+        "IRON_SESSION_PASSWORD",
+        "NODE_ENV",
+        "_AWS_REGION",
+        "_AWS_ACCESS_KEY_ID",
+        "_AWS_SECRET_ACCESS_KEY",
+        "_AWS_DYNAMO_TABLE_NAME"
       ]
     },
     "lint": {},
