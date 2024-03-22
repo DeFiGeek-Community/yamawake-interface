@@ -1,7 +1,15 @@
 import { withIronSessionApiRoute } from "iron-session/next";
 import { NextApiRequest, NextApiResponse } from "next";
 import { generateNonce } from "siwe";
-import ironOptions from "lib/constants/ironOptions";
+import { IronSessionOptions } from "iron-session";
+
+const ironOptions: IronSessionOptions = {
+  cookieName: process.env.IRON_SESSION_COOKIE_NAME!,
+  password: process.env.IRON_SESSION_PASSWORD!,
+  cookieOptions: {
+    secure: process.env.NODE_ENV === "production",
+  },
+};
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const { method } = req;
