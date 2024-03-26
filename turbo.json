@@ -22,7 +22,10 @@
         "_AWS_REGION",
         "_AWS_ACCESS_KEY_ID",
         "_AWS_SECRET_ACCESS_KEY",
-        "_AWS_DYNAMO_TABLE_NAME"
+        "_AWS_DYNAMO_TABLE_NAME_MAINNET",
+        "_AWS_DYNAMO_TABLE_NAME_ARBITRUM",
+        "_AWS_DYNAMO_TABLE_NAME_SEPOLIA",
+        "_AWS_DYNAMO_TABLE_NAME_HARDHAT"
       ]
     },
     "lint": {},

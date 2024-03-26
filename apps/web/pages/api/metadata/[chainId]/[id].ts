@@ -1,7 +1,10 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { withIronSessionApiRoute } from "iron-session/next";
+import { Chain, hardhat } from "viem/chains";
 import { DBClient } from "lib/dynamodb/metaData";
 import { IronSessionOptions } from "iron-session";
+import { getSupportedChain } from "lib/utils/chain";
+import { DYNAMODB_TABLES } from "lib/constants/dynamoDBTables";
 
 const ironOptions: IronSessionOptions = {
   cookieName: process.env.IRON_SESSION_COOKIE_NAME!,
@@ -11,26 +14,28 @@ const ironOptions: IronSessionOptions = {
   },
 };
 
-const dbClient = new DBClient({
-  region: process.env._AWS_REGION as string,
-  accessKey: process.env._AWS_ACCESS_KEY_ID as string,
-  secretKey: process.env._AWS_SECRET_ACCESS_KEY as string,
-  tableName: process.env._AWS_DYNAMO_TABLE_NAME as string,
-});
-
-const availableNetwork = [Number(process.env.NEXT_PUBLIC_CHAIN_ID)];
-
-const requireAvailableNetwork = (chainId: number) => {
-  if (!availableNetwork.includes(chainId)) throw new Error("Wrong network");
-};
-
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const { method } = req;
   switch (method) {
     case "GET":
       try {
-        const { id } = req.query;
+        const { id, chainId } = req.query;
         // requireAvailableNetwork(chainId);
+        const defaultChain =
+          getSupportedChain(Number(process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID!)) ?? hardhat;
+        let requestedChain: Chain;
+        if (typeof chainId === "string") {
+          requestedChain = getSupportedChain(chainId) ?? defaultChain;
+        } else {
+          return res.status(404).end("No auction found");
+        }
+        const dbClient = new DBClient({
+          region: process.env._AWS_REGION as string,
+          accessKey: process.env._AWS_ACCESS_KEY_ID as string,
+          secretKey: process.env._AWS_SECRET_ACCESS_KEY as string,
+          tableName: DYNAMODB_TABLES[requestedChain.id],
+        });
+
         const metaData = await dbClient.fetchMetaData(id as string);
         res.json({ metaData });
       } catch (_error: any) {

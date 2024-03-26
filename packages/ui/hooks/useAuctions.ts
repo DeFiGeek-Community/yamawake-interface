@@ -11,8 +11,7 @@ import {
 } from "lib/graphql/query";
 import { AuctionProps, BaseAuction } from "lib/types/Auction";
 import { zeroAddress } from "viem";
-import { useContext } from "react";
-import GraphqlClientContext from "../contexts/GraphqlClientContext";
+import { GraphQLChainClient } from "lib/graphql/client";
 
 interface SWRAuctionStore {
   auctions: AuctionProps[];
@@ -42,8 +41,9 @@ const NOW = Math.floor(new Date().getTime() / 1000);
 export const useSWRAuctions = (
   config: AuctionsParams & SWRConfiguration,
   queryType: QueryType = QueryType.ACTIVE_AND_UPCOMING,
+  chainId?: number,
 ): SWRAuctionStore => {
-  const { client } = useContext(GraphqlClientContext);
+  const client = new GraphQLChainClient({ chainId });
   const getQuery = (queryType: QueryType): string => {
     switch (queryType) {
       case QueryType.ACTIVE_AND_UPCOMING:
@@ -71,7 +71,7 @@ export const useSWRAuctions = (
     const id = config.id ? config.id : zeroAddress;
     const now = NOW;
 
-    return { query, variables: { skip, first, now, id } };
+    return { query, variables: { skip, first, now, id, chainId } };
   };
 
   const fetcher = async (

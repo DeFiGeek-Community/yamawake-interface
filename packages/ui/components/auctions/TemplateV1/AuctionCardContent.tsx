@@ -33,18 +33,22 @@ import {
 } from "lib/utils";
 import { useLocale } from "../../../hooks/useLocale";
 import AuctionCardCountdown from "../AuctionCardCountdown";
+import { getSupportedChain } from "lib/utils/chain";
 
 export default function AuctionCardContent({
+  chainId,
   auctionProps,
   editable = false,
 }: {
+  chainId: number;
   auctionProps: AuctionProps;
   editable?: boolean;
 }) {
   const auction = new TemplateV1(auctionProps);
   const { onOpen, isOpen, onClose } = useDisclosure();
   const { t, locale } = useLocale();
-  const { data, mutate, error } = useSWRMetaData(auction.id as string);
+  const chain = getSupportedChain(chainId);
+  const { data, mutate, error } = useSWRMetaData(chain?.id, auction.id as string);
 
   const card = (
     <Card
@@ -74,7 +78,10 @@ export default function AuctionCardContent({
               <chakra.div flex={11} pr={4}>
                 <Heading size="lg">
                   {editable ? (
-                    <Link _hover={{ opacity: 0.75 }} href={`/auctions/${auction.id}`}>
+                    <Link
+                      _hover={{ opacity: 0.75 }}
+                      href={`/auctions/${chain?.name.toLowerCase()}/${auction.id}`}
+                    >
                       {data?.metaData?.title ? data?.metaData?.title : t("UNNAMED_SALE")}
                     </Link>
                   ) : (
@@ -189,7 +196,7 @@ export default function AuctionCardContent({
   } else {
     return (
       <Link
-        href={`/auctions/${auction.id}`}
+        href={`/auctions/${chain?.name.toLowerCase()}/${auction.id}`}
         transition={"filter"}
         transitionDuration={"0.3s"}
         w={{ base: "100%" }}

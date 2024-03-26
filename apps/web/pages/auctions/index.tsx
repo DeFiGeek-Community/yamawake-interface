@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   Container,
   Button,
@@ -12,6 +13,8 @@ import {
   Alert,
   AlertIcon,
 } from "@chakra-ui/react";
+import { Chain } from "viem/chains";
+import { useNetwork } from "wagmi";
 import { AuctionProps } from "lib/types/Auction";
 import Layout from "ui/components/layouts/layout";
 import AuctionCard, { AuctionCardSkeleton } from "ui/components/auctions/AuctionCard";
@@ -19,6 +22,7 @@ import { useSWRAuctions } from "ui/hooks/useAuctions";
 import { QueryType } from "lib/graphql/query";
 import { useLocale } from "ui/hooks/useLocale";
 import MetaTags from "ui/components/layouts/MetaTags";
+import { getSupportedChain } from "lib/utils/chain";
 
 export default function AuctionPage() {
   const {
@@ -40,6 +44,14 @@ export default function AuctionPage() {
     loadMoreAuctions: loadMoreClosedAuctions,
   } = useSWRAuctions({}, QueryType.CLOSED);
   const { t } = useLocale();
+  const { chain } = useNetwork();
+  const [requestedChain, setRequestedChain] = useState<Chain>(
+    getSupportedChain(Number(process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID!))!,
+  );
+
+  useEffect(() => {
+    if (chain) setRequestedChain(chain);
+  }, [chain]);
 
   return (
     <Layout>
@@ -69,7 +81,13 @@ export default function AuctionPage() {
                   </>
                 ) : (
                   activeAuctions.map((auctionProps: AuctionProps) => {
-                    return <AuctionCard key={auctionProps.id} auctionProps={auctionProps} />;
+                    return (
+                      <AuctionCard
+                        chainId={requestedChain.id}
+                        key={auctionProps.id}
+                        auctionProps={auctionProps}
+                      />
+                    );
                   })
                 )}
                 {!isLastActiveAuctions && activeAuctions.length > 0 && (
@@ -130,7 +148,13 @@ export default function AuctionPage() {
                   </>
                 ) : (
                   closedAuctions.map((auctionProps: AuctionProps) => {
-                    return <AuctionCard key={auctionProps.id} auctionProps={auctionProps} />;
+                    return (
+                      <AuctionCard
+                        chainId={requestedChain.id}
+                        key={auctionProps.id}
+                        auctionProps={auctionProps}
+                      />
+                    );
                   })
                 )}
                 {!isLastClosedAuctions && closedAuctions.length > 0 && (

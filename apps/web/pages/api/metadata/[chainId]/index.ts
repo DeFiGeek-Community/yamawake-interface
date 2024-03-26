@@ -1,4 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
+import { IronSessionOptions } from "iron-session";
 import { withIronSessionApiRoute } from "iron-session/next";
 import { erc20ABI } from "wagmi";
 import {
@@ -10,11 +11,11 @@ import {
   GetContractReturnType,
   Transport,
 } from "viem";
-import { Chain } from "viem/chains";
-import { getChain } from "lib/utils/chain";
+import { Chain, hardhat } from "viem/chains";
+import { getSupportedChain, isSupportedChain } from "lib/utils/chain";
 import { DBClient } from "lib/dynamodb/metaData";
 import BaseTemplateABI from "lib/constants/abis/BaseTemplate.json";
-import { IronSessionOptions } from "iron-session";
+import { DYNAMODB_TABLES } from "lib/constants/dynamoDBTables";
 
 const ironOptions: IronSessionOptions = {
   cookieName: process.env.IRON_SESSION_COOKIE_NAME!,
@@ -24,26 +25,17 @@ const ironOptions: IronSessionOptions = {
   },
 };
 
-const dbClient = new DBClient({
-  region: process.env._AWS_REGION as string,
-  accessKey: process.env._AWS_ACCESS_KEY_ID as string,
-  secretKey: process.env._AWS_SECRET_ACCESS_KEY as string,
-  tableName: process.env._AWS_DYNAMO_TABLE_NAME as string,
-});
-
-const availableNetwork = [Number(process.env.NEXT_PUBLIC_CHAIN_ID)];
-
 const getViemProvider = (chainId: number) => {
-  const chain = getChain(chainId);
-  const chainName = chain.name.toLowerCase();
+  const chain = getSupportedChain(chainId);
+  if (!chain) throw new Error("Wrong network");
+
   // const alchemy = http(`https://eth-${chainName}.g.alchemy.com/v2/${}`)
-  const infura = http(
-    `https://${chainName}.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_API_TOKEN}`,
-  );
+  const rpc = chain.rpcUrls.infura
+    ? http(`${chain.rpcUrls.infura.http}/${process.env.NEXT_PUBLIC_INFURA_API_TOKEN}`)
+    : http(`${chain.rpcUrls.public.http}`);
   const client = createPublicClient({
-    // chain: getViemChain(chainName),
     chain,
-    transport: fallback([infura]),
+    transport: fallback([rpc]),
   });
   return client;
 };
@@ -75,9 +67,10 @@ const requireContractOwner = (
   });
 };
 
-const requireAvailableNetwork = (req: NextApiRequest) => {
+const requireAvailableNetwork = (req: NextApiRequest): number => {
   if (!req.session.siwe) throw new Error("Sign in required");
-  if (!availableNetwork.includes(req.session.siwe.chainId)) throw new Error("Wrong network");
+  if (!isSupportedChain(req.session.siwe.chainId)) throw new Error("Wrong network");
+  return req.session.siwe.chainId;
 };
 
 const getTokenInfo = async (tokenAddress: `0x${string}`, provider: PublicClient) => {
@@ -99,7 +92,19 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   switch (method) {
     case "GET":
       try {
-        const { lastEvaluatedKeyId, lastEvaluatedKeyCreatedAt } = req.query;
+        const { lastEvaluatedKeyId, lastEvaluatedKeyCreatedAt, chainId } = req.query;
+        let requestedChain: Chain | undefined;
+        if (typeof chainId === "string") {
+          requestedChain = getSupportedChain(chainId);
+        }
+        if (!requestedChain) return res.status(404).end("No auction found");
+
+        const dbClient = new DBClient({
+          region: process.env._AWS_REGION as string,
+          accessKey: process.env._AWS_ACCESS_KEY_ID as string,
+          secretKey: process.env._AWS_SECRET_ACCESS_KEY as string,
+          tableName: DYNAMODB_TABLES[requestedChain.id],
+        });
         const metaData = await dbClient.scanMetaData(
           lastEvaluatedKeyId as string,
           lastEvaluatedKeyCreatedAt as string,
@@ -112,7 +117,17 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       break;
     case "POST":
       try {
-        requireAvailableNetwork(req);
+        const sessionChainId = requireAvailableNetwork(req);
+        const { chainId } = req.query;
+        if (Number(chainId) !== sessionChainId) throw new Error("Network does not match");
+
+        const dbClient = new DBClient({
+          region: process.env._AWS_REGION as string,
+          accessKey: process.env._AWS_ACCESS_KEY_ID as string,
+          secretKey: process.env._AWS_SECRET_ACCESS_KEY as string,
+          tableName: DYNAMODB_TABLES[sessionChainId],
+        });
+
         const { metaData } = await requireContractOwner(req);
         const result = await dbClient.addMetaData(metaData);
         res.json({ result });
@@ -123,7 +138,17 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       break;
     case "PUT":
       try {
-        requireAvailableNetwork(req);
+        const sessionChainId = requireAvailableNetwork(req);
+        const { chainId } = req.query;
+        if (Number(chainId) !== sessionChainId) throw new Error("Network does not match");
+
+        const dbClient = new DBClient({
+          region: process.env._AWS_REGION as string,
+          accessKey: process.env._AWS_ACCESS_KEY_ID as string,
+          secretKey: process.env._AWS_SECRET_ACCESS_KEY as string,
+          tableName: DYNAMODB_TABLES[sessionChainId],
+        });
+
         const { metaData } = await requireContractOwner(req);
         const result = await dbClient.updateAuction(metaData);
         res.json({ result });

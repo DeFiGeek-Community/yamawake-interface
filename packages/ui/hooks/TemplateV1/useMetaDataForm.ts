@@ -1,14 +1,17 @@
 import { useEffect, useState } from "react";
 import { useFormik, FormikProps } from "formik";
 import { MetaData, validateMetaData } from "lib/types/Auction";
+import { getSupportedChain } from "lib/utils/chain";
 
 export default function useMetaDataForm({
+  chainId,
   contractId,
   minRaisedAmount,
   onSubmitSuccess,
   onSubmitError,
   auctionMetaData,
 }: {
+  chainId: number;
   contractId?: `0x${string}`;
   minRaisedAmount: number; // Numbers that take decimals into account. e.g. 10
   onSubmitSuccess?: (result: Response) => void;
@@ -37,7 +40,10 @@ export default function useMetaDataForm({
 
   const handleSubmit = async (auctionData: MetaData) => {
     try {
-      const result = await fetch("/api/metadata", {
+      const chain = getSupportedChain(chainId);
+      if (!chain) throw Error("Wrong chain");
+
+      const result = await fetch(`/api/metadata/${chain.id}`, {
         credentials: "same-origin",
         method: auctionMetaData ? "PUT" : "POST",
         headers: {

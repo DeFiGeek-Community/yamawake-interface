@@ -1,5 +1,5 @@
-import { useContext } from "react";
-import Router from "next/router";
+import { useContext, useEffect, useState } from "react";
+import Router, { useRouter } from "next/router";
 import { HStack, Container, Alert, AlertIcon, Heading, Text, Flex, Button } from "@chakra-ui/react";
 import CurrentUserContext from "ui/contexts/CurrentUserContext";
 import Layout from "ui/components/layouts/layout";
@@ -10,9 +10,19 @@ import { useLocale } from "ui/hooks/useLocale";
 import { AuctionProps } from "lib/types/Auction";
 import { QueryType } from "lib/graphql/query";
 import MetaTags from "ui/components/layouts/MetaTags";
+import { useNetwork } from "wagmi";
+import { Chain } from "viem/chains";
+import { getSupportedChain } from "lib/utils/chain";
 
 export default function Web() {
+  const router = useRouter();
+  const { chainName } = router.query;
   const { currentUser, mutate } = useContext(CurrentUserContext);
+  const { t } = useLocale();
+  const { chain } = useNetwork();
+  const [requestedChain, setRequestedChain] = useState<Chain>(
+    getSupportedChain(Number(process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID!))!,
+  );
   const {
     auctions: activeAuctions,
     isLast: isLastActiveAuctions,
@@ -20,8 +30,17 @@ export default function Web() {
     isValidating: isValidatingActiveAuctions,
     error: activeAuctionsError,
     loadMoreAuctions: loadMoreActiveAuctions,
-  } = useSWRAuctions({ first: 5, keySuffix: "top" }, QueryType.ACTIVE);
-  const { t } = useLocale();
+  } = useSWRAuctions({ first: 5, keySuffix: "top" }, QueryType.ACTIVE, requestedChain.id);
+
+  useEffect(() => {
+    let toChain: Chain | undefined;
+    if (typeof chainName === "string") {
+      toChain = getSupportedChain(chainName);
+    } else if (chain) {
+      toChain = toChain;
+    }
+    if (toChain) setRequestedChain(toChain);
+  }, [chain, chainName]);
 
   return (
     <Layout>
@@ -48,7 +67,13 @@ export default function Web() {
             </>
           ) : (
             activeAuctions.map((auctionProps: AuctionProps) => {
-              return <AuctionCard key={auctionProps.id} auctionProps={auctionProps} />;
+              return (
+                <AuctionCard
+                  chainId={requestedChain.id}
+                  key={auctionProps.id}
+                  auctionProps={auctionProps}
+                />
+              );
             })
           )}
           {!isLoadingActiveAuctions && activeAuctions.length === 0 && (
