@@ -15,7 +15,8 @@ function getSupportedChain(): Chain[] {
 }
 
 const { chains, publicClient, webSocketPublicClient } = configureChains<Chain>(
-  [getChain(Number(process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID!))],
+  // [getChain(Number(process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID!))],
+  getSupportedChain(),
   [
     infuraProvider({ apiKey: process.env.NEXT_PUBLIC_INFURA_API_TOKEN! }),
     alchemyProvider({ apiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY! }),

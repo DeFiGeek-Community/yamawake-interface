@@ -188,6 +188,7 @@ export default function useAuctionForm({
     isLoading: tokenLoading,
     isFetched: tokenFetched,
   } = useToken({
+    chainId,
     address: debouncedAuction.token as `0x${string}`,
     enabled: !!debouncedAuction.token && isAddress(debouncedAuction.token),
   });

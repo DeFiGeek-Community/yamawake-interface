@@ -22,7 +22,7 @@ export default function ProvidersList({
 }) {
   const toast = useToast({ position: "top-right", isClosable: true });
   const { connect, connectors, error, isLoading, pendingConnector } = useConnect({
-    chainId: Number(process.env.NEXT_PUBLIC_CHAIN_ID),
+    // chainId: Number(process.env.NEXT_PUBLIC_CHAIN_ID),
     onSuccess: async (data) => {
       onConnectSuccess &&
         onConnectSuccess({
