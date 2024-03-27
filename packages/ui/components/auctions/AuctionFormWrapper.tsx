@@ -64,7 +64,9 @@ export default function AuctionFormWrapper(props: AuctionFormWrapperParams) {
         )}
         {templateData &&
           templateData.templates
-            .filter((template: Template) => COMPATIBLE_TEMPLATES.includes(template.templateName))
+            .filter((template: Template) =>
+              COMPATIBLE_TEMPLATES[props.chainId].includes(template.templateName),
+            )
             .map((template: Template) => (
               <option key={template.id} value={template.templateName}>
                 {ethers.decodeBytes32String(template.templateName)}
