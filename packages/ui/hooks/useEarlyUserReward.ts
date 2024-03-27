@@ -16,7 +16,7 @@ export default function useEarlyUserReward({
   onSuccessConfirm,
   onErrorConfirm,
 }: {
-  chainId: number | undefined;
+  chainId: number;
   address: `0x${string}` | undefined;
   onSuccessWrite?: (data: any) => void;
   onErrorWrite?: (error: Error) => void;
@@ -28,7 +28,7 @@ export default function useEarlyUserReward({
   waitFn: ReturnType<typeof useWaitForTransaction>;
 } {
   const config = {
-    address: chainId ? CONTRACT_ADDRESSES[chainId].DISTRIBUTOR : "0x",
+    address: CONTRACT_ADDRESSES[chainId].DISTRIBUTOR,
     abi: DistributorABI,
   };
   const readFn = useContractRead<typeof DistributorABI, "scores", bigint>({
@@ -36,14 +36,14 @@ export default function useEarlyUserReward({
     functionName: "scores",
     args: [address],
     watch: true,
-    enabled: !!chainId && isSupportedChain(chainId) && !!address,
+    enabled: isSupportedChain(chainId) && !!address,
   });
 
   const { config: claimConfig } = usePrepareContractWrite({
     ...config,
     functionName: "claim",
     args: [address],
-    enabled: !!chainId && isSupportedChain(chainId) && !!address && !!readFn.data,
+    enabled: isSupportedChain(chainId) && !!address && !!readFn.data,
   });
 
   const writeFn = useContractWrite({

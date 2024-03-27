@@ -55,7 +55,7 @@ export default function DashboardPage() {
           gap={4}
           mt={{ base: 4, md: 8 }}
         >
-          <EarlyUserReward chainId={chain?.id} address={address} />
+          {!!chain && <EarlyUserReward chainId={chain.id} address={address} />}
           <VeReward />
         </Grid>
 

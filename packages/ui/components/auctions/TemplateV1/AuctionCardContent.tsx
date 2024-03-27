@@ -40,14 +40,14 @@ export default function AuctionCardContent({
   auctionProps,
   editable = false,
 }: {
-  chainId: number;
+  chainId: number | undefined;
   auctionProps: AuctionProps;
   editable?: boolean;
 }) {
   const auction = new TemplateV1(auctionProps);
   const { onOpen, isOpen, onClose } = useDisclosure();
   const { t, locale } = useLocale();
-  const chain = getSupportedChain(chainId);
+  const chain = typeof chainId === "undefined" ? chainId : getSupportedChain(chainId);
   const { data, mutate, error } = useSWRMetaData(chain?.id, auction.id as string);
 
   const card = (

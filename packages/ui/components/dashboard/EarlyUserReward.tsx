@@ -22,7 +22,7 @@ export default function EarlyUserReward({
   chainId,
   address,
 }: {
-  chainId: number | undefined; // TODO
+  chainId: number;
   address: `0x${string}` | undefined;
 }) {
   const toast = useToast({ position: "top-right", isClosable: true });
