@@ -53,7 +53,7 @@ export default function SignInButton({
                 processSignIn({
                   title: title,
                   targetAddress: connectedAddress as `0x${string}`,
-                  chainId: Number(process.env.NEXT_PUBLIC_CHAIN_ID),
+                  chainId: chain.id,
                 });
               }
         }
