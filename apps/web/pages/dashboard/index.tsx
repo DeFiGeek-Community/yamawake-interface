@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import Router from "next/router";
-import { useAccount } from "wagmi";
+import { useAccount, useNetwork } from "wagmi";
 import {
   Spinner,
   Container,
@@ -21,7 +21,8 @@ import ParticipatedAuctions from "ui/components/dashboard/ParticipatedAuctions";
 import { useLocale } from "ui/hooks/useLocale";
 
 export default function DashboardPage() {
-  const { address, isConnected, connector } = useAccount();
+  const { address } = useAccount();
+  const { chain } = useNetwork();
   const { currentUser } = useContext(CurrentUserContext);
   const { t } = useLocale();
 
@@ -54,7 +55,7 @@ export default function DashboardPage() {
           gap={4}
           mt={{ base: 4, md: 8 }}
         >
-          <EarlyUserReward address={address as `0x${string}`} />
+          <EarlyUserReward chainId={chain?.id} address={address} />
           <VeReward />
         </Grid>
 
@@ -67,11 +68,13 @@ export default function DashboardPage() {
           <TabPanels>
             {currentUser && (
               <TabPanel p={{ base: 0, md: 4 }}>
-                <MyAuctions />
+                {!!chain && !!address && <MyAuctions chainId={chain?.id} address={address} />}
               </TabPanel>
             )}
             <TabPanel p={{ base: 0, md: 4 }}>
-              <ParticipatedAuctions />
+              {!!chain && !!address && (
+                <ParticipatedAuctions chainId={chain?.id} address={address} />
+              )}
             </TabPanel>
           </TabPanels>
         </Tabs>

@@ -22,6 +22,8 @@ import { useSafeWaitForTransaction } from "../../hooks/useSafeWaitForTransaction
 import { decodeEventLog, parseAbi } from "viem";
 
 type AuctionFormModalProps = {
+  chainId: number;
+  address: `0x${string}`;
   isOpen: boolean;
   onClose: () => void;
   onDeploy?: () => void;
@@ -31,6 +33,8 @@ type AuctionFormModalProps = {
 };
 
 export default function AuctionFormModal({
+  chainId,
+  address,
   isOpen,
   onClose,
   onDeploy,
@@ -38,7 +42,6 @@ export default function AuctionFormModal({
   onInformationSaved,
   onInformationCanceled,
 }: AuctionFormModalProps) {
-  const { address } = useAccount();
   const toast = useToast({ position: "top-right", isClosable: true });
   const { colorMode, setColorMode, toggleColorMode } = useColorMode();
   const [step, setStep] = useState<1 | 2>(1);
@@ -95,6 +98,7 @@ export default function AuctionFormModal({
   };
 
   const { formikProps: metaFormikProps } = useMetaDataForm({
+    chainId,
     contractId: contractAddress,
     minRaisedAmount:
       creatingAuction && creatingAuction.minRaisedAmount ? creatingAuction.minRaisedAmount : 0,
@@ -147,7 +151,8 @@ export default function AuctionFormModal({
             {step === 1 ? (
               <>
                 <AuctionFormWrapper
-                  address={address as `0x${string}`}
+                  chainId={chainId}
+                  address={address}
                   onSubmitSuccess={(result) => {
                     setTx(result.hash);
                     setStep(2);

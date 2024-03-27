@@ -18,10 +18,17 @@ import useEarlyUserReward from "../../hooks/useEarlyUserReward";
 import { formatEtherInBig } from "lib/utils";
 import TxSentToast from "../shared/TxSentToast";
 
-export default function EarlyUserReward({ address }: { address: `0x${string}` }) {
+export default function EarlyUserReward({
+  chainId,
+  address,
+}: {
+  chainId: number | undefined; // TODO
+  address: `0x${string}` | undefined;
+}) {
   const toast = useToast({ position: "top-right", isClosable: true });
   const { t } = useLocale();
   const { readFn, writeFn, waitFn } = useEarlyUserReward({
+    chainId,
     address,
     onSuccessWrite: (data: any) => {
       toast({

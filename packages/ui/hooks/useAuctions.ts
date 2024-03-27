@@ -41,7 +41,7 @@ const NOW = Math.floor(new Date().getTime() / 1000);
 export const useSWRAuctions = (
   config: AuctionsParams & SWRConfiguration,
   queryType: QueryType = QueryType.ACTIVE_AND_UPCOMING,
-  chainId?: number,
+  chainId: number | undefined,
 ): SWRAuctionStore => {
   const client = new GraphQLChainClient({ chainId });
   const getQuery = (queryType: QueryType): string => {

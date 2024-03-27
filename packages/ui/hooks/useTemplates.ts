@@ -7,7 +7,7 @@ type QueryResponse = {
   templates: Template;
 };
 
-const useTemplates = (chainId?: number): SWRResponse<any | undefined, Error> => {
+const useTemplates = (chainId: number | undefined): SWRResponse<any | undefined, Error> => {
   const client = new GraphQLChainClient({ chainId });
   const fetcher = async (key: string): Promise<any | undefined> => {
     const result = await client.request<QueryResponse>(LIST_TEMPLATE_QUERY);

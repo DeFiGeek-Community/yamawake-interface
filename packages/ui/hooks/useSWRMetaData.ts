@@ -15,10 +15,10 @@ const useSWRMetaData = (
   id: string,
 ): SWRResponse<{ metaData: MetaData; constants: Constants } | undefined, Error> => {
   const { t } = useLocale();
-  // if (!chainId) throw new Error("Wrong chain");
+
   if (!chainId) return useSWR(undefined);
+
   const chain = getSupportedChain(chainId);
-  // if (!chain) throw new Error("Wrong chain");
   if (!chain) return useSWR(undefined);
 
   const fetcher = (

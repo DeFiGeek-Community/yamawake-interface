@@ -11,7 +11,7 @@ type QueryResponse = {
 const useAuction = (
   id: `0x${string}`,
   address: `0x${string}` = zeroAddress,
-  chainId?: number,
+  chainId: number | undefined,
 ): SWRResponse<any | undefined, Error> => {
   const params = new URLSearchParams({
     address,

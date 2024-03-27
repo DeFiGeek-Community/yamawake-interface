@@ -6,8 +6,13 @@ import AuctionCard, { AuctionCardSkeleton } from "../auctions/AuctionCard";
 import { useLocale } from "../../hooks/useLocale";
 import { useSWRAuctions } from "../../hooks/useAuctions";
 
-export default function ParticipatedAuctions() {
-  const { address, isConnected, connector } = useAccount();
+export default function ParticipatedAuctions({
+  chainId,
+  address,
+}: {
+  chainId: number;
+  address: `0x${string}`;
+}) {
   const {
     auctions: participatedAuctions,
     isLoading: isLoadingParticipatedAuctions,
@@ -18,6 +23,7 @@ export default function ParticipatedAuctions() {
   } = useSWRAuctions(
     { id: String(address).toLowerCase() as `0x${string}` },
     QueryType.PARTICIPATED_SALE_QUERY,
+    chainId,
   );
   const { t } = useLocale();
 
@@ -31,7 +37,9 @@ export default function ParticipatedAuctions() {
         </>
       ) : (
         participatedAuctions.map((auctionProps: AuctionProps) => {
-          return <AuctionCard key={auctionProps.id} auctionProps={auctionProps} />;
+          return (
+            <AuctionCard chainId={chainId} key={auctionProps.id} auctionProps={auctionProps} />
+          );
         })
       )}
       {!isLastParticipatedAuction && participatedAuctions.length > 0 && (

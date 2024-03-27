@@ -9,6 +9,7 @@ import TemplateV1AuctionForm from "./TemplateV1/AuctionForm";
 import useTemplates from "../../hooks/useTemplates";
 
 export type AuctionFormWrapperParams = {
+  chainId: number;
   address: `0x${string}`;
   onSubmitSuccess?: (result: any) => void;
   onSubmitError?: (e: Error) => void;
@@ -17,7 +18,7 @@ export type AuctionFormWrapperParams = {
 };
 
 export default function AuctionFormWrapper(props: AuctionFormWrapperParams) {
-  const { data: templateData } = useTemplates();
+  const { data: templateData } = useTemplates(props.chainId);
   const [templateName, setTemplateName] = useState<string | undefined>(TEMPLATE_V1_NAME);
   const { t } = useLocale();
   useEffect(() => {

@@ -105,6 +105,10 @@ export default function useAuctionForm({
   const validate = (values: AuctionForm) => {
     const errors: any = {};
 
+    if (!values.owner) {
+      errors.owner = "Owner is required";
+    }
+
     if (!values.templateName) {
       errors.templateName = "Template is required";
     }
@@ -176,7 +180,7 @@ export default function useAuctionForm({
     functionName: "balanceOf",
     args: [address],
     watch: true,
-    enabled: !!debouncedAuction.token && isAddress(debouncedAuction.token),
+    enabled: !!address && !!debouncedAuction.token && isAddress(debouncedAuction.token),
   });
 
   const {
@@ -196,7 +200,7 @@ export default function useAuctionForm({
       debouncedAuction.templateName, //TEMPLATE_V1_NAME
       getEncodedArgs(),
     ],
-    enabled: !!chain && !!debouncedAuction.token && isAddress(debouncedAuction.token),
+    enabled: !!chain && !!address && !!debouncedAuction.token && isAddress(debouncedAuction.token),
   });
 
   const writeFn = useContractWrite({
@@ -215,7 +219,7 @@ export default function useAuctionForm({
 
   const approvals = useApprove({
     targetAddress: debouncedAuction.token,
-    owner: address as `0x${string}`,
+    owner: address,
     spender: chain ? CONTRACT_ADDRESSES[chain.id].FACTORY : "0x",
     onSuccessWrite(data) {
       onApprovalTxSent && onApprovalTxSent(data);
@@ -224,7 +228,7 @@ export default function useAuctionForm({
       onApprovalTxConfirmed && onApprovalTxConfirmed(data);
       prepareFn.refetch();
     },
-    enabled: !!chain && !!debouncedAuction.token && isAddress(debouncedAuction.token),
+    enabled: !!chain && !!address && !!debouncedAuction.token && isAddress(debouncedAuction.token),
   });
 
   return {

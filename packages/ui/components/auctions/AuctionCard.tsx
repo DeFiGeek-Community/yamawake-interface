@@ -18,10 +18,11 @@ export default function AuctionCard({
   auctionProps,
   editable = false,
 }: {
-  chainId: number;
+  chainId: number | undefined;
   auctionProps: AuctionProps;
   editable?: boolean;
 }) {
+  if (typeof chainId === "undefined") return AuctionCardSkeleton();
   // Add auction card components as needed
   switch (auctionProps.templateAuctionMap.templateName) {
     case TEMPLATE_V1_NAME:
