@@ -25,6 +25,11 @@ import MetaTags from "ui/components/layouts/MetaTags";
 import { getSupportedChain } from "lib/utils/chain";
 
 export default function AuctionPage() {
+  const { t } = useLocale();
+  const { chain } = useNetwork();
+  const [requestedChain, setRequestedChain] = useState<Chain>(
+    getSupportedChain(Number(process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID!))!,
+  );
   const {
     auctions: activeAuctions,
     isLast: isLastActiveAuctions,
@@ -32,7 +37,7 @@ export default function AuctionPage() {
     isValidating: isValidatingActiveAuctions,
     error: activeAuctionsError,
     loadMoreAuctions: loadMoreActiveAuctions,
-  } = useSWRAuctions({});
+  } = useSWRAuctions({}, QueryType.ACTIVE_AND_UPCOMING, requestedChain?.id);
   // const { auctions: activeAuctions, isLast: isLastActiveAuctions, isLoading: isLoadingActiveAuctions, isValidating: isValidatingActiveAuctions, error: activeAuctionsError, loadMoreAuctions: loadMoreActiveAuctions } = useSWRAuctions({}, QueryType.ACTIVE);
   // const { auctions: upcomingAuctions, isLast: isLastUpcomingAuctions, isLoading: isLoadingUpcomingAuctions, isValidating: isValidatingUpcomingAuctions, error: upcomingAuctionsError, loadMoreAuctions: loadMoreUpcomingAuctions } = useSWRAuctions({}, QueryType.UPCOMING);
   const {
@@ -42,12 +47,7 @@ export default function AuctionPage() {
     isValidating: isValidatingClosedAuctions,
     error: closedAuctionsError,
     loadMoreAuctions: loadMoreClosedAuctions,
-  } = useSWRAuctions({}, QueryType.CLOSED);
-  const { t } = useLocale();
-  const { chain } = useNetwork();
-  const [requestedChain, setRequestedChain] = useState<Chain>(
-    getSupportedChain(Number(process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID!))!,
-  );
+  } = useSWRAuctions({}, QueryType.CLOSED, requestedChain?.id);
 
   useEffect(() => {
     if (chain) setRequestedChain(chain);

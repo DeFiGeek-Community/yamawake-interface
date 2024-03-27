@@ -4,7 +4,6 @@ import {
   erc20ABI,
   useContractRead,
   useToken,
-  useNetwork,
 } from "wagmi";
 import { isAddress } from "viem";
 import { AbiCoder, Interface } from "ethers";
@@ -24,6 +23,7 @@ import "assets/css/rsuite-override.css";
 
 const now = new Date().getTime();
 export default function useAuctionForm({
+  chainId,
   address,
   onSubmitSuccess,
   onSubmitError,
@@ -32,6 +32,7 @@ export default function useAuctionForm({
   onApprovalTxSent,
   onApprovalTxConfirmed,
 }: {
+  chainId: number;
   address: `0x${string}`;
   onSubmitSuccess?: (result: any) => void;
   onSubmitError?: (e: any) => void;
@@ -53,7 +54,6 @@ export default function useAuctionForm({
 } {
   const [waitingTx, setWaitingTx] = useAtom(waitingCreationTxAtom);
   const [creatingAuction, setCreatingAuction] = useAtom(creatingAuctionAtom);
-  const { chain } = useNetwork();
   const { t } = useLocale();
   const emptyAuction: AuctionForm = {
     templateName: TEMPLATE_V1_NAME,
@@ -193,14 +193,15 @@ export default function useAuctionForm({
   });
 
   const prepareFn = usePrepareContractWrite({
-    address: chain ? CONTRACT_ADDRESSES[chain.id].FACTORY : "0x", //factory
+    chainId,
+    address: CONTRACT_ADDRESSES[chainId].FACTORY, //factory
     abi: FactoryABI,
     functionName: "deployAuction",
     args: [
       debouncedAuction.templateName, //TEMPLATE_V1_NAME
       getEncodedArgs(),
     ],
-    enabled: !!chain && !!address && !!debouncedAuction.token && isAddress(debouncedAuction.token),
+    enabled: !!address && !!debouncedAuction.token && isAddress(debouncedAuction.token),
   });
 
   const writeFn = useContractWrite({
@@ -218,9 +219,10 @@ export default function useAuctionForm({
   });
 
   const approvals = useApprove({
+    chainId,
     targetAddress: debouncedAuction.token,
     owner: address,
-    spender: chain ? CONTRACT_ADDRESSES[chain.id].FACTORY : "0x",
+    spender: CONTRACT_ADDRESSES[chainId].FACTORY,
     onSuccessWrite(data) {
       onApprovalTxSent && onApprovalTxSent(data);
     },
@@ -228,7 +230,7 @@ export default function useAuctionForm({
       onApprovalTxConfirmed && onApprovalTxConfirmed(data);
       prepareFn.refetch();
     },
-    enabled: !!chain && !!address && !!debouncedAuction.token && isAddress(debouncedAuction.token),
+    enabled: !!address && !!debouncedAuction.token && isAddress(debouncedAuction.token),
   });
 
   return {

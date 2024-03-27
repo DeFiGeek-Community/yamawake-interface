@@ -149,23 +149,21 @@ export default function AuctionFormModal({
               currentStep={step}
             />
             {step === 1 ? (
-              <>
-                <AuctionFormWrapper
-                  chainId={chainId}
-                  address={address}
-                  onSubmitSuccess={(result) => {
-                    setTx(result.hash);
-                    setStep(2);
-                    onDeploy && onDeploy();
-                    toast({
-                      title: t("TRANSACTION_SENT"),
-                      status: "success",
-                      duration: 5000,
-                      render: (props) => <TxSentToast txid={result.hash} {...props} />,
-                    });
-                  }}
-                />
-              </>
+              <AuctionFormWrapper
+                chainId={chainId}
+                address={address}
+                onSubmitSuccess={(result) => {
+                  setTx(result.hash);
+                  setStep(2);
+                  onDeploy && onDeploy();
+                  toast({
+                    title: t("TRANSACTION_SENT"),
+                    status: "success",
+                    duration: 5000,
+                    render: (props) => <TxSentToast txid={result.hash} {...props} />,
+                  });
+                }}
+              />
             ) : (
               <MetaDataForm
                 formikProps={metaFormikProps}
