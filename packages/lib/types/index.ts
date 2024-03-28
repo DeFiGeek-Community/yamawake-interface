@@ -1,5 +1,6 @@
 export type User = {
   address: `0x${string}`;
+  chainId: number;
 };
 
 export type SignInParams = {

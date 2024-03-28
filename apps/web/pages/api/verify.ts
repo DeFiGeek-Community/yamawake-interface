@@ -13,8 +13,6 @@ const ironOptions: IronSessionOptions = {
   },
 };
 
-// TODO
-// get chain id from client
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const { method } = req;
   switch (method) {
