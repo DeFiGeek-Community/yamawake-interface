@@ -16,6 +16,7 @@ import {
 import { memo } from "react";
 
 export type DetailPageParams = {
+  chainId: number;
   auctionProps: AuctionProps;
   refetchAuction: KeyedMutator<any>;
   metaData: MetaData;

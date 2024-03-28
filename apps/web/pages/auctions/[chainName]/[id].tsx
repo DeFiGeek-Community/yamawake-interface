@@ -10,13 +10,12 @@ import { zeroAddress } from "viem";
 import CustomError from "../../_error";
 import AuctionDetail, { SkeletonAuction } from "ui/components/auctions/AuctionDetail";
 import { getSupportedChain } from "lib/utils/chain";
-import Render404 from "ui/components/errors/404";
 
 export default function AuctionPage() {
-  const { address, isConnected, connector } = useAccount();
+  const { address } = useAccount();
   const router = useRouter();
   const { id, chainName } = router.query;
-  const { t, locale } = useLocale();
+  const { t } = useLocale();
   const toast = useToast({ position: "top-right", isClosable: true });
   const chain = getSupportedChain(String(chainName));
   const {
@@ -68,6 +67,7 @@ export default function AuctionPage() {
         image={metaData.metaData.logoURL && metaData.metaData.logoURL}
       />
       <AuctionDetail
+        chainId={chain.id}
         auctionProps={auctionData.auction}
         refetchAuction={refetch}
         metaData={metaData.metaData}

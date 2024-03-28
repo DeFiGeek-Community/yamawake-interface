@@ -38,6 +38,7 @@ import {
   useNetwork,
 } from "wagmi";
 import Big, { getBigNumber } from "lib/utils/bignumber";
+import { getSupportedChain, isSupportedChain } from "lib/utils/chain";
 import CalendarInCircle from "./CalendarInCircle";
 import PersonalStatistics from "./PersonalStatistics";
 import StatisticsInCircle from "./StatisticsInCircle";
@@ -56,6 +57,7 @@ import ConnectButton from "../../shared/connectButton";
 import { DetailPageParams } from "../AuctionDetail";
 
 export default memo(function DetailPage({
+  chainId,
   auctionProps,
   refetchAuction,
   metaData,
@@ -77,8 +79,6 @@ export default memo(function DetailPage({
     isLoading: isLoadingBalance,
     refetch: refetchBalance,
   } = useBalance({ address, enabled: !!address });
-  const { chain } = useNetwork();
-
   const raisedTokenSymbol = "ETH";
   const raisedTokenDecimal = 18;
   const fiatSymbol = "usd";
@@ -86,7 +86,8 @@ export default memo(function DetailPage({
   const [started, setStarted] = useState<boolean>(false);
   const [ended, setEnded] = useState<boolean>(false);
 
-  const { data: rateData, refetch: updateRate } = useRate(Number(process.env.NEXT_PUBLIC_CHAIN_ID));
+  const { data: rateData, refetch: updateRate } = useRate(chainId);
+  const chain = getSupportedChain(chainId);
 
   useInterval(() => {
     setStarted(auction.startingAt * 1000 <= new Date().getTime());
@@ -147,7 +148,7 @@ export default memo(function DetailPage({
     },
   });
 
-  const { isLoading: isLoadingWaitTX, isSuccess } = useWaitForTransaction({
+  const { isLoading: isLoadingWaitTX } = useWaitForTransaction({
     hash: data?.hash,
     confirmations: 2,
     onError(e: Error) {
@@ -359,7 +360,9 @@ export default memo(function DetailPage({
                             {address ? (
                               <Button
                                 isLoading={isLoadingWaitTX || isLoadingSendTX}
-                                isDisabled={chain?.unsupported || !sendTransactionAsync || !started}
+                                isDisabled={
+                                  !isSupportedChain(chainId) || !sendTransactionAsync || !started
+                                }
                                 type="submit"
                                 variant="solid"
                                 colorScheme={"green"}
