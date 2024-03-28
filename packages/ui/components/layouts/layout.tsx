@@ -1,7 +1,7 @@
 import { useContext, useEffect } from "react";
 import { chakra, Alert, AlertIcon, useColorMode, useToast } from "@chakra-ui/react";
 import { useAccount, useDisconnect, useNetwork } from "wagmi";
-import { getChain } from "lib/utils/chain";
+import { getSupportedChain } from "lib/utils/chain";
 import { useIsMounted } from "../../hooks/useIsMounted";
 import { useLocale } from "../../hooks/useLocale";
 import CurrentUserContext from "../../contexts/CurrentUserContext";
@@ -12,7 +12,7 @@ export default function Layout({ title, children }: { title?: string; children: 
   const isMounted = useIsMounted();
   const { chain } = useNetwork();
   const { currentUser, mutate } = useContext(CurrentUserContext);
-  const { address, isConnected, connector } = useAccount();
+  const { address } = useAccount();
   const { disconnect } = useDisconnect();
   const toast = useToast({ position: "top-right", isClosable: true });
   const logout = async () => {
@@ -23,19 +23,25 @@ export default function Layout({ title, children }: { title?: string; children: 
   const { t } = useLocale();
 
   // Detect account change and sign out if SIWE user and account does not match
+  // TODO
+  // This should be done in current user provider -->
   useEffect(() => {
-    if (currentUser && currentUser.address != address) {
+    if (
+      currentUser &&
+      (currentUser.address != address || (chain && currentUser.chainId != chain.id))
+    ) {
       logout();
       !toast.isActive("signout") &&
-        !toast.isActive("addressChanged") &&
+        !toast.isActive("accountChanged") &&
         toast({
-          id: "addressChanged",
-          description: "Account change detected. Signed out.",
+          id: "accountChanged",
+          description: "Connection change detected. Signed out.",
           status: "info",
           duration: 5000,
         });
     }
-  }, [address]);
+  }, [address, chain]);
+  // <--
 
   // Dark mode only for now
   const { colorMode, toggleColorMode } = useColorMode();
@@ -55,7 +61,7 @@ export default function Layout({ title, children }: { title?: string; children: 
           <Alert status="warning" mb={4}>
             <AlertIcon />{" "}
             {t("PLEASE_CONNECT_TO", {
-              network: getChain(Number(process.env.NEXT_PUBLIC_CHAIN_ID)).name,
+              network: getSupportedChain(Number(process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID))!.name,
             })}
           </Alert>
         </chakra.div>
