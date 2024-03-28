@@ -35,6 +35,7 @@ import {
   usePrepareSendTransaction,
   useSendTransaction,
   useBalance,
+  useNetwork,
 } from "wagmi";
 import Big, { getBigNumber } from "lib/utils/bignumber";
 import { getSupportedChain, isSupportedChain } from "lib/utils/chain";
@@ -86,6 +87,7 @@ export default memo(function DetailPage({
   const [ended, setEnded] = useState<boolean>(false);
 
   const { data: rateData, refetch: updateRate } = useRate(chainId);
+  const { chain: connectedChain } = useNetwork();
   const chain = getSupportedChain(chainId);
 
   useInterval(() => {
@@ -121,7 +123,7 @@ export default memo(function DetailPage({
   const { config, isError } = usePrepareSendTransaction({
     to: contractAddress,
     value: formikProps.values.amount ? BigInt(parseEther(formikProps.values.amount)) : undefined,
-    enabled: started && !ended && formikProps.values.amount > 0,
+    enabled: started && !ended && formikProps.values.amount > 0 && connectedChain?.id === chainId,
   });
 
   const {
@@ -360,7 +362,10 @@ export default memo(function DetailPage({
                               <Button
                                 isLoading={isLoadingWaitTX || isLoadingSendTX}
                                 isDisabled={
-                                  !isSupportedChain(chainId) || !sendTransactionAsync || !started
+                                  connectedChain?.id !== chainId ||
+                                  !isSupportedChain(chainId) ||
+                                  !sendTransactionAsync ||
+                                  !started
                                 }
                                 type="submit"
                                 variant="solid"
@@ -405,6 +410,7 @@ export default memo(function DetailPage({
                   {address && ended && (
                     <chakra.div textAlign={"right"} mt={4}>
                       <ClaimButton
+                        chainId={chainId}
                         auction={auction}
                         address={address}
                         myContribution={raised}
@@ -441,11 +447,19 @@ export default memo(function DetailPage({
               <CardBody>
                 <Stack divider={<StackDivider />} spacing="4">
                   <chakra.div textAlign={"center"}>
-                    <WithdrawERC20 auction={auction} onSuccessConfirm={refetchAuction} />
+                    <WithdrawERC20
+                      chainId={chainId}
+                      auction={auction}
+                      onSuccessConfirm={refetchAuction}
+                    />
                   </chakra.div>
 
                   <chakra.div textAlign={"center"}>
-                    <WithdrawRaisedETH auction={auction} onSuccessConfirm={refetchAuction} />
+                    <WithdrawRaisedETH
+                      chainId={chainId}
+                      auction={auction}
+                      onSuccessConfirm={refetchAuction}
+                    />
                   </chakra.div>
                 </Stack>
               </CardBody>
