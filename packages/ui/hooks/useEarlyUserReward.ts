@@ -28,7 +28,7 @@ export default function useEarlyUserReward({
   waitFn: ReturnType<typeof useWaitForTransaction>;
 } {
   const config = {
-    address: CONTRACT_ADDRESSES[chainId].DISTRIBUTOR,
+    address: CONTRACT_ADDRESSES[chainId]?.DISTRIBUTOR,
     abi: DistributorABI,
   };
   const readFn = useContractRead<typeof DistributorABI, "scores", bigint>({

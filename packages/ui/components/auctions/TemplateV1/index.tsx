@@ -52,7 +52,6 @@ import WithdrawRaisedETH from "./WithdrawRaisedETH";
 import WithdrawERC20 from "./WithdrawERC20OnSale";
 import { useLocale } from "../../../hooks/useLocale";
 import { getDecimalsForView, getEtherscanLink, tokenAmountFormat, parseEther } from "lib/utils";
-import { getChain } from "lib/utils/chain";
 import ConnectButton from "../../shared/connectButton";
 import { DetailPageParams } from "../AuctionDetail";
 

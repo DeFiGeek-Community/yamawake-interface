@@ -195,7 +195,7 @@ export default function useAuctionForm({
 
   const prepareFn = usePrepareContractWrite({
     chainId,
-    address: CONTRACT_ADDRESSES[chainId].FACTORY, //factory
+    address: CONTRACT_ADDRESSES[chainId]?.FACTORY, //factory
     abi: FactoryABI,
     functionName: "deployAuction",
     args: [
@@ -223,7 +223,7 @@ export default function useAuctionForm({
     chainId,
     targetAddress: debouncedAuction.token,
     owner: address,
-    spender: CONTRACT_ADDRESSES[chainId].FACTORY,
+    spender: CONTRACT_ADDRESSES[chainId]?.FACTORY,
     onSuccessWrite(data) {
       onApprovalTxSent && onApprovalTxSent(data);
     },
