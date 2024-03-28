@@ -35,10 +35,10 @@ import {
   usePrepareSendTransaction,
   useSendTransaction,
   useBalance,
-  useNetwork,
 } from "wagmi";
 import Big, { getBigNumber } from "lib/utils/bignumber";
 import { getSupportedChain, isSupportedChain } from "lib/utils/chain";
+import { getDecimalsForView, getEtherscanLink, tokenAmountFormat, parseEther } from "lib/utils";
 import CalendarInCircle from "./CalendarInCircle";
 import PersonalStatistics from "./PersonalStatistics";
 import StatisticsInCircle from "./StatisticsInCircle";
@@ -52,7 +52,6 @@ import TxSentToast from "../../shared/TxSentToast";
 import WithdrawRaisedETH from "./WithdrawRaisedETH";
 import WithdrawERC20 from "./WithdrawERC20OnSale";
 import { useLocale } from "../../../hooks/useLocale";
-import { getDecimalsForView, getEtherscanLink, tokenAmountFormat, parseEther } from "lib/utils";
 import ConnectButton from "../../shared/connectButton";
 import { DetailPageParams } from "../AuctionDetail";
 
@@ -73,12 +72,12 @@ export default memo(function DetailPage({
     isLoading: isLoadingRaisedAmount,
     isError: isErrorFetchRaised,
     refetch: refetchRaised,
-  } = useRaised(auction, address);
+  } = useRaised({ auction, chainId, address });
   const {
     data: balanceData,
     isLoading: isLoadingBalance,
     refetch: refetchBalance,
-  } = useBalance({ address, enabled: !!address });
+  } = useBalance({ chainId, address, enabled: !!address });
   const raisedTokenSymbol = "ETH";
   const raisedTokenDecimal = 18;
   const fiatSymbol = "usd";
