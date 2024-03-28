@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { chakra, Alert, AlertIcon, useColorMode } from "@chakra-ui/react";
 import { useNetwork } from "wagmi";
-import { getSupportedChain } from "lib/utils/chain";
+import { getDefaultChain } from "lib/utils/chain";
 import { useIsMounted } from "../../hooks/useIsMounted";
 import { useLocale } from "../../hooks/useLocale";
 import Header from "./Header";
@@ -31,7 +31,7 @@ export default function Layout({ title, children }: { title?: string; children: 
           <Alert status="warning" mb={4}>
             <AlertIcon />{" "}
             {t("PLEASE_CONNECT_TO", {
-              network: getSupportedChain(Number(process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID))!.name,
+              network: getDefaultChain().name,
             })}
           </Alert>
         </chakra.div>

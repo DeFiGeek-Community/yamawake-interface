@@ -15,7 +15,6 @@ function getSupportedChain(): Chain[] {
 }
 
 const { chains, publicClient, webSocketPublicClient } = configureChains<Chain>(
-  // [getChain(Number(process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID!))],
   getSupportedChain(),
   [
     infuraProvider({ apiKey: process.env.NEXT_PUBLIC_INFURA_API_TOKEN! }),
@@ -27,22 +26,22 @@ const { chains, publicClient, webSocketPublicClient } = configureChains<Chain>(
 const config: any = createConfig({
   autoConnect: true,
   connectors: [
-    new MetaMaskConnector({ chains: getSupportedChain() }),
+    new MetaMaskConnector({ chains }),
     new InjectedConnector({
-      chains: getSupportedChain(),
+      chains,
       options: {
         name: "Injected Wallet",
         shimDisconnect: true,
       },
     }),
     new CoinbaseWalletConnector({
-      chains: getSupportedChain(),
+      chains,
       options: {
         appName: "Yamawake",
       },
     }),
     new WalletConnectConnector({
-      chains: getSupportedChain(),
+      chains,
       options: {
         projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_ID!,
         qrModalOptions: {

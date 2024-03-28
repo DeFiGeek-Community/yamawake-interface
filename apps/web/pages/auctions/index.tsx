@@ -22,14 +22,12 @@ import { useSWRAuctions } from "ui/hooks/useAuctions";
 import { QueryType } from "lib/graphql/query";
 import { useLocale } from "ui/hooks/useLocale";
 import MetaTags from "ui/components/layouts/MetaTags";
-import { getSupportedChain } from "lib/utils/chain";
+import { getDefaultChain } from "lib/utils/chain";
 
 export default function AuctionPage() {
   const { t } = useLocale();
   const { chain } = useNetwork();
-  const [requestedChain, setRequestedChain] = useState<Chain>(
-    getSupportedChain(Number(process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID!))!,
-  );
+  const [requestedChain, setRequestedChain] = useState<Chain>(getDefaultChain());
   const {
     auctions: activeAuctions,
     isLast: isLastActiveAuctions,

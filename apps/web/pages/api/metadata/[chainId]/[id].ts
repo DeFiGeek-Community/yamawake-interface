@@ -1,9 +1,9 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { withIronSessionApiRoute } from "iron-session/next";
-import { Chain, hardhat } from "viem/chains";
+import { Chain } from "viem/chains";
 import { DBClient } from "lib/dynamodb/metaData";
 import { IronSessionOptions } from "iron-session";
-import { getSupportedChain } from "lib/utils/chain";
+import { getDefaultChain, getSupportedChain } from "lib/utils/chain";
 import { DYNAMODB_TABLES } from "lib/constants/dynamoDBTables";
 
 const ironOptions: IronSessionOptions = {
@@ -21,11 +21,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       try {
         const { id, chainId } = req.query;
         // requireAvailableNetwork(chainId);
-        const defaultChain =
-          getSupportedChain(Number(process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID!)) ?? hardhat;
         let requestedChain: Chain;
         if (typeof chainId === "string") {
-          requestedChain = getSupportedChain(chainId) ?? defaultChain;
+          requestedChain = getSupportedChain(chainId) ?? getDefaultChain();
         } else {
           return res.status(404).end("No auction found");
         }

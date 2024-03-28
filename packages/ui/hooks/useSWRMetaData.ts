@@ -1,14 +1,10 @@
 import useSWR, { SWRResponse } from "swr";
-import { hardhat } from "viem/chains";
 import { MetaData } from "lib/types/Auction";
 import { LOCK_DURATION, FEE_RATE_PER_MIL, TEMPLATE_V1_NAME } from "lib/constants/templates";
 import { getSupportedChain } from "lib/utils/chain";
 import { useLocale } from "./useLocale";
 
 type Constants = { lockDuration: number; feeRatePerMil: number };
-
-// const defaultChain =
-//   getSupportedChain(Number(process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID!)) ?? hardhat;
 
 const useSWRMetaData = (
   chainId: number | undefined,

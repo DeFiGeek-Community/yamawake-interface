@@ -27,3 +27,17 @@ export const getSupportedChain = (chain: string | number): chains.Chain | undefi
   }
   return undefined;
 };
+
+export const getDefaultChain = (): chains.Chain => {
+  if (typeof process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID !== "string") {
+    throw new Error("NEXT_PUBLIC_DEFAULT_CHAIN_ID is not set");
+  }
+
+  const chain = getSupportedChain(Number(process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID));
+
+  if (typeof chain === "undefined") {
+    throw new Error("Unsupported chain is set to NEXT_PUBLIC_DEFAULT_CHAIN_ID");
+  }
+
+  return chain;
+};

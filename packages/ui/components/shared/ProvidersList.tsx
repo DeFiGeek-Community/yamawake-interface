@@ -12,7 +12,7 @@ import {
 import ProviderLogo from "./ProviderLogo";
 import { useLocale } from "../../hooks/useLocale";
 import { useRouter } from "next/router";
-import { getSupportedChain, isSupportedChain } from "lib/utils/chain";
+import { getDefaultChain, getSupportedChain, isSupportedChain } from "lib/utils/chain";
 
 export default function ProvidersList({
   isOpen,
@@ -31,7 +31,7 @@ export default function ProvidersList({
     onSuccess: async (data) => {
       let chainId = data.chain.id;
       if (!isSupportedChain(data.chain.id) && switchNetwork) {
-        chainId = Number(process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID!);
+        chainId = getDefaultChain().id;
         await switchNetwork({ chainId });
       }
 
