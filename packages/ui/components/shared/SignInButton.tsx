@@ -1,6 +1,8 @@
 import { useAccount, useNetwork, usePublicClient } from "wagmi";
+import { switchNetwork } from "@wagmi/core";
 import { Button, ButtonProps, useDisclosure, useToast } from "@chakra-ui/react";
 import { SignInParams } from "lib/types";
+import { getSupportedChain, isSupportedChain } from "lib/utils/chain";
 import { useSIWE } from "../../hooks/Auth/useSIWE";
 import { useLocale } from "../../hooks/useLocale";
 import { isContractWallet } from "lib/utils/safe";
@@ -49,11 +51,16 @@ export default function SignInButton({
             ? () => {
                 providersListDisclosure.onOpen();
               }
-            : () => {
-                processSignIn({
+            : async () => {
+                let chainId = chain.id;
+                if (!isSupportedChain(chain.id) && switchNetwork) {
+                  chainId = Number(process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID!);
+                  await switchNetwork({ chainId });
+                }
+                await processSignIn({
                   title: title,
                   targetAddress: connectedAddress as `0x${string}`,
-                  chainId: chain.id,
+                  chainId,
                 });
               }
         }
