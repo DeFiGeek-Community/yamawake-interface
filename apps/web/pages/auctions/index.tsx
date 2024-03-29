@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 import {
   Container,
   Button,
@@ -22,9 +23,11 @@ import { useSWRAuctions } from "ui/hooks/useAuctions";
 import { QueryType } from "lib/graphql/query";
 import { useLocale } from "ui/hooks/useLocale";
 import MetaTags from "ui/components/layouts/MetaTags";
-import { getDefaultChain } from "lib/utils/chain";
+import { getDefaultChain, getSupportedChain } from "lib/utils/chain";
 
 export default function AuctionPage() {
+  const router = useRouter();
+  const { chainId } = router.query;
   const { t } = useLocale();
   const { chain } = useNetwork();
   const [requestedChain, setRequestedChain] = useState<Chain>(getDefaultChain());
@@ -48,8 +51,14 @@ export default function AuctionPage() {
   } = useSWRAuctions({}, QueryType.CLOSED, requestedChain?.id);
 
   useEffect(() => {
-    if (chain) setRequestedChain(chain);
-  }, [chain]);
+    let toChain: Chain | undefined;
+    if (chain) {
+      toChain = chain;
+    } else if (typeof chainId === "string") {
+      toChain = getSupportedChain(chainId);
+    }
+    if (toChain) setRequestedChain(toChain);
+  }, [chain, chainId]);
 
   return (
     <Layout>

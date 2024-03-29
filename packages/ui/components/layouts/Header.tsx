@@ -273,7 +273,11 @@ export default function Header({ title }: HeaderProps) {
               variant="ghost"
               display={{ base: "none", md: "block" }}
               size={{ base: "xs", md: "sm" }}
-              onClick={() => Router.push("/auctions")}
+              onClick={() =>
+                !isConnected && chainId
+                  ? Router.push(`/auctions?chainId=${chainId}`)
+                  : Router.push("/auctions")
+              }
             >
               {t("VIEW_ALL_SALES")}
             </Button>
@@ -281,7 +285,11 @@ export default function Header({ title }: HeaderProps) {
               variant="ghost"
               display={{ base: isConnected ? "none" : "block", md: "none" }}
               size={{ base: "xs", md: "sm" }}
-              onClick={() => Router.push("/auctions")}
+              onClick={() =>
+                !isConnected && chainId
+                  ? Router.push(`/auctions?chainId=${chainId}`)
+                  : Router.push("/auctions")
+              }
             >
               {t("SALES")}
             </Button>
