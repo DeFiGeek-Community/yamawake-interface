@@ -12,9 +12,24 @@ import {
 } from "viem";
 import { Chain } from "viem/chains";
 import { getChain } from "lib/utils/chain";
-import { scanMetaData, addMetaData, updateAuction } from "lib/dynamodb/metaData";
+import { DBClient } from "lib/dynamodb/metaData";
 import BaseTemplateABI from "lib/constants/abis/BaseTemplate.json";
-import ironOptions from "lib/constants/ironOptions";
+import { IronSessionOptions } from "iron-session";
+
+const ironOptions: IronSessionOptions = {
+  cookieName: process.env.IRON_SESSION_COOKIE_NAME!,
+  password: process.env.IRON_SESSION_PASSWORD!,
+  cookieOptions: {
+    secure: process.env.NODE_ENV === "production",
+  },
+};
+
+const dbClient = new DBClient({
+  region: process.env._AWS_REGION as string,
+  accessKey: process.env._AWS_ACCESS_KEY_ID as string,
+  secretKey: process.env._AWS_SECRET_ACCESS_KEY as string,
+  tableName: process.env._AWS_DYNAMO_TABLE_NAME as string,
+});
 
 const availableNetwork = [Number(process.env.NEXT_PUBLIC_CHAIN_ID)];
 
@@ -85,7 +100,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     case "GET":
       try {
         const { lastEvaluatedKeyId, lastEvaluatedKeyCreatedAt } = req.query;
-        const metaData = await scanMetaData(
+        const metaData = await dbClient.scanMetaData(
           lastEvaluatedKeyId as string,
           lastEvaluatedKeyCreatedAt as string,
         );
@@ -99,7 +114,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       try {
         requireAvailableNetwork(req);
         const { metaData } = await requireContractOwner(req);
-        const result = await addMetaData(metaData);
+        const result = await dbClient.addMetaData(metaData);
         res.json({ result });
       } catch (_error) {
         console.log(_error);
@@ -110,7 +125,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       try {
         requireAvailableNetwork(req);
         const { metaData } = await requireContractOwner(req);
-        const result = await updateAuction(metaData);
+        const result = await dbClient.updateAuction(metaData);
         res.json({ result });
       } catch (_error: any) {
         console.log(_error);

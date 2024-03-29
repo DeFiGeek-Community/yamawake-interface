@@ -63,6 +63,7 @@ export default function Header({ title }: HeaderProps) {
               <ProviderLogo
                 display={{ base: "none", md: "flex" }}
                 width={"26px"}
+                fontSize={"26px"}
                 connectorId={connector.id}
               />
             )}
