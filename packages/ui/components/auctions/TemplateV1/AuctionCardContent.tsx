@@ -78,10 +78,7 @@ export default function AuctionCardContent({
               <chakra.div flex={11} pr={4}>
                 <Heading size="lg">
                   {editable ? (
-                    <Link
-                      _hover={{ opacity: 0.75 }}
-                      href={`/auctions/${chain?.name.toLowerCase()}/${auction.id}`}
-                    >
+                    <Link _hover={{ opacity: 0.75 }} href={`/auctions/${chain?.id}/${auction.id}`}>
                       {data?.metaData?.title ? data?.metaData?.title : t("UNNAMED_SALE")}
                     </Link>
                   ) : (
@@ -196,7 +193,7 @@ export default function AuctionCardContent({
   } else {
     return (
       <Link
-        href={`/auctions/${chain?.name.toLowerCase()}/${auction.id}`}
+        href={`/auctions/${chain?.id}/${auction.id}`}
         transition={"filter"}
         transitionDuration={"0.3s"}
         w={{ base: "100%" }}

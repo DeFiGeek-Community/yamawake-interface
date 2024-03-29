@@ -16,7 +16,7 @@ import { getDefaultChain, getSupportedChain } from "lib/utils/chain";
 
 export default function Web() {
   const router = useRouter();
-  const { chainName } = router.query;
+  const { chainId } = router.query;
   const { currentUser, mutate } = useContext(CurrentUserContext);
   const { t } = useLocale();
   const { chain } = useNetwork();
@@ -32,13 +32,13 @@ export default function Web() {
 
   useEffect(() => {
     let toChain: Chain | undefined;
-    if (typeof chainName === "string") {
-      toChain = getSupportedChain(chainName);
-    } else if (chain) {
-      toChain = toChain;
+    if (chain) {
+      toChain = chain;
+    } else if (typeof chainId === "string") {
+      toChain = getSupportedChain(chainId);
     }
     if (toChain) setRequestedChain(toChain);
-  }, [chain, chainName]);
+  }, [chain, chainId]);
 
   return (
     <Layout>

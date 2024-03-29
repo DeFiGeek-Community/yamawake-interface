@@ -14,10 +14,10 @@ import { getSupportedChain } from "lib/utils/chain";
 export default function AuctionPage() {
   const { address } = useAccount();
   const router = useRouter();
-  const { id, chainName } = router.query;
+  const { id, chainId } = router.query;
   const { t } = useLocale();
   const toast = useToast({ position: "top-right", isClosable: true });
-  const chain = getSupportedChain(String(chainName));
+  const chain = getSupportedChain(String(chainId));
   const {
     data: auctionData,
     mutate: refetch,
@@ -29,7 +29,7 @@ export default function AuctionPage() {
   );
   const { data: metaData, mutate, error: dynamodbError } = useSWRMetaData(chain?.id, id as string);
 
-  if (!chainName)
+  if (!chainId)
     return (
       <Layout>
         <SkeletonAuction />

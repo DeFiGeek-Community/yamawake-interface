@@ -20,10 +20,11 @@ import {
   MenuItem,
 } from "@chakra-ui/react";
 import { ChevronDownIcon } from "@chakra-ui/icons";
-import Router from "next/router";
+import Router, { useRouter } from "next/router";
 import { useAccount, useEnsAvatar, useEnsName, useDisconnect, useNetwork } from "wagmi";
 import { Chain, switchNetwork } from "@wagmi/core";
 import { SUPPORTED_CHAINS } from "lib/constants/chains";
+import { getDefaultChain, getSupportedChain, isSupportedChain } from "lib/utils/chain";
 import { useLocale } from "../../hooks/useLocale";
 import CurrentUserContext from "../../contexts/CurrentUserContext";
 import SignInButton from "../shared/SignInButton";
@@ -35,7 +36,10 @@ type HeaderProps = {
 };
 
 export default function Header({ title }: HeaderProps) {
+  const router = useRouter();
+  const { chainId } = router.query;
   const { chain } = useNetwork();
+  const [requestedChain, setRequestedChain] = useState<Chain>(getDefaultChain());
   const toast = useToast({ position: "top-right", isClosable: true });
   const { currentUser, mutate } = useContext(CurrentUserContext);
   const { address, isConnected, connector } = useAccount();
@@ -55,6 +59,16 @@ export default function Header({ title }: HeaderProps) {
     const _address = currentUser ? currentUser.address : address;
     setAddressString(`${_address?.slice(0, 5)}...${_address?.slice(-4)}`);
   }, [currentUser, address]);
+
+  useEffect(() => {
+    let toChain: Chain | undefined;
+    if (chain) {
+      toChain = chain;
+    } else if (typeof chainId === "string") {
+      toChain = getSupportedChain(chainId);
+    }
+    if (toChain) setRequestedChain(toChain);
+  }, [chain, chainId]);
 
   const connectedMenu = () => {
     return (
@@ -122,7 +136,27 @@ export default function Header({ title }: HeaderProps) {
               </MenuButton>
               <MenuList zIndex={101}>
                 <HStack spacing={1} px={2} display={{ base: "block", md: "none" }}>
-                  <Tag size={"sm"}>{chain?.unsupported ? "Unsupported Chain" : chain?.name}</Tag>
+                  <Menu>
+                    <MenuButton as={chakra.span} cursor={"pointer"}>
+                      <Tag size={"md"} display={{ base: "inline-flex", md: "none" }}>
+                        {chain?.unsupported ? "Unsupported Chain" : chain?.name}
+                        {chain?.testnet && <> (Testnet)</>}
+                        <ChevronDownIcon />
+                      </Tag>
+                    </MenuButton>
+                    <MenuList zIndex={101}>
+                      {SUPPORTED_CHAINS.map((chain: Chain & { testnet?: boolean }) => (
+                        <MenuItem onClick={() => switchNetwork({ chainId: chain.id })}>
+                          {chain.name}
+                          {chain.testnet && (
+                            <Tag ml={1} size={"sm"}>
+                              Testnet
+                            </Tag>
+                          )}
+                        </MenuItem>
+                      ))}
+                    </MenuList>
+                  </Menu>
                   {currentUser && (
                     <Tag size={"sm"} ml={1}>
                       Signed in
@@ -252,6 +286,35 @@ export default function Header({ title }: HeaderProps) {
               {t("SALES")}
             </Button>
 
+            {!isConnected && (
+              <Menu>
+                <MenuButton>
+                  <Tag size={"lg"} display={{ base: "none", md: "flex" }}>
+                    {!isSupportedChain(requestedChain.id)
+                      ? "Unsupported Chain"
+                      : requestedChain.name}
+                    {requestedChain.testnet && (
+                      <Tag ml={2} size={"sm"}>
+                        Testnet
+                      </Tag>
+                    )}
+                  </Tag>
+                </MenuButton>
+                <MenuList zIndex={101}>
+                  {SUPPORTED_CHAINS.map((chain: Chain & { testnet?: boolean }) => (
+                    <MenuItem onClick={() => Router.push(`?chainId=${chain.id}`)}>
+                      {chain.name}
+                      {chain.testnet && (
+                        <Tag ml={1} size={"sm"}>
+                          Testnet
+                        </Tag>
+                      )}
+                    </MenuItem>
+                  ))}
+                </MenuList>
+              </Menu>
+            )}
+
             {!currentUser && !isConnected && (
               <Menu>
                 <HStack spacing={1}>
@@ -302,7 +365,6 @@ export default function Header({ title }: HeaderProps) {
                             duration: 5000,
                           });
                         }}
-                        // nonce={nonce}
                       />
                     </chakra.div>
                   </MenuList>

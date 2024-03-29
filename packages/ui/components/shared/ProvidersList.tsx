@@ -24,10 +24,10 @@ export default function ProvidersList({
   onClose: () => void;
 }) {
   const router = useRouter();
-  const { chainName } = router.query;
+  const { chainId } = router.query;
   const toast = useToast({ position: "top-right", isClosable: true });
   const { connect, connectors, error, isLoading, pendingConnector } = useConnect({
-    chainId: typeof chainName === "string" ? getSupportedChain(chainName)?.id : undefined,
+    chainId: typeof chainId === "string" ? getSupportedChain(chainId)?.id : undefined,
     onSuccess: async (data) => {
       let chainId = data.chain.id;
       if (!isSupportedChain(data.chain.id) && switchNetwork) {

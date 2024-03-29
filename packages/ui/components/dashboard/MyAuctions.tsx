@@ -1,4 +1,3 @@
-import { useAccount } from "wagmi";
 import { chakra, Flex, Button, Text, HStack, useDisclosure } from "@chakra-ui/react";
 import { AddIcon } from "@chakra-ui/icons";
 import { AuctionProps } from "lib/types/Auction";
