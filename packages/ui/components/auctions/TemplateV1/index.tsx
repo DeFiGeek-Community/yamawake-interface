@@ -193,6 +193,9 @@ export default memo(function DetailPage({
             alt={metaData.title}
           />
           <Box px={{ base: 0, md: 8 }} w={{ base: "full", md: "auto" }}>
+            <Tag variant="solid" colorScheme="teal" borderRadius="full">
+              {chain?.name}
+            </Tag>
             <Heading>{metaData.title ? metaData.title : "Unnamed Auction"}</Heading>
             <HStack spacing={{ base: 4, lg: 4 }} mt={1}>
               <chakra.p fontSize={"sm"}>
