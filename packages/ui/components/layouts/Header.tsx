@@ -20,26 +20,25 @@ import {
   MenuItem,
 } from "@chakra-ui/react";
 import { ChevronDownIcon } from "@chakra-ui/icons";
-import Router, { useRouter } from "next/router";
+import Router from "next/router";
 import { useAccount, useEnsAvatar, useEnsName, useDisconnect, useNetwork } from "wagmi";
 import { Chain, switchNetwork } from "@wagmi/core";
 import { SUPPORTED_CHAINS } from "lib/constants/chains";
-import { getDefaultChain, getSupportedChain, isSupportedChain } from "lib/utils/chain";
+import { isSupportedChain } from "lib/utils/chain";
 import { useLocale } from "../../hooks/useLocale";
 import CurrentUserContext from "../../contexts/CurrentUserContext";
 import SignInButton from "../shared/SignInButton";
 import ProviderLogo from "../shared/ProviderLogo";
 import ConnectButton from "../shared/connectButton";
+import RequestedChainContext from "../../contexts/RequestedChainContext";
 
 type HeaderProps = {
   title?: string;
 };
 
 export default function Header({ title }: HeaderProps) {
-  const router = useRouter();
-  const { chainId } = router.query;
   const { chain } = useNetwork();
-  const [requestedChain, setRequestedChain] = useState<Chain>(getDefaultChain());
+  const { requestedChain, connectedChain, chainId } = useContext(RequestedChainContext);
   const toast = useToast({ position: "top-right", isClosable: true });
   const { currentUser, mutate } = useContext(CurrentUserContext);
   const { address, isConnected, connector } = useAccount();
@@ -59,16 +58,6 @@ export default function Header({ title }: HeaderProps) {
     const _address = currentUser ? currentUser.address : address;
     setAddressString(`${_address?.slice(0, 5)}...${_address?.slice(-4)}`);
   }, [currentUser, address]);
-
-  useEffect(() => {
-    let toChain: Chain | undefined;
-    if (chain) {
-      toChain = chain;
-    } else if (typeof chainId === "string") {
-      toChain = getSupportedChain(chainId);
-    }
-    if (toChain) setRequestedChain(toChain);
-  }, [chain, chainId]);
 
   const connectedMenu = () => {
     return (
@@ -274,7 +263,7 @@ export default function Header({ title }: HeaderProps) {
               display={{ base: "none", md: "block" }}
               size={{ base: "xs", md: "sm" }}
               onClick={() =>
-                !isConnected && chainId
+                !connectedChain && chainId
                   ? Router.push(`/auctions?chainId=${chainId}`)
                   : Router.push("/auctions")
               }
@@ -286,7 +275,7 @@ export default function Header({ title }: HeaderProps) {
               display={{ base: isConnected ? "none" : "block", md: "none" }}
               size={{ base: "xs", md: "sm" }}
               onClick={() =>
-                !isConnected && chainId
+                !connectedChain && chainId
                   ? Router.push(`/auctions?chainId=${chainId}`)
                   : Router.push("/auctions")
               }
