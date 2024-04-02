@@ -14,7 +14,7 @@ import RequestedChainContext from "ui/contexts/RequestedChainContext";
 
 export default function Web() {
   const { currentUser, mutate } = useContext(CurrentUserContext);
-  const { requestedChain } = useContext(RequestedChainContext);
+  const { requestedChain, connectedChain, chainId } = useContext(RequestedChainContext);
   const { t } = useLocale();
 
   const {
@@ -69,7 +69,14 @@ export default function Web() {
           )}
         </HStack>
         <Flex alignItems={"center"} justifyContent={"center"} pb={8}>
-          <Button size={{ base: "md", md: "lg" }} onClick={() => Router.push("/auctions")}>
+          <Button
+            size={{ base: "md", md: "lg" }}
+            onClick={() =>
+              !connectedChain && chainId
+                ? Router.push(`/auctions?chainId=${chainId}`)
+                : Router.push("/auctions")
+            }
+          >
             {t("VIEW_ALL_SALES")}
           </Button>
         </Flex>

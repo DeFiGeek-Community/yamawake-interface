@@ -22,7 +22,13 @@ export const RequestedChainProvider: FC<{ children: ReactNode }> = ({ children }
   }, [chain, chainId]);
 
   return (
-    <RequestedChainContext.Provider value={{ requestedChain }}>
+    <RequestedChainContext.Provider
+      value={{
+        connectedChain: chain,
+        chainId: typeof chainId === "string" ? Number(chainId) : undefined,
+        requestedChain,
+      }}
+    >
       {children}
     </RequestedChainContext.Provider>
   );
