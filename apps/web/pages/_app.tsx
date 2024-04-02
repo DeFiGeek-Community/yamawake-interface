@@ -4,6 +4,7 @@ import { WagmiConfig } from "wagmi";
 import theme from "ui/themes";
 import config from "lib/connector";
 import { CurrentUserProvider } from "ui/components/providers/CurrentUserProvider";
+import { RequestedChainProvider } from "ui/components/providers/RequestedChainProvider";
 import "assets/css/styles.css";
 
 export default function MyApp({ Component, pageProps }: AppProps) {
@@ -11,8 +12,10 @@ export default function MyApp({ Component, pageProps }: AppProps) {
     <WagmiConfig config={config}>
       <ChakraProvider theme={theme}>
         <CurrentUserProvider>
-          <ColorModeScript initialColorMode={"dark"} />
-          <Component {...pageProps} />
+          <RequestedChainProvider>
+            <ColorModeScript initialColorMode={"dark"} />
+            <Component {...pageProps} />
+          </RequestedChainProvider>
         </CurrentUserProvider>
       </ChakraProvider>
     </WagmiConfig>

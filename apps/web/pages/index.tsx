@@ -1,5 +1,5 @@
-import { useContext, useEffect, useState } from "react";
-import Router, { useRouter } from "next/router";
+import { useContext } from "react";
+import Router from "next/router";
 import { HStack, Container, Alert, AlertIcon, Heading, Text, Flex, Button } from "@chakra-ui/react";
 import CurrentUserContext from "ui/contexts/CurrentUserContext";
 import Layout from "ui/components/layouts/layout";
@@ -10,17 +10,13 @@ import { useLocale } from "ui/hooks/useLocale";
 import { AuctionProps } from "lib/types/Auction";
 import { QueryType } from "lib/graphql/query";
 import MetaTags from "ui/components/layouts/MetaTags";
-import { useNetwork } from "wagmi";
-import { Chain } from "viem/chains";
-import { getDefaultChain, getSupportedChain } from "lib/utils/chain";
+import RequestedChainContext from "ui/contexts/RequestedChainContext";
 
 export default function Web() {
-  const router = useRouter();
-  const { chainId } = router.query;
   const { currentUser, mutate } = useContext(CurrentUserContext);
+  const { requestedChain } = useContext(RequestedChainContext);
   const { t } = useLocale();
-  const { chain } = useNetwork();
-  const [requestedChain, setRequestedChain] = useState<Chain>(getDefaultChain());
+
   const {
     auctions: activeAuctions,
     isLast: isLastActiveAuctions,
@@ -29,16 +25,6 @@ export default function Web() {
     error: activeAuctionsError,
     loadMoreAuctions: loadMoreActiveAuctions,
   } = useSWRAuctions({ first: 5, keySuffix: "top" }, QueryType.ACTIVE, requestedChain.id);
-
-  useEffect(() => {
-    let toChain: Chain | undefined;
-    if (chain) {
-      toChain = chain;
-    } else if (typeof chainId === "string") {
-      toChain = getSupportedChain(chainId);
-    }
-    if (toChain) setRequestedChain(toChain);
-  }, [chain, chainId]);
 
   return (
     <Layout>
