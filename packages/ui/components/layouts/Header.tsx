@@ -20,7 +20,7 @@ import {
   MenuItem,
 } from "@chakra-ui/react";
 import { ChevronDownIcon } from "@chakra-ui/icons";
-import Router from "next/router";
+import { useRouter } from "next/router";
 import { useAccount, useEnsAvatar, useEnsName, useDisconnect, useNetwork } from "wagmi";
 import { Chain, switchNetwork } from "@wagmi/core";
 import { SUPPORTED_CHAINS } from "lib/constants/chains";
@@ -37,6 +37,7 @@ type HeaderProps = {
 };
 
 export default function Header({ title }: HeaderProps) {
+  const router = useRouter();
   const { chain } = useNetwork();
   const { requestedChain, connectedChain, chainId } = useContext(RequestedChainContext);
   const toast = useToast({ position: "top-right", isClosable: true });
@@ -59,6 +60,14 @@ export default function Header({ title }: HeaderProps) {
     setAddressString(`${_address?.slice(0, 5)}...${_address?.slice(-4)}`);
   }, [currentUser, address]);
 
+  const getLinkPath = (chainId: number): string => {
+    if (router.asPath.startsWith("/auctions")) {
+      return `/auctions/${chainId}`;
+    } else {
+      return `?chainId=${chainId}`;
+    }
+  };
+
   const connectedMenu = () => {
     return (
       <>
@@ -74,7 +83,12 @@ export default function Header({ title }: HeaderProps) {
             )}
             <Menu>
               <MenuButton>
-                <Tag size={"lg"} display={{ base: "none", md: "flex" }}>
+                <Tag
+                  size={"lg"}
+                  display={{ base: "none", md: "flex" }}
+                  variant="solid"
+                  colorScheme="teal"
+                >
                   {chain?.unsupported ? "Unsupported Chain" : chain?.name}
                   {chain?.testnet && (
                     <Tag ml={2} size={"sm"}>
@@ -85,7 +99,7 @@ export default function Header({ title }: HeaderProps) {
               </MenuButton>
               <MenuList zIndex={101}>
                 {SUPPORTED_CHAINS.map((chain: Chain & { testnet?: boolean }) => (
-                  <MenuItem onClick={() => switchNetwork({ chainId: chain.id })}>
+                  <MenuItem key={chain.id} onClick={() => switchNetwork({ chainId: chain.id })}>
                     {chain.name}
                     {chain.testnet && (
                       <Tag ml={1} size={"sm"}>
@@ -124,10 +138,15 @@ export default function Header({ title }: HeaderProps) {
                 </HStack>
               </MenuButton>
               <MenuList zIndex={101}>
-                <HStack spacing={1} px={2} display={{ base: "block", md: "none" }}>
+                <HStack spacing={1} px={2} mb={2} display={{ base: "block", md: "none" }}>
                   <Menu>
                     <MenuButton as={chakra.span} cursor={"pointer"}>
-                      <Tag size={"md"} display={{ base: "inline-flex", md: "none" }}>
+                      <Tag
+                        size={"md"}
+                        display={{ base: "inline-flex", md: "none" }}
+                        variant="solid"
+                        colorScheme="teal"
+                      >
                         {chain?.unsupported ? "Unsupported Chain" : chain?.name}
                         {chain?.testnet && <> (Testnet)</>}
                         <ChevronDownIcon />
@@ -135,7 +154,10 @@ export default function Header({ title }: HeaderProps) {
                     </MenuButton>
                     <MenuList zIndex={101}>
                       {SUPPORTED_CHAINS.map((chain: Chain & { testnet?: boolean }) => (
-                        <MenuItem onClick={() => switchNetwork({ chainId: chain.id })}>
+                        <MenuItem
+                          key={chain.id}
+                          onClick={() => switchNetwork({ chainId: chain.id })}
+                        >
                           {chain.name}
                           {chain.testnet && (
                             <Tag ml={1} size={"sm"}>
@@ -154,13 +176,13 @@ export default function Header({ title }: HeaderProps) {
                 </HStack>
                 <MenuItem
                   display={{ base: "block", md: "none" }}
-                  onClick={() => Router.push("/dashboard")}
+                  onClick={() => router.push("/dashboard")}
                 >
                   {t("DASHBOARD")}
                 </MenuItem>
                 <MenuItem
                   display={{ base: "block", md: "none" }}
-                  onClick={() => Router.push("/auctions")}
+                  onClick={() => router.push("/auctions")}
                 >
                   {t("VIEW_ALL_SALES")}
                 </MenuItem>
@@ -201,7 +223,7 @@ export default function Header({ title }: HeaderProps) {
                         w="full"
                         onSignInSuccess={async () => {
                           mutate && (await mutate());
-                          Router.push("/dashboard");
+                          router.push("/dashboard");
                         }}
                         onSignInError={(error: Error) => {
                           toast({
@@ -253,7 +275,7 @@ export default function Header({ title }: HeaderProps) {
                 display={{ base: "none", md: "block" }}
                 variant="ghost"
                 size={{ base: "xs", md: "sm" }}
-                onClick={() => Router.push("/dashboard")}
+                onClick={() => router.push("/dashboard")}
               >
                 {t("DASHBOARD")}
               </Button>
@@ -264,8 +286,8 @@ export default function Header({ title }: HeaderProps) {
               size={{ base: "xs", md: "sm" }}
               onClick={() =>
                 !connectedChain && chainId
-                  ? Router.push(`/auctions?chainId=${chainId}`)
-                  : Router.push("/auctions")
+                  ? router.push(`/auctions?chainId=${chainId}`)
+                  : router.push("/auctions")
               }
             >
               {t("VIEW_ALL_SALES")}
@@ -276,8 +298,8 @@ export default function Header({ title }: HeaderProps) {
               size={{ base: "xs", md: "sm" }}
               onClick={() =>
                 !connectedChain && chainId
-                  ? Router.push(`/auctions?chainId=${chainId}`)
-                  : Router.push("/auctions")
+                  ? router.push(`/auctions?chainId=${chainId}`)
+                  : router.push("/auctions")
               }
             >
               {t("SALES")}
@@ -286,7 +308,12 @@ export default function Header({ title }: HeaderProps) {
             {!isConnected && (
               <Menu>
                 <MenuButton>
-                  <Tag size={"lg"} display={{ base: "none", md: "flex" }}>
+                  <Tag
+                    size={"lg"}
+                    display={{ base: "none", md: "flex" }}
+                    variant="solid"
+                    colorScheme="teal"
+                  >
                     {!isSupportedChain(requestedChain.id)
                       ? "Unsupported Chain"
                       : requestedChain.name}
@@ -299,7 +326,7 @@ export default function Header({ title }: HeaderProps) {
                 </MenuButton>
                 <MenuList zIndex={101}>
                   {SUPPORTED_CHAINS.map((chain: Chain & { testnet?: boolean }) => (
-                    <MenuItem onClick={() => Router.push(`?chainId=${chain.id}`)}>
+                    <MenuItem key={chain.id} onClick={() => router.push(getLinkPath(chain.id))}>
                       {chain.name}
                       {chain.testnet && (
                         <Tag ml={1} size={"sm"}>
@@ -353,7 +380,7 @@ export default function Header({ title }: HeaderProps) {
                         w="full"
                         onSignInSuccess={async () => {
                           mutate && (await mutate());
-                          Router.push("/dashboard");
+                          router.push("/dashboard");
                         }}
                         onSignInError={(error: Error) => {
                           toast({
