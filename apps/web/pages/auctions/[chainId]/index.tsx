@@ -1,4 +1,3 @@
-import { useContext } from "react";
 import {
   Container,
   Button,
@@ -17,14 +16,14 @@ import { AuctionProps } from "lib/types/Auction";
 import Layout from "ui/components/layouts/layout";
 import AuctionCard, { AuctionCardSkeleton } from "ui/components/auctions/AuctionCard";
 import { useSWRAuctions } from "ui/hooks/useAuctions";
+import { useRedirectBasedOnChain } from "ui/hooks/useRedirectBasedOnChain";
 import { QueryType } from "lib/graphql/query";
 import { useLocale } from "ui/hooks/useLocale";
 import MetaTags from "ui/components/layouts/MetaTags";
-import RequestedChainContext from "ui/contexts/RequestedChainContext";
 
 export default function AuctionPage() {
-  const { requestedChain } = useContext(RequestedChainContext);
   const { t } = useLocale();
+  const { requestedChain } = useRedirectBasedOnChain();
 
   const {
     auctions: activeAuctions,

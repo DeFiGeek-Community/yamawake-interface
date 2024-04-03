@@ -11,12 +11,12 @@ export default function MyApp({ Component, pageProps }: AppProps) {
   return (
     <WagmiConfig config={config}>
       <ChakraProvider theme={theme}>
-        <CurrentUserProvider>
-          <RequestedChainProvider>
+        <RequestedChainProvider>
+          <CurrentUserProvider>
             <ColorModeScript initialColorMode={"dark"} />
             <Component {...pageProps} />
-          </RequestedChainProvider>
-        </CurrentUserProvider>
+          </CurrentUserProvider>
+        </RequestedChainProvider>
       </ChakraProvider>
     </WagmiConfig>
   );
