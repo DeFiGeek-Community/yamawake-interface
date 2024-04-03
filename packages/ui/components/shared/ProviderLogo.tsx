@@ -1,5 +1,5 @@
 import { Image, Icon } from "@chakra-ui/react";
-import type { LayoutProps } from "@chakra-ui/react";
+import type { LayoutProps, SpaceProps } from "@chakra-ui/react";
 import { BiSolidWallet } from "react-icons/bi";
 import metamaskLogo from "assets/images/metamask-fox.svg";
 import coinbaseLogo from "assets/images/coinbase-wallet-logo.png";
@@ -18,7 +18,8 @@ export default function ProviderLogo({
 }: {
   connectorId: string;
   fontSize?: number | string;
-} & LayoutProps) {
+} & LayoutProps &
+  SpaceProps) {
   return logoMap[connectorId] ? (
     <Image
       alt={connectorId}

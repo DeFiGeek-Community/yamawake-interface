@@ -1,15 +1,14 @@
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { chakra, Alert, AlertIcon, useColorMode } from "@chakra-ui/react";
-import { useNetwork } from "wagmi";
-import { getDefaultChain } from "lib/utils/chain";
 import { useIsMounted } from "../../hooks/useIsMounted";
 import { useLocale } from "../../hooks/useLocale";
 import Header from "./Header";
 import Footer from "./Footer";
+import RequestedChainContext from "../../contexts/RequestedChainContext";
 
 export default function Layout({ title, children }: { title?: string; children: React.ReactNode }) {
   const isMounted = useIsMounted();
-  const { chain } = useNetwork();
+  const { requestedChain, connectedChain: chain } = useContext(RequestedChainContext);
 
   const { t } = useLocale();
 
@@ -26,12 +25,12 @@ export default function Layout({ title, children }: { title?: string; children: 
   return (
     <>
       <Header title={title ? title : "Yamawake"} />
-      {chain && chain.unsupported && (
+      {chain && chain?.id !== requestedChain.id && (
         <chakra.div px={{ base: 0, md: 8 }} mt={1} position={"absolute"} w={"full"} zIndex={"10"}>
           <Alert status="warning" mb={4}>
             <AlertIcon />{" "}
             {t("PLEASE_CONNECT_TO", {
-              network: getDefaultChain().name,
+              network: requestedChain.name,
             })}
           </Alert>
         </chakra.div>

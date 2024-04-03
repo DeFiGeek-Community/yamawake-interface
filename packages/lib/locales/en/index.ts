@@ -138,4 +138,5 @@ export default {
     "The target amount of this auction. Users can buy even after this value is achieved.",
   TEMPLATE_EXPLANATION: "Explanation of Each Template ",
   SIGN_SAFE_ACCOUNT: "Please sign the message from your Safe account without leaving this page.",
+  SWITCH_NETWORK_TO: "Switch to {{chainName}}",
 };

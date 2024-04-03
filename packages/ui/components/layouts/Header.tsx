@@ -72,43 +72,55 @@ export default function Header({ title }: HeaderProps) {
       <>
         <Menu>
           <HStack spacing={1}>
+            {chain?.id !== requestedChain.id ? (
+              <Button
+                size={"md"}
+                colorScheme="red"
+                onClick={() => switchNetwork({ chainId: requestedChain.id })}
+              >
+                {t("SWITCH_NETWORK_TO", { chainName: requestedChain.name })}
+              </Button>
+            ) : (
+              <Menu>
+                <MenuButton>
+                  <Tag
+                    size={"lg"}
+                    display={{ base: "none", md: "flex" }}
+                    variant="solid"
+                    colorScheme="teal"
+                  >
+                    {chain?.unsupported ? "Unsupported Chain" : chain?.name}
+                    {chain?.testnet && (
+                      <Tag ml={2} size={"sm"}>
+                        Testnet
+                      </Tag>
+                    )}
+                  </Tag>
+                </MenuButton>
+                <MenuList zIndex={101}>
+                  {SUPPORTED_CHAINS.map((chain: Chain & { testnet?: boolean }) => (
+                    <MenuItem key={chain.id} onClick={() => switchNetwork({ chainId: chain.id })}>
+                      {chain.name}
+                      {chain.testnet && (
+                        <Tag ml={1} size={"sm"}>
+                          Testnet
+                        </Tag>
+                      )}
+                    </MenuItem>
+                  ))}
+                </MenuList>
+              </Menu>
+            )}
+
             {connector?.id && (
               <ProviderLogo
                 display={{ base: "none", md: "flex" }}
                 width={"26px"}
                 fontSize={"26px"}
+                ml={2}
                 connectorId={connector.id}
               />
             )}
-            <Menu>
-              <MenuButton>
-                <Tag
-                  size={"lg"}
-                  display={{ base: "none", md: "flex" }}
-                  variant="solid"
-                  colorScheme="teal"
-                >
-                  {chain?.unsupported ? "Unsupported Chain" : chain?.name}
-                  {chain?.testnet && (
-                    <Tag ml={2} size={"sm"}>
-                      Testnet
-                    </Tag>
-                  )}
-                </Tag>
-              </MenuButton>
-              <MenuList zIndex={101}>
-                {SUPPORTED_CHAINS.map((chain: Chain & { testnet?: boolean }) => (
-                  <MenuItem key={chain.id} onClick={() => switchNetwork({ chainId: chain.id })}>
-                    {chain.name}
-                    {chain.testnet && (
-                      <Tag ml={1} size={"sm"}>
-                        Testnet
-                      </Tag>
-                    )}
-                  </MenuItem>
-                ))}
-              </MenuList>
-            </Menu>
             <Menu>
               <MenuButton>
                 <HStack>
