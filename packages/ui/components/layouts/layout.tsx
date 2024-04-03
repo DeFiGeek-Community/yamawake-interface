@@ -1,14 +1,14 @@
-import { useContext, useEffect } from "react";
+import { useEffect } from "react";
 import { chakra, Alert, AlertIcon, useColorMode } from "@chakra-ui/react";
 import { useIsMounted } from "../../hooks/useIsMounted";
 import { useLocale } from "../../hooks/useLocale";
+import { useRequestedChain } from "../../hooks/useRequestedChain";
 import Header from "./Header";
 import Footer from "./Footer";
-import RequestedChainContext from "../../contexts/RequestedChainContext";
 
 export default function Layout({ title, children }: { title?: string; children: React.ReactNode }) {
   const isMounted = useIsMounted();
-  const { requestedChain, connectedChain: chain } = useContext(RequestedChainContext);
+  const { requestedChain, connectedChain: chain } = useRequestedChain();
 
   const { t } = useLocale();
 

@@ -1,10 +1,8 @@
-import { FC, ReactNode, useContext, useEffect } from "react";
+import { FC, ReactNode, useEffect } from "react";
 import { useAccount, useDisconnect, useNetwork } from "wagmi";
 import { useToast } from "@chakra-ui/react";
 import { useCurrentUser } from "../../hooks/Auth/useCurrentUser";
 import CurrentUserContext from "../../contexts/CurrentUserContext";
-import RequestedChainContext from "../../contexts/RequestedChainContext";
-import { useRouter } from "next/router";
 
 export const CurrentUserProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const { address } = useAccount();

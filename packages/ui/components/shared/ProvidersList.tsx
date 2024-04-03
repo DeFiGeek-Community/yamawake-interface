@@ -11,9 +11,8 @@ import {
 } from "@chakra-ui/react";
 import ProviderLogo from "./ProviderLogo";
 import { useLocale } from "../../hooks/useLocale";
+import { useRequestedChain } from "../../hooks/useRequestedChain";
 import { getDefaultChain, isSupportedChain } from "lib/utils/chain";
-import { useContext } from "react";
-import RequestedChainContext from "../../contexts/RequestedChainContext";
 
 export default function ProvidersList({
   isOpen,
@@ -24,7 +23,7 @@ export default function ProvidersList({
   onConnectSuccess?: ({ address, chainId }: { address: `0x${string}`; chainId: number }) => void;
   onClose: () => void;
 }) {
-  const { requestedChain } = useContext(RequestedChainContext);
+  const { requestedChain } = useRequestedChain();
   const toast = useToast({ position: "top-right", isClosable: true });
   const { connect, connectors, error, isLoading, pendingConnector } = useConnect({
     chainId: requestedChain.id,

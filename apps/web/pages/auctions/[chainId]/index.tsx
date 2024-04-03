@@ -16,14 +16,14 @@ import { AuctionProps } from "lib/types/Auction";
 import Layout from "ui/components/layouts/layout";
 import AuctionCard, { AuctionCardSkeleton } from "ui/components/auctions/AuctionCard";
 import { useSWRAuctions } from "ui/hooks/useAuctions";
-import { useRedirectBasedOnChain } from "ui/hooks/useRedirectBasedOnChain";
+import { useRequestedChain } from "ui/hooks/useRequestedChain";
 import { QueryType } from "lib/graphql/query";
 import { useLocale } from "ui/hooks/useLocale";
 import MetaTags from "ui/components/layouts/MetaTags";
 
 export default function AuctionPage() {
   const { t } = useLocale();
-  const { requestedChain } = useRedirectBasedOnChain();
+  const { requestedChain } = useRequestedChain({ redirectOnSwitchNetwork: true });
 
   const {
     auctions: activeAuctions,

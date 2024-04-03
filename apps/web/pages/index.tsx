@@ -6,15 +6,15 @@ import Layout from "ui/components/layouts/layout";
 import Hero from "ui/components/shared/Hero";
 import AuctionCard, { AuctionCardSkeleton } from "ui/components/auctions/AuctionCard";
 import { useSWRAuctions } from "ui/hooks/useAuctions";
+import { useRequestedChain } from "ui/hooks/useRequestedChain";
 import { useLocale } from "ui/hooks/useLocale";
 import { AuctionProps } from "lib/types/Auction";
 import { QueryType } from "lib/graphql/query";
 import MetaTags from "ui/components/layouts/MetaTags";
-import RequestedChainContext from "ui/contexts/RequestedChainContext";
 
 export default function Web() {
   const { currentUser, mutate } = useContext(CurrentUserContext);
-  const { requestedChain } = useContext(RequestedChainContext);
+  const { requestedChain } = useRequestedChain();
   const { t } = useLocale();
 
   const {

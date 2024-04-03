@@ -26,11 +26,11 @@ import { Chain, switchNetwork } from "@wagmi/core";
 import { SUPPORTED_CHAINS } from "lib/constants/chains";
 import { isSupportedChain } from "lib/utils/chain";
 import { useLocale } from "../../hooks/useLocale";
+import { useRequestedChain } from "../../hooks/useRequestedChain";
 import CurrentUserContext from "../../contexts/CurrentUserContext";
 import SignInButton from "../shared/SignInButton";
 import ProviderLogo from "../shared/ProviderLogo";
 import ConnectButton from "../shared/connectButton";
-import RequestedChainContext from "../../contexts/RequestedChainContext";
 
 type HeaderProps = {
   title?: string;
@@ -38,7 +38,7 @@ type HeaderProps = {
 
 export default function Header({ title }: HeaderProps) {
   const router = useRouter();
-  const { requestedChain, connectedChain: chain } = useContext(RequestedChainContext);
+  const { requestedChain, connectedChain: chain } = useRequestedChain();
   const toast = useToast({ position: "top-right", isClosable: true });
   const { currentUser, mutate } = useContext(CurrentUserContext);
   const { address, isConnected, connector } = useAccount();
