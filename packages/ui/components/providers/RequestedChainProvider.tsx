@@ -13,10 +13,10 @@ export const RequestedChainProvider: FC<{ children: ReactNode }> = ({ children }
 
   useEffect(() => {
     let toChain: Chain | undefined;
-    if (chain) {
-      toChain = chain;
-    } else if (typeof chainId === "string") {
+    if (typeof chainId === "string") {
       toChain = getSupportedChain(chainId);
+    } else if (chain) {
+      toChain = chain;
     }
     if (toChain) setRequestedChain(toChain);
   }, [chain, chainId]);
@@ -25,7 +25,6 @@ export const RequestedChainProvider: FC<{ children: ReactNode }> = ({ children }
     <RequestedChainContext.Provider
       value={{
         connectedChain: chain,
-        chainId: typeof chainId === "string" ? Number(chainId) : undefined,
         requestedChain,
       }}
     >

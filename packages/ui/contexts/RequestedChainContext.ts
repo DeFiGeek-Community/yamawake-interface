@@ -1,16 +1,20 @@
 import { createContext } from "react";
 import { Chain } from "viem/chains";
+import { ChainConfig, ChainConstants, ChainFormatters } from "viem/_types/types/chain";
 import { getDefaultChain } from "lib/utils/chain";
 
 export type RequestedChainContextType = {
-  connectedChain: Chain | undefined; // Connected chain
-  chainId: number | undefined; //chainId derived from URL
+  connectedChain:
+    | (ChainConstants &
+        ChainConfig<ChainFormatters | undefined> & {
+          unsupported?: boolean | undefined;
+        })
+    | undefined; // Connected chain
   requestedChain: Chain; // requested chain object derived from chainId in URL
 };
 
 const RequestedChainContext = createContext<RequestedChainContextType>({
   connectedChain: undefined,
-  chainId: undefined,
   requestedChain: getDefaultChain(),
 });
 

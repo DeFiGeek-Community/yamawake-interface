@@ -11,8 +11,9 @@ import {
 } from "@chakra-ui/react";
 import ProviderLogo from "./ProviderLogo";
 import { useLocale } from "../../hooks/useLocale";
-import { useRouter } from "next/router";
-import { getDefaultChain, getSupportedChain, isSupportedChain } from "lib/utils/chain";
+import { getDefaultChain, isSupportedChain } from "lib/utils/chain";
+import { useContext } from "react";
+import RequestedChainContext from "../../contexts/RequestedChainContext";
 
 export default function ProvidersList({
   isOpen,
@@ -23,11 +24,10 @@ export default function ProvidersList({
   onConnectSuccess?: ({ address, chainId }: { address: `0x${string}`; chainId: number }) => void;
   onClose: () => void;
 }) {
-  const router = useRouter();
-  const { chainId } = router.query;
+  const { requestedChain } = useContext(RequestedChainContext);
   const toast = useToast({ position: "top-right", isClosable: true });
   const { connect, connectors, error, isLoading, pendingConnector } = useConnect({
-    chainId: typeof chainId === "string" ? getSupportedChain(chainId)?.id : undefined,
+    chainId: requestedChain.id,
     onSuccess: async (data) => {
       let chainId = data.chain.id;
       if (!isSupportedChain(data.chain.id) && switchNetwork) {

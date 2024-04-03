@@ -8,7 +8,6 @@ import { CoinbaseWalletConnector } from "@wagmi/core/connectors/coinbaseWallet";
 import { InjectedConnector } from "@wagmi/core/connectors/injected";
 import { MetaMaskConnector } from "@wagmi/core/connectors/metaMask";
 import { WalletConnectConnector } from "@wagmi/core/connectors/walletConnect";
-import { getChain } from "../utils/chain";
 
 function getSupportedChain(): Chain[] {
   return [mainnet, sepolia, arbitrum, hardhat];

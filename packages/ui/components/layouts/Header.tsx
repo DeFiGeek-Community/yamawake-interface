@@ -21,7 +21,7 @@ import {
 } from "@chakra-ui/react";
 import { ChevronDownIcon } from "@chakra-ui/icons";
 import { useRouter } from "next/router";
-import { useAccount, useEnsAvatar, useEnsName, useDisconnect, useNetwork } from "wagmi";
+import { useAccount, useEnsAvatar, useEnsName, useDisconnect } from "wagmi";
 import { Chain, switchNetwork } from "@wagmi/core";
 import { SUPPORTED_CHAINS } from "lib/constants/chains";
 import { isSupportedChain } from "lib/utils/chain";
@@ -38,8 +38,7 @@ type HeaderProps = {
 
 export default function Header({ title }: HeaderProps) {
   const router = useRouter();
-  const { chain } = useNetwork();
-  const { requestedChain, connectedChain, chainId } = useContext(RequestedChainContext);
+  const { requestedChain, connectedChain: chain } = useContext(RequestedChainContext);
   const toast = useToast({ position: "top-right", isClosable: true });
   const { currentUser, mutate } = useContext(CurrentUserContext);
   const { address, isConnected, connector } = useAccount();
@@ -182,7 +181,7 @@ export default function Header({ title }: HeaderProps) {
                 </MenuItem>
                 <MenuItem
                   display={{ base: "block", md: "none" }}
-                  onClick={() => router.push("/auctions")}
+                  onClick={() => router.push(`/auctions/${chain?.id}`)}
                 >
                   {t("VIEW_ALL_SALES")}
                 </MenuItem>
@@ -256,7 +255,11 @@ export default function Header({ title }: HeaderProps) {
       <Container maxW="container.2xl" px={{ base: 2, md: 4 }}>
         <Flex as="header" py="4" justifyContent="space-between" alignItems="center">
           <HStack>
-            <Link href="/" textDecoration={"none"} _hover={{ textDecoration: "none" }}>
+            <Link
+              href={`/?chainId=${requestedChain.id}`}
+              textDecoration={"none"}
+              _hover={{ textDecoration: "none" }}
+            >
               <Heading as="h1" fontSize="xl">
                 <Text
                   bgGradient="linear(to-l, #7928CA, #FF0080)"
@@ -284,11 +287,7 @@ export default function Header({ title }: HeaderProps) {
               variant="ghost"
               display={{ base: "none", md: "block" }}
               size={{ base: "xs", md: "sm" }}
-              onClick={() =>
-                !connectedChain && chainId
-                  ? router.push(`/auctions?chainId=${chainId}`)
-                  : router.push("/auctions")
-              }
+              onClick={() => router.push(`/auctions/${requestedChain.id}`)}
             >
               {t("VIEW_ALL_SALES")}
             </Button>
@@ -296,11 +295,7 @@ export default function Header({ title }: HeaderProps) {
               variant="ghost"
               display={{ base: isConnected ? "none" : "block", md: "none" }}
               size={{ base: "xs", md: "sm" }}
-              onClick={() =>
-                !connectedChain && chainId
-                  ? router.push(`/auctions?chainId=${chainId}`)
-                  : router.push("/auctions")
-              }
+              onClick={() => router.push(`/auctions/${requestedChain.id}`)}
             >
               {t("SALES")}
             </Button>
