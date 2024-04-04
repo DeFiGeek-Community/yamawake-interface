@@ -23,8 +23,7 @@ import { ChevronDownIcon } from "@chakra-ui/icons";
 import { useRouter } from "next/router";
 import { useAccount, useEnsAvatar, useEnsName, useDisconnect } from "wagmi";
 import { Chain, switchNetwork } from "@wagmi/core";
-import { SUPPORTED_CHAINS } from "lib/constants/chains";
-import { isSupportedChain } from "lib/utils/chain";
+import { getSupportedChains, isSupportedChain } from "lib/utils/chain";
 import { useLocale } from "../../hooks/useLocale";
 import { useRequestedChain } from "../../hooks/useRequestedChain";
 import CurrentUserContext from "../../contexts/CurrentUserContext";
@@ -98,7 +97,7 @@ export default function Header({ title }: HeaderProps) {
                   </Tag>
                 </MenuButton>
                 <MenuList zIndex={101}>
-                  {SUPPORTED_CHAINS.map((chain: Chain & { testnet?: boolean }) => (
+                  {getSupportedChains().map((chain: Chain & { testnet?: boolean }) => (
                     <MenuItem key={chain.id} onClick={() => switchNetwork({ chainId: chain.id })}>
                       {chain.name}
                       {chain.testnet && (
@@ -164,7 +163,7 @@ export default function Header({ title }: HeaderProps) {
                       </Tag>
                     </MenuButton>
                     <MenuList zIndex={101}>
-                      {SUPPORTED_CHAINS.map((chain: Chain & { testnet?: boolean }) => (
+                      {getSupportedChains().map((chain: Chain & { testnet?: boolean }) => (
                         <MenuItem
                           key={chain.id}
                           onClick={() => switchNetwork({ chainId: chain.id })}
@@ -332,7 +331,7 @@ export default function Header({ title }: HeaderProps) {
                   </Tag>
                 </MenuButton>
                 <MenuList zIndex={101}>
-                  {SUPPORTED_CHAINS.map((chain: Chain & { testnet?: boolean }) => (
+                  {getSupportedChains().map((chain: Chain & { testnet?: boolean }) => (
                     <MenuItem key={chain.id} onClick={() => router.push(getLinkPath(chain.id))}>
                       {chain.name}
                       {chain.testnet && (

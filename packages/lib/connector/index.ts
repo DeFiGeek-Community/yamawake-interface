@@ -1,20 +1,15 @@
-import { mainnet, sepolia, arbitrum, hardhat } from "viem/chains";
 import { Chain, configureChains, createConfig } from "wagmi";
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import { infuraProvider } from "wagmi/providers/infura";
 import { publicProvider } from "wagmi/providers/public";
-
 import { CoinbaseWalletConnector } from "@wagmi/core/connectors/coinbaseWallet";
 import { InjectedConnector } from "@wagmi/core/connectors/injected";
 import { MetaMaskConnector } from "@wagmi/core/connectors/metaMask";
 import { WalletConnectConnector } from "@wagmi/core/connectors/walletConnect";
-
-function getSupportedChain(): Chain[] {
-  return [mainnet, sepolia, arbitrum, hardhat];
-}
+import { getSupportedChains } from "../utils/chain";
 
 const { chains, publicClient, webSocketPublicClient } = configureChains<Chain>(
-  getSupportedChain(),
+  getSupportedChains(),
   [
     infuraProvider({ apiKey: process.env.NEXT_PUBLIC_INFURA_API_TOKEN! }),
     alchemyProvider({ apiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY! }),

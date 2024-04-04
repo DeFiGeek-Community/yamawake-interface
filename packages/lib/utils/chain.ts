@@ -1,5 +1,22 @@
 import * as chains from "viem/chains";
-import { SUPPORTED_CHAINS } from "../constants/chains";
+
+export const getSupportedChains = (): chains.Chain[] => {
+  const fallbackChains = [chains.sepolia];
+  try {
+    const chainIds: number[] = process.env
+      .NEXT_PUBLIC_SUPPOTED_CHAIN_IDS!.split(",")
+      .map((id) => Number(id));
+
+    const matchedChains = chainIds
+      .map((id) => {
+        return Object.values(chains).find((chain) => chain.id === id) as chains.Chain;
+      })
+      .filter((chain: chains.Chain) => chain !== undefined);
+    return matchedChains.length === 0 ? fallbackChains : matchedChains;
+  } catch (e) {
+    return fallbackChains;
+  }
+};
 
 export const getChain = (chainId: number): chains.Chain => {
   for (const chain of Object.values(chains)) {
@@ -15,7 +32,7 @@ export const isSupportedChain = (chainId: string | number): boolean => {
 };
 
 export const getSupportedChain = (chainId: string | number): chains.Chain | undefined => {
-  return SUPPORTED_CHAINS.find((c) => c.id === Number(chainId));
+  return getSupportedChains().find((c) => c.id === Number(chainId));
 };
 
 export const getDefaultChain = (): chains.Chain => {
