@@ -11,11 +11,13 @@ export type RequestedChainContextType = {
         })
     | undefined; // Connected chain
   requestedChain: Chain; // requested chain object derived from chainId in URL
+  falledBack: boolean; // falled back to the default chain or not
 };
 
 const RequestedChainContext = createContext<RequestedChainContextType>({
   connectedChain: undefined,
   requestedChain: getDefaultChain(),
+  falledBack: false,
 });
 
 export default RequestedChainContext;

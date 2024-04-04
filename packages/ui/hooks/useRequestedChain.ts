@@ -12,7 +12,7 @@ export const useRequestedChain = ({
 } = {}): RequestedChainContextType => {
   const router = useRouter();
   const { data: currentUser } = useCurrentUser();
-  const { requestedChain, connectedChain: chain } = useContext(RequestedChainContext);
+  const { requestedChain, connectedChain: chain, falledBack } = useContext(RequestedChainContext);
   useEffect(() => {
     // No SIWE, and network change detected
     // Redirect to the correct URL based on where a user is now
@@ -20,5 +20,5 @@ export const useRequestedChain = ({
       router.push(router.asPath.replace(requestedChain.id.toString(), chain.id.toString()));
     }
   }, [chain]);
-  return { requestedChain, connectedChain: chain };
+  return { requestedChain, connectedChain: chain, falledBack };
 };

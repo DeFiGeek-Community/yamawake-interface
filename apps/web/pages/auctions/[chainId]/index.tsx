@@ -20,10 +20,13 @@ import { useRequestedChain } from "ui/hooks/useRequestedChain";
 import { QueryType } from "lib/graphql/query";
 import { useLocale } from "ui/hooks/useLocale";
 import MetaTags from "ui/components/layouts/MetaTags";
+import CustomError from "../../_error";
 
 export default function AuctionPage() {
   const { t } = useLocale();
-  const { requestedChain } = useRequestedChain({ redirectOnSwitchNetwork: true });
+  const { requestedChain, falledBack } = useRequestedChain({
+    redirectOnSwitchNetwork: true,
+  });
 
   const {
     auctions: activeAuctions,
@@ -43,6 +46,8 @@ export default function AuctionPage() {
     error: closedAuctionsError,
     loadMoreAuctions: loadMoreClosedAuctions,
   } = useSWRAuctions({}, QueryType.CLOSED, requestedChain?.id);
+
+  if (falledBack) return <CustomError statusCode={404} />;
 
   return (
     <Layout>

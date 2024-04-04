@@ -10,6 +10,7 @@ export const RequestedChainProvider: FC<{ children: ReactNode }> = ({ children }
   const router = useRouter();
   const { chainId } = router.query;
   const [requestedChain, setRequestedChain] = useState<Chain>(getDefaultChain());
+  const [falledBack, setFalledback] = useState<boolean>(false);
 
   useEffect(() => {
     let toChain: Chain | undefined;
@@ -18,7 +19,13 @@ export const RequestedChainProvider: FC<{ children: ReactNode }> = ({ children }
     } else if (chain) {
       toChain = chain;
     }
-    if (toChain) setRequestedChain(toChain);
+    if (toChain) {
+      setRequestedChain(toChain);
+      setFalledback(false);
+    } else {
+      setRequestedChain(getDefaultChain());
+      setFalledback(true);
+    }
   }, [chain, chainId]);
 
   return (
@@ -26,6 +33,7 @@ export const RequestedChainProvider: FC<{ children: ReactNode }> = ({ children }
       value={{
         connectedChain: chain,
         requestedChain,
+        falledBack,
       }}
     >
       {children}
