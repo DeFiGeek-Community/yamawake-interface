@@ -18,15 +18,6 @@ export const getSupportedChains = (): chains.Chain[] => {
   }
 };
 
-export const getChain = (chainId: number): chains.Chain => {
-  for (const chain of Object.values(chains)) {
-    if (chain.id === chainId) {
-      return chain;
-    }
-  }
-  return chains.localhost;
-};
-
 export const isSupportedChain = (chainId: string | number): boolean => {
   return !!getSupportedChain(chainId);
 };

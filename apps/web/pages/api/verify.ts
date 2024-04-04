@@ -2,7 +2,7 @@ import { withIronSessionApiRoute } from "iron-session/next";
 import { NextApiRequest, NextApiResponse } from "next";
 import { SiweMessage } from "siwe";
 import { ethers } from "ethers";
-import { getChain } from "lib/utils/chain";
+import { getSupportedChain } from "lib/utils/chain";
 import { IronSessionOptions } from "iron-session";
 
 const ironOptions: IronSessionOptions = {
@@ -20,7 +20,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       try {
         const { message, signature } = req.body;
         const siweMessage = new SiweMessage(message);
-        const chain = getChain(Number(process.env.NEXT_PUBLIC_CHAIN_ID));
+        const chain = getSupportedChain(Number(process.env.NEXT_PUBLIC_CHAIN_ID));
+        if (!chain) throw Error("Unsupported chain");
+
         const chainName = chain.name.toLowerCase();
         const provider = new ethers.JsonRpcProvider(
           ["foundry", "hardhat", "localhost"].includes(chainName)
