@@ -42,7 +42,7 @@ npx env-cmd -f ../../.env.test pnpm test:build
 Example of .env.test for local chain.
 
 ```
-NEXT_PUBLIC_CHAIN_ID='31337'
+NEXT_PUBLIC_DEFAULT_CHAIN_ID='31337'
 NETWORK_NAME="hardhat"
 TEST_PROVIDER_ENDPOINT="http://localhost:8545"
 ```
