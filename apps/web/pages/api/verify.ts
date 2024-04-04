@@ -18,22 +18,23 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   switch (method) {
     case "POST":
       try {
-        const { message, signature } = req.body;
+        const { message, signature, chainId } = req.body;
         const siweMessage = new SiweMessage(message);
-        const chain = getSupportedChain(Number(process.env.NEXT_PUBLIC_CHAIN_ID));
+        const chain = getSupportedChain(Number(chainId));
         if (!chain) throw Error("Unsupported chain");
 
-        const chainName = chain.name.toLowerCase();
         const provider = new ethers.JsonRpcProvider(
-          ["foundry", "hardhat", "localhost"].includes(chainName)
-            ? `http://localhost:8545`
-            : `${chain.rpcUrls.infura.http}/${process.env.NEXT_PUBLIC_INFURA_API_TOKEN}`,
+          chain.rpcUrls.infura?.http
+            ? `${chain.rpcUrls.infura.http[0]}/${process.env.NEXT_PUBLIC_INFURA_API_TOKEN}`
+            : chain.rpcUrls.default.http[0],
         );
 
         const fields = await siweMessage.verify({ signature }, { provider });
 
         if (fields.data.nonce !== req.session.nonce)
           return res.status(422).json({ message: "Invalid nonce." });
+        if (fields.data.chainId !== chain.id)
+          return res.status(422).json({ message: "Invalid chain." });
 
         req.session.siwe = fields.data;
         await req.session.save();

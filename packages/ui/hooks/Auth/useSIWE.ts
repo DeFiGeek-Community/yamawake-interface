@@ -44,7 +44,7 @@ export function useSIWE(): {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ message, signature }),
+        body: JSON.stringify({ message, signature, chainId }),
       });
       if (!verifyRes.ok) throw new Error("Error verifying message");
 
