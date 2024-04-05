@@ -10,11 +10,11 @@ export const CONTRACT_ADDRESSES: ContractAddresses = {
     DISTRIBUTOR: "0xA90a01242c2966eE761C130A260Ceb9D9A793b5F",
     YMWK: "0x15Dac05C93e1c5F31a29547340997BA9f6ec4F87",
   },
-  //   [arbitrum.id]: {
-  //     FACTORY: "",
-  //     DISTRIBUTOR: "",
-  //     YMWK: "",
-  //   },
+  [arbitrum.id]: {
+    FACTORY: "0x",
+    DISTRIBUTOR: "0x",
+    YMWK: "0x",
+  },
   [sepolia.id]: {
     FACTORY: "0x92B9B6384d295f22fdBc8Eb661D7D574B96D2E93",
     DISTRIBUTOR: "0x5846980E13B4F74F61A76877BD40102aBcF22EaF",

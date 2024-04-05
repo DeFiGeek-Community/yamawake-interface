@@ -1,5 +1,17 @@
 # bulk-auction-interface
 
+### Set up configs
+
+1. Create .env
+
+```
+cp .env.sample .env
+```
+
+2. Set configs
+
+Set up configs under `packages/lib/constants` as you need
+
 ### Build
 
 ```bash

@@ -102,6 +102,10 @@ jobs:
           echo _AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} >> yamawake-interface/.env
           echo _AWS_REGION=${{ secrets.AWS_REGION }} >> yamawake-interface/.env
           echo _AWS_DYNAMO_TABLE_NAME=${{ secrets.AWS_DYNAMO_TABLE_NAME }} >> yamawake-interface/.env
+          echo _AWS_DYNAMO_TABLE_NAME_MAINNET=${{ secrets.AWS_DYNAMO_TABLE_NAME_MAINNET }} >> yamawake-interface/.env
+          echo _AWS_DYNAMO_TABLE_NAME_ARBITRUM=${{ secrets.AWS_DYNAMO_TABLE_NAME_ARBITRUM }} >> yamawake-interface/.env
+          echo _AWS_DYNAMO_TABLE_NAME_SEPOLIA=${{ secrets.AWS_DYNAMO_TABLE_NAME_SEPOLIA }} >> yamawake-interface/.env
+          echo _AWS_DYNAMO_TABLE_NAME_HARDHAT=${{ secrets.AWS_DYNAMO_TABLE_NAME_HARDHAT }} >> yamawake-interface/.env
           echo NEXT_PUBLIC_SUBGRAPH_ENDPOINT_MAINNET=${{ vars.SUBGRAPH_ENDPOINT_MAINNET }} >> yamawake-interface/.env
           echo NEXT_PUBLIC_SUBGRAPH_ENDPOINT_ARBITRUM=${{ vars.SUBGRAPH_ENDPOINT_ARBITRUM }} >> yamawake-interface/.env
           echo NEXT_PUBLIC_SUBGRAPH_ENDPOINT_SEPOLIA=${{ vars.SUBGRAPH_ENDPOINT_SEPOLIA }} >> yamawake-interface/.env

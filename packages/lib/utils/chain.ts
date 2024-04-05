@@ -1,5 +1,6 @@
 import * as chains from "viem/chains";
 
+// Get supported chain from NEXT_PUBLIC_SUPPOTED_CHAIN_IDS
 export const getSupportedChains = (): chains.Chain[] => {
   const fallbackChains = [chains.sepolia];
   try {
