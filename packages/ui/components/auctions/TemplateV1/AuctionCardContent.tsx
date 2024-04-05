@@ -175,8 +175,9 @@ export default function AuctionCardContent({
           </Stack>
         </CardBody>
       </Stack>
-      {editable && isOpen && (
+      {editable && chain && isOpen && (
         <MetaDataFormModal
+          chainId={chain.id}
           minRaisedAmount={divideToNum(auction.minRaisedAmount, Big(10).pow(18))}
           isOpen={isOpen}
           onClose={onClose}

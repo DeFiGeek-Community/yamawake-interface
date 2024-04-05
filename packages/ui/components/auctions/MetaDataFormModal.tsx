@@ -15,6 +15,7 @@ import { useLocale } from "../../hooks/useLocale";
 import { MetaData } from "lib/types/Auction";
 
 export default function MetaDataFormModal({
+  chainId,
   isOpen,
   onClose,
   existingContractAddress,
@@ -22,6 +23,7 @@ export default function MetaDataFormModal({
   minRaisedAmount,
   onSubmitSuccess,
 }: {
+  chainId: number;
   isOpen: boolean;
   onClose: () => void;
   onSuccess?: () => void;
@@ -42,6 +44,7 @@ export default function MetaDataFormModal({
   };
 
   const { formikProps } = useMetaDataForm({
+    chainId,
     contractId: contractAddress,
     minRaisedAmount: minRaisedAmount,
     auctionMetaData,
