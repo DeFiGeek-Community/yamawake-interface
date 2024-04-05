@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { IronSessionOptions } from "iron-session";
 import { withIronSessionApiRoute } from "iron-session/next";
+import type { IronSessionOptions, IronSession } from "iron-session";
 import { erc20ABI } from "wagmi";
 import {
   createPublicClient,
@@ -41,7 +41,9 @@ const getViemProvider = (chainId: number) => {
 };
 
 const requireContractOwner = (
-  req: NextApiRequest,
+  body: any,
+  session: IronSession,
+  chainId: number,
 ): Promise<{
   metaData: any;
   auctionContract: GetContractReturnType<typeof BaseTemplateABI, PublicClient>;
@@ -49,17 +51,16 @@ const requireContractOwner = (
 }> => {
   return new Promise(async (resolve, reject) => {
     try {
-      if (!req.session.siwe) return reject("Unauthorized");
-      const metaData = req.body;
-      const provider = getViemProvider(req.session.siwe.chainId) as PublicClient;
+      if (!session.siwe) return reject("Unauthorized");
+      const metaData = body;
+      const provider = getViemProvider(chainId) as PublicClient;
       const auctionContract = getContract({
         address: metaData.id,
         abi: BaseTemplateABI,
         publicClient: provider,
       });
       const contractOwner = await auctionContract.read.owner();
-      if (contractOwner !== req.session.siwe.address)
-        reject("You are not the owner of this contract");
+      if (contractOwner !== session.siwe.address) reject("You are not the owner of this contract");
       resolve({ metaData, auctionContract, provider });
     } catch (error: any) {
       reject(error.message);
@@ -119,7 +120,14 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       try {
         const sessionChainId = requireAvailableNetwork(req);
         const { chainId } = req.query;
+
+        // To prevent editing off-chain data related to a contract on a different chain than the user signed,
+        // ensure that the requested chainId matches the chainId included in the session.
+        // Even without this check, data on the requested chain will only be updated if the user is the owner of the contract for the requested chainId,
+        // but this behavior would not be expected by the application, so it might be better to check just in case.
         if (Number(chainId) !== sessionChainId) throw new Error("Network does not match");
+
+        const { metaData } = await requireContractOwner(req.body, req.session, Number(chainId));
 
         const dbClient = new DBClient({
           region: process.env._AWS_REGION as string,
@@ -128,7 +136,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
           tableName: DYNAMODB_TABLES[sessionChainId],
         });
 
-        const { metaData } = await requireContractOwner(req);
         const result = await dbClient.addMetaData(metaData);
         res.json({ result });
       } catch (_error) {
@@ -142,6 +149,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         const { chainId } = req.query;
         if (Number(chainId) !== sessionChainId) throw new Error("Network does not match");
 
+        const { metaData } = await requireContractOwner(req.body, req.session, Number(chainId));
+
         const dbClient = new DBClient({
           region: process.env._AWS_REGION as string,
           accessKey: process.env._AWS_ACCESS_KEY_ID as string,
@@ -149,7 +158,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
           tableName: DYNAMODB_TABLES[sessionChainId],
         });
 
-        const { metaData } = await requireContractOwner(req);
         const result = await dbClient.updateAuction(metaData);
         res.json({ result });
       } catch (_error: any) {
