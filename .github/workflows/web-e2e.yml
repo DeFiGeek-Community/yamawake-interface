@@ -1,5 +1,5 @@
 name: Web app E2E tests
-on: [pull_request]
+on: [push]
 
 jobs:
   run-synpress:
