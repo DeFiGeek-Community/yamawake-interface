@@ -24,6 +24,7 @@ export default function useMetaDataForm({
   const [submitError, setSubmitError] = useState<Error | null>(null);
   let initMetaData: MetaData = {
     id: "",
+    chainId,
     title: "",
     description: "",
     terms: "",
@@ -49,7 +50,7 @@ export default function useMetaDataForm({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(auctionData),
+        body: JSON.stringify({ ...auctionData, chainId }),
       });
       if (!result.ok) {
         const errorText = await result.text();
@@ -67,7 +68,7 @@ export default function useMetaDataForm({
     enableReinitialize: true,
     initialValues: auctionMetaData || initMetaData,
     onSubmit: handleSubmit,
-    validate: (value: MetaData) => validateMetaData(value, minRaisedAmount),
+    validate: (value: MetaData) => validateMetaData({ ...value, chainId }, minRaisedAmount),
   });
 
   return {

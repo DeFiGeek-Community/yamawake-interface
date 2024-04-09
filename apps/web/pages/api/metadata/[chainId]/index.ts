@@ -113,7 +113,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         // ensure that the requested chainId matches the chainId included in the session.
         // Even without this check, data on the requested chain will only be updated if the user is the owner of the contract for the requested chainId,
         // but this behavior would not be expected by the application, so it might be better to check just in case.
-        if (Number(chainId) !== sessionChainId) throw new Error("Network does not match");
+        if (Number(chainId) !== sessionChainId)
+          throw new Error("Network does not match. Please logout and login again");
 
         const { metaData } = await requireContractOwner(req.body, req.session, Number(chainId));
 
@@ -128,7 +129,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       try {
         const sessionChainId = requireAvailableNetwork(req);
         const { chainId } = req.query;
-        if (Number(chainId) !== sessionChainId) throw new Error("Network does not match");
+        if (Number(chainId) !== sessionChainId)
+          throw new Error("Network does not match. Please logout and login again");
 
         const { metaData } = await requireContractOwner(req.body, req.session, Number(chainId));
 
