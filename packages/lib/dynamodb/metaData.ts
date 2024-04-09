@@ -6,6 +6,7 @@ import {
   UpdateItemCommand,
   ScanCommand,
 } from "@aws-sdk/client-dynamodb";
+import type { AttributeValue } from "@aws-sdk/client-dynamodb";
 import { TEMPLATE_V1_NAME } from "../constants/templates";
 import { MetaData, validateMetaData } from "../types/Auction";
 
@@ -13,22 +14,38 @@ export class DBClient {
   client: DynamoDBClient;
   tableName: string;
 
-  private dynamoDBItemsToMetaData = (item: any) => {
+  private dynamoDBItemsToMetaData = (item: Record<string, AttributeValue>): MetaData => {
+    const {
+      AuctionId,
+      ChainId,
+      Title,
+      Description,
+      Terms,
+      ProjectURL,
+      LogoURL,
+      OtherURL,
+      TargetTotalRaised,
+      MaximumTotalRaised,
+      TemplateName,
+    } = item;
+
     return {
-      id: item.AuctionId.S,
-      title: item.Title ? item.Title.S : undefined,
-      description: item.Description ? item.Description.S : undefined,
-      terms: item.Terms ? item.Terms.S : undefined,
-      projectURL: item.ProjectURL ? item.ProjectURL.S : undefined,
-      logoURL: item.LogoURL ? item.LogoURL.S : undefined,
-      otherURL: item.OtherURL ? item.OtherURL.S : undefined,
-      targetTotalRaised: item.TargetTotalRaised ? item.TargetTotalRaised.N : undefined,
-      maximumTotalRaised: item.MaximumTotalRaised ? item.MaximumTotalRaised.N : undefined,
-      templateName: item.TemplateName ? item.TemplateName.S : undefined,
+      id: AuctionId?.S,
+      chainId: ChainId?.N ? parseInt(ChainId.N, 10) : undefined,
+      title: Title?.S,
+      description: Description?.S,
+      terms: Terms?.S,
+      projectURL: ProjectURL?.S,
+      logoURL: LogoURL?.S,
+      otherURL: OtherURL?.S,
+      targetTotalRaised: TargetTotalRaised?.N ? parseFloat(TargetTotalRaised.N) : undefined,
+      maximumTotalRaised: MaximumTotalRaised?.N ? parseFloat(MaximumTotalRaised.N) : undefined,
+      templateName: TemplateName?.S,
     } as MetaData;
   };
 
   async scanMetaData(
+    chainId: number,
     lastEvaluatedKeyId?: string,
     lastEvaluatedKeyCreatedAt?: string,
   ): Promise<MetaData[] | undefined> {
@@ -39,6 +56,7 @@ export class DBClient {
         lastEvaluatedKeyId && lastEvaluatedKeyCreatedAt
           ? {
               AuctionId: { S: lastEvaluatedKeyId },
+              ChainId: { N: chainId.toString() },
             }
           : undefined,
     });
@@ -46,10 +64,10 @@ export class DBClient {
     return output.Items?.map(this.dynamoDBItemsToMetaData);
   }
 
-  async fetchMetaData(auctionId: string): Promise<MetaData | undefined> {
+  async fetchMetaData(auctionId: string, chainId: number): Promise<MetaData | undefined> {
     const command = new GetItemCommand({
       TableName: this.tableName,
-      Key: { AuctionId: { S: auctionId } },
+      Key: { AuctionId: { S: auctionId }, ChainId: { N: chainId.toString() } },
     });
     const output = await this.client.send(command);
     const item = output.Item;
@@ -57,13 +75,13 @@ export class DBClient {
     return this.dynamoDBItemsToMetaData(item);
   }
 
-  async batchFetchMetaData(auctionIds: string[]): Promise<MetaData[]> {
+  async batchFetchMetaData(auctionIds: string[], chainId: number): Promise<MetaData[]> {
     const tableName = this.tableName;
     const command = new BatchGetItemCommand({
       RequestItems: {
         [tableName]: {
           Keys: auctionIds.map((id) => {
-            return { AuctionId: { S: id } };
+            return { AuctionId: { S: id }, ChainId: { N: chainId.toString() } };
           }),
         },
       },
@@ -83,14 +101,16 @@ export class DBClient {
         .join(", ");
       throw new Error(errorMessage);
     }
+    if (errors.chainId) return;
     const item = {
-      AuctionId: { S: (auction.id as string).toLowerCase() },
-      Title: { S: auction.title ? auction.title : "" },
-      Description: { S: auction.description ? auction.description : "" },
-      Terms: { S: auction.terms ? auction.terms : "" },
-      ProjectURL: { S: auction.projectURL ? auction.projectURL : "" },
-      LogoURL: { S: auction.logoURL ? auction.logoURL : "" },
-      OtherURL: { S: auction.otherURL ? auction.otherURL : "" },
+      AuctionId: { S: auction.id!.toLowerCase() },
+      ChainId: { N: auction.chainId!.toString() },
+      Title: { S: auction.title ?? "" },
+      Description: { S: auction.description ?? "" },
+      Terms: { S: auction.terms ?? "" },
+      ProjectURL: { S: auction.projectURL ?? "" },
+      LogoURL: { S: auction.logoURL ?? "" },
+      OtherURL: { S: auction.otherURL ?? "" },
       TargetTotalRaised: {
         N: auction.targetTotalRaised ? auction.targetTotalRaised.toString() : "0",
       },
@@ -118,16 +138,19 @@ export class DBClient {
 
     const command = new UpdateItemCommand({
       TableName: this.tableName,
-      Key: { AuctionId: { S: (auction.id as string).toLowerCase() } },
+      Key: {
+        AuctionId: { S: auction.id!.toLowerCase() },
+        ChainId: { N: auction.chainId!.toString() },
+      },
       UpdateExpression:
         "set Title = :Title, Description=:Description, Terms = :Terms, ProjectURL = :ProjectURL, LogoURL = :LogoURL, OtherURL = :OtherURL, TargetTotalRaised = :TargetTotalRaised, MaximumTotalRaised = :MaximumTotalRaised, TemplateName = :TemplateName",
       ExpressionAttributeValues: {
-        ":Title": { S: auction.title ? auction.title : "" },
-        ":Description": { S: auction.description ? auction.description : "" },
-        ":Terms": { S: auction.terms ? auction.terms : "" },
-        ":ProjectURL": { S: auction.projectURL ? auction.projectURL : "" },
-        ":LogoURL": { S: auction.logoURL ? auction.logoURL : "" },
-        ":OtherURL": { S: auction.otherURL ? auction.otherURL : "" },
+        ":Title": { S: auction.title ?? "" },
+        ":Description": { S: auction.description ?? "" },
+        ":Terms": { S: auction.terms ?? "" },
+        ":ProjectURL": { S: auction.projectURL ?? "" },
+        ":LogoURL": { S: auction.logoURL ?? "" },
+        ":OtherURL": { S: auction.otherURL ?? "" },
         ":TargetTotalRaised": {
           N: auction.targetTotalRaised ? auction.targetTotalRaised.toString() : "0",
         },

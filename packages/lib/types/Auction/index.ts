@@ -125,6 +125,7 @@ export type AuctionForm = {
 
 export type MetaData = {
   id?: string;
+  chainId?: number;
   title?: string;
   description?: string;
   terms?: string;
@@ -137,10 +138,26 @@ export type MetaData = {
   createdAt?: number;
 };
 
-export const validateMetaData = (metaData: MetaData, minRaisedAmount?: number) => {
-  const errors: any = {};
-  if (!metaData.id) {
+export type MetaDataError = {
+  id?: string;
+  chainId?: string;
+  title?: string;
+  description?: string;
+  terms?: string;
+  projectURL?: string;
+  logoURL?: string;
+  otherURL?: string;
+  targetTotalRaised?: string;
+  maximumTotalRaised?: string;
+};
+
+export const validateMetaData = (metaData: MetaData, minRaisedAmount?: number): MetaDataError => {
+  const errors: MetaDataError = {};
+  if (typeof metaData.id !== "string") {
     errors.id = "Contract address is required";
+  }
+  if (typeof metaData.chainId !== "number") {
+    errors.chainId = "ChainId is required";
   }
   if (metaData.title && metaData.title.length > 100) {
     errors.title = "Max length is 100";
