@@ -98,7 +98,7 @@ export class DBClient {
         .join(", ");
       throw new Error(errorMessage);
     }
-    if (errors.chainId) return;
+
     const item = {
       AuctionId: { S: auction.id!.toLowerCase() },
       ChainId: { N: auction.chainId!.toString() },
