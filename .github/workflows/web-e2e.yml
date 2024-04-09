@@ -94,6 +94,7 @@ jobs:
         run: |
           touch yamawake-interface/.env
           echo NEXT_PUBLIC_DEFAULT_CHAIN_ID=${{ vars.DEFAULT_CHAIN_ID }} >> yamawake-interface/.env
+          echo NEXT_PUBLIC_SUPPOTED_CHAIN_IDS=${{ vars.SUPPOTED_CHAIN_IDS }} >> yamawake-interface/.env
           echo NETWORK_NAME=${{ vars.NETWORK_NAME }} >> yamawake-interface/.env
           echo TEST_TOKEN=${{ vars.TEST_TOKEN }} >> yamawake-interface/.env
           echo NEXT_PUBLIC_WALLET_CONNECT_ID=${{ secrets.WALLET_CONNECT_ID }} >> yamawake-interface/.env
