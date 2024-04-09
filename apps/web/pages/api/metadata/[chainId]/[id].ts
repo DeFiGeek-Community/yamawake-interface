@@ -4,7 +4,6 @@ import { Chain } from "viem/chains";
 import { DBClient } from "lib/dynamodb/metaData";
 import { IronSessionOptions } from "iron-session";
 import { getDefaultChain, getSupportedChain } from "lib/utils/chain";
-import { DYNAMODB_TABLES } from "lib/constants/dynamoDBTables";
 
 const ironOptions: IronSessionOptions = {
   cookieName: process.env.IRON_SESSION_COOKIE_NAME!,
@@ -13,6 +12,13 @@ const ironOptions: IronSessionOptions = {
     secure: process.env.NODE_ENV === "production",
   },
 };
+
+const dbClient = new DBClient({
+  region: process.env._AWS_REGION as string,
+  accessKey: process.env._AWS_ACCESS_KEY_ID as string,
+  secretKey: process.env._AWS_SECRET_ACCESS_KEY as string,
+  tableName: process.env._AWS_DYNAMO_TABLE_NAME as string,
+});
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const { method } = req;
@@ -27,14 +33,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         } else {
           return res.status(404).end("No auction found");
         }
-        const dbClient = new DBClient({
-          region: process.env._AWS_REGION as string,
-          accessKey: process.env._AWS_ACCESS_KEY_ID as string,
-          secretKey: process.env._AWS_SECRET_ACCESS_KEY as string,
-          tableName: DYNAMODB_TABLES[requestedChain.id],
-        });
 
-        const metaData = await dbClient.fetchMetaData(id as string);
+        const metaData = await dbClient.fetchMetaData(id as string, requestedChain.id);
         res.json({ metaData });
       } catch (_error: any) {
         console.log(_error.message);
