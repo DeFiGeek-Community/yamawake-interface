@@ -7,7 +7,6 @@ import {
   ScanCommand,
 } from "@aws-sdk/client-dynamodb";
 import type { AttributeValue } from "@aws-sdk/client-dynamodb";
-import { TEMPLATE_V1_NAME } from "../constants/templates";
 import { MetaData, validateMetaData } from "../types/Auction";
 
 export class DBClient {
@@ -26,7 +25,6 @@ export class DBClient {
       OtherURL,
       TargetTotalRaised,
       MaximumTotalRaised,
-      TemplateName,
     } = item;
 
     return {
@@ -40,7 +38,6 @@ export class DBClient {
       otherURL: OtherURL?.S,
       targetTotalRaised: TargetTotalRaised?.N ? parseFloat(TargetTotalRaised.N) : undefined,
       maximumTotalRaised: MaximumTotalRaised?.N ? parseFloat(MaximumTotalRaised.N) : undefined,
-      templateName: TemplateName?.S,
     } as MetaData;
   };
 
@@ -117,7 +114,6 @@ export class DBClient {
       MaximumTotalRaised: {
         N: auction.maximumTotalRaised ? auction.maximumTotalRaised.toString() : "0",
       },
-      TemplateName: { S: TEMPLATE_V1_NAME },
     };
     const command = new PutItemCommand({
       TableName: this.tableName,
@@ -143,7 +139,7 @@ export class DBClient {
         ChainId: { N: auction.chainId!.toString() },
       },
       UpdateExpression:
-        "set Title = :Title, Description=:Description, Terms = :Terms, ProjectURL = :ProjectURL, LogoURL = :LogoURL, OtherURL = :OtherURL, TargetTotalRaised = :TargetTotalRaised, MaximumTotalRaised = :MaximumTotalRaised, TemplateName = :TemplateName",
+        "set Title = :Title, Description=:Description, Terms = :Terms, ProjectURL = :ProjectURL, LogoURL = :LogoURL, OtherURL = :OtherURL, TargetTotalRaised = :TargetTotalRaised, MaximumTotalRaised = :MaximumTotalRaised",
       ExpressionAttributeValues: {
         ":Title": { S: auction.title ?? "" },
         ":Description": { S: auction.description ?? "" },
@@ -157,7 +153,6 @@ export class DBClient {
         ":MaximumTotalRaised": {
           N: auction.maximumTotalRaised ? auction.maximumTotalRaised.toString() : "0",
         },
-        ":TemplateName": { S: TEMPLATE_V1_NAME },
       },
     });
     const output = await this.client.send(command);
