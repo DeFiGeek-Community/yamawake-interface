@@ -1,5 +1,5 @@
 import { useContractRead } from "wagmi";
-import { CHAINLINK_PRICE_FEED } from "lib/constants";
+import { CHAINLINK_PRICE_FEED } from "lib/constants/priceFeeds";
 import PriceFeedABI from "lib/constants/abis/ChainlinkPriceFeed.json";
 
 const useRate = (

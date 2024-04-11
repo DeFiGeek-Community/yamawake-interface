@@ -38,8 +38,8 @@ import {
   useNetwork,
 } from "wagmi";
 import Big, { getBigNumber } from "lib/utils/bignumber";
-import { getSupportedChain, isSupportedChain } from "lib/utils/chain";
-import { getDecimalsForView, getEtherscanLink, tokenAmountFormat, parseEther } from "lib/utils";
+import { getSupportedChain, isSupportedChain, getEtherscanLink } from "lib/utils/chain";
+import { getDecimalsForView, tokenAmountFormat, parseEther } from "lib/utils";
 import CalendarInCircle from "./CalendarInCircle";
 import PersonalStatistics from "./PersonalStatistics";
 import StatisticsInCircle from "./StatisticsInCircle";

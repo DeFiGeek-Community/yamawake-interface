@@ -9,7 +9,7 @@ import {
   CloseButton,
   Link,
 } from "@chakra-ui/react";
-import { getEtherscanLink } from "lib/utils";
+import { getEtherscanLink } from "lib/utils/chain";
 import { useNetwork } from "wagmi";
 
 export interface TxSentToast extends ToastProps {

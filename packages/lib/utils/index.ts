@@ -1,4 +1,3 @@
-import { Chain } from "viem/chains";
 import { ETHER_DECIMALS_FOR_VIEW } from "../constants";
 import Big, { BigNumberValueType, add, divide, multiply, getBigNumber } from "./bignumber";
 
@@ -109,15 +108,6 @@ export const etherAmountFormat = (
   } else {
     return amountInBig.toFixed(precision);
   }
-};
-
-export const getEtherscanLink = (
-  chain: Chain | undefined,
-  hash: string,
-  type: "tx" | "token" | "address" | "block",
-): string => {
-  if (typeof chain === "undefined" || typeof chain.blockExplorers === "undefined") return "";
-  return `${chain.blockExplorers.default.url}/${type}/${hash}`;
 };
 
 type Countdown = { days: string; hours: string; mins: string; secs: string };

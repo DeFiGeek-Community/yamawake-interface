@@ -10,7 +10,7 @@ import TemplateV1ABI from "lib/constants/abis/TemplateV1.json";
 import MintableERC20 from "lib/constants/abis/MintableERC20.json";
 import Big, { getBigNumber, multiply } from "lib/utils/bignumber";
 import { getDecimalsForView, tokenAmountFormat } from "lib/utils";
-import { differenceInSeconds, addSeconds, format } from "date-fns";
+import { format } from "date-fns";
 
 const TOKEN_AMOUNT = 10;
 const MIN_RAISED_AMOUNT = 1;

@@ -40,3 +40,12 @@ export const getDefaultChain = (): chains.Chain => {
 
   return chain;
 };
+
+export const getEtherscanLink = (
+  chain: chains.Chain | undefined,
+  hash: string,
+  type: "tx" | "token" | "address" | "block",
+): string => {
+  if (typeof chain === "undefined" || typeof chain.blockExplorers === "undefined") return "";
+  return `${chain.blockExplorers.default.url}/${type}/${hash}`;
+};
