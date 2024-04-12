@@ -109,6 +109,7 @@ jobs:
           echo NEXT_PUBLIC_SUBGRAPH_HARDHAT=${{ vars.SUBGRAPH_ENDPOINT_HARDHAT }} >> yamawake-interface/.env
           echo TEST_PRIVATE_KEY=${{ secrets.PRIVATE_KEY }} >> yamawake-interface/.env
           echo TEST_PROVIDER_ENDPOINT=http://localhost:8545 >> yamawake-interface/.env
+          echo TEST_FACTORY_ADDRESS=${{ vars.TEST_FACTORY_ADDRESS }} >> yamawake-interface/.env
           echo IRON_SESSION_PASSWORD=complex_password_at_least_32_characters_long >> yamawake-interface/.env
           echo IRON_SESSION_COOKIE_NAME=test_session >> yamawake-interface/.env
 
