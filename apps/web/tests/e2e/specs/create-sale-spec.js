@@ -32,7 +32,7 @@ Cypress.Commands.add("revokeApproval", () => {
   const token = getToken();
   return new Cypress.Promise((resolve) => {
     token
-      .allowance(token.signer.address, Cypress.env("FACTORY_ADDRESS")).then((allowance) => allowance > 0 && token.approve(Cypress.env("FACTORY_ADDRESS"), 0).then((res) => resolve(res))
+      .allowance(token.signer.address, Cypress.env("FACTORY_ADDRESS")).then((allowance) => allowance > 0 ? token.approve(Cypress.env("FACTORY_ADDRESS"), 0).then((res) => resolve(res)) : resolve(true)
     );
   });
 });
