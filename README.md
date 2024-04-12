@@ -57,6 +57,7 @@ Example of .env.test for local chain.
 NEXT_PUBLIC_DEFAULT_CHAIN_ID='31337'
 NETWORK_NAME="hardhat"
 TEST_PROVIDER_ENDPOINT="http://localhost:8545"
+TEST_FACTORY_ADDRESS="0x..."
 ```
 
 - Comment out BASIC_AUTH_USER and BASIC_AUTH_PASS in your .env while e2e test
