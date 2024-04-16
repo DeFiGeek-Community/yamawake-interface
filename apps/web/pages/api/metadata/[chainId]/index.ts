@@ -65,7 +65,6 @@ const requireContractOwner = (
         abi: BaseTemplateABI,
         publicClient: provider,
       });
-      console.log("Meta data: ", metaData);
       const contractOwner = await auctionContract.read.owner();
       if (contractOwner !== session.siwe.address) reject("You are not the owner of this contract");
       resolve({ metaData, auctionContract, provider });
