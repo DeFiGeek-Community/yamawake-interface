@@ -22,7 +22,8 @@ import {
 import { ChevronDownIcon } from "@chakra-ui/icons";
 import { useRouter } from "next/router";
 import { useAccount, useEnsAvatar, useEnsName, useDisconnect } from "wagmi";
-import { Chain, switchNetwork } from "@wagmi/core";
+import { Chain, switchNetwork, SwitchNetworkArgs } from "@wagmi/core";
+import { getLinkPath } from "lib/utils";
 import { getSupportedChains, isSupportedChain } from "lib/utils/chain";
 import { useLocale } from "../../hooks/useLocale";
 import { useRequestedChain } from "../../hooks/useRequestedChain";
@@ -58,11 +59,15 @@ export default function Header({ title }: HeaderProps) {
     setAddressString(`${_address?.slice(0, 5)}...${_address?.slice(-4)}`);
   }, [currentUser, address]);
 
-  const getLinkPath = (chainId: number): string => {
-    if (router.asPath.startsWith("/auctions")) {
-      return `/auctions/${chainId}`;
-    } else {
-      return `?chainId=${chainId}`;
+  const handleSwitchNetwork = async (args: SwitchNetworkArgs) => {
+    try {
+      await switchNetwork(args);
+    } catch (e: any) {
+      toast({
+        description: e.message,
+        status: "error",
+        duration: 5000,
+      });
     }
   };
 
@@ -75,7 +80,7 @@ export default function Header({ title }: HeaderProps) {
               <Button
                 size={"md"}
                 colorScheme="red"
-                onClick={() => switchNetwork({ chainId: requestedChain.id })}
+                onClick={() => handleSwitchNetwork({ chainId: requestedChain.id })}
               >
                 {t("SWITCH_NETWORK_TO", { chainName: requestedChain.name })}
               </Button>
@@ -98,7 +103,10 @@ export default function Header({ title }: HeaderProps) {
                 </MenuButton>
                 <MenuList zIndex={101}>
                   {getSupportedChains().map((chain: Chain & { testnet?: boolean }) => (
-                    <MenuItem key={chain.id} onClick={() => switchNetwork({ chainId: chain.id })}>
+                    <MenuItem
+                      key={chain.id}
+                      onClick={() => handleSwitchNetwork({ chainId: chain.id })}
+                    >
                       {chain.name}
                       {chain.testnet && (
                         <Tag ml={1} size={"sm"}>
@@ -332,7 +340,10 @@ export default function Header({ title }: HeaderProps) {
                 </MenuButton>
                 <MenuList zIndex={101}>
                   {getSupportedChains().map((chain: Chain & { testnet?: boolean }) => (
-                    <MenuItem key={chain.id} onClick={() => router.push(getLinkPath(chain.id))}>
+                    <MenuItem
+                      key={chain.id}
+                      onClick={() => router.push(getLinkPath(router.asPath, chain.id))}
+                    >
                       {chain.name}
                       {chain.testnet && (
                         <Tag ml={1} size={"sm"}>
