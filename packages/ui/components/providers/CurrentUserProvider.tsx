@@ -1,33 +1,64 @@
 import { FC, ReactNode, useEffect } from "react";
 import { useAccount, useDisconnect, useNetwork } from "wagmi";
 import { useToast } from "@chakra-ui/react";
+import type { SignInParams } from "lib/types";
+import { getLinkPath } from "lib/utils";
 import { useCurrentUser } from "../../hooks/Auth/useCurrentUser";
+import { useSIWE } from "../../hooks/Auth/useSIWE";
+import { useLocale } from "../../hooks/useLocale";
 import CurrentUserContext from "../../contexts/CurrentUserContext";
+import { useRouter } from "next/router";
 
 export const CurrentUserProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const { address } = useAccount();
   const { chain } = useNetwork();
   const { disconnect } = useDisconnect();
   const { data, mutate, error } = useCurrentUser();
+  const { loading, signIn } = useSIWE();
+  const { t } = useLocale();
+  const router = useRouter();
   const toast = useToast({ position: "top-right", isClosable: true });
   const logout = async () => {
     await fetch("/api/logout", { method: "POST", credentials: "same-origin" });
     disconnect();
     mutate && mutate();
+
+    !toast.isActive("signout") &&
+      !toast.isActive("accountChanged") &&
+      toast({
+        id: "accountChanged",
+        description: "Connection change detected. Signed out.",
+        status: "info",
+        duration: 5000,
+      });
+  };
+
+  const processSignIn = async (params: SignInParams, redirect: boolean) => {
+    try {
+      await signIn(params);
+      if (redirect) {
+        router.push(getLinkPath(router.asPath, params.chainId));
+      }
+    } catch (e) {
+      await logout();
+    }
   };
 
   // Detect account change and sign out if SIWE user and account does not match
   useEffect(() => {
-    if (data && (data.address != address || (chain && data.chainId != chain.id))) {
+    if (!data) return;
+
+    if (!address) {
       logout();
-      !toast.isActive("signout") &&
-        !toast.isActive("accountChanged") &&
-        toast({
-          id: "accountChanged",
-          description: "Connection change detected. Signed out.",
-          status: "info",
-          duration: 5000,
-        });
+    } else if (chain && (data.address != address || data.chainId != chain.id)) {
+      processSignIn(
+        {
+          title: t("SIGN_IN_WITH_ETHEREUM"),
+          targetAddress: address,
+          chainId: chain.id,
+        },
+        data.chainId != chain.id,
+      );
     }
   }, [address, chain, data]);
 
