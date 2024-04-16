@@ -1,7 +1,5 @@
-import { useEffect, useState } from "react";
 import {
   chakra,
-  Link,
   Box,
   Divider,
   Skeleton,
@@ -19,6 +17,7 @@ import {
   Tooltip,
 } from "@chakra-ui/react";
 import { EditIcon, QuestionIcon } from "@chakra-ui/icons";
+import { Link } from "../../shared/Link";
 import Big, { divideToNum, getBigNumber } from "lib/utils/bignumber";
 import { AuctionProps, TemplateV1 } from "lib/types/Auction";
 import useSWRMetaData from "../../../hooks/useSWRMetaData";
