@@ -29,7 +29,7 @@ export const CurrentUserProvider: FC<{ children: ReactNode }> = ({ children }) =
           duration: 5000,
         });
     }
-  }, [address, chain]);
+  }, [address, chain, data]);
 
   return (
     <CurrentUserContext.Provider value={{ currentUser: data, mutate, error }}>
