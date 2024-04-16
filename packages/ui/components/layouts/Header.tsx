@@ -174,7 +174,7 @@ export default function Header({ title }: HeaderProps) {
                       {getSupportedChains().map((chain: Chain & { testnet?: boolean }) => (
                         <MenuItem
                           key={chain.id}
-                          onClick={() => switchNetwork({ chainId: chain.id })}
+                          onClick={() => handleSwitchNetwork({ chainId: chain.id })}
                         >
                           {chain.name}
                           {chain.testnet && (
