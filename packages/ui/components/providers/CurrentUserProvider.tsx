@@ -27,7 +27,7 @@ export const CurrentUserProvider: FC<{ children: ReactNode }> = ({ children }) =
       !toast.isActive("accountChanged") &&
       toast({
         id: "accountChanged",
-        description: "Connection change detected. Signed out.",
+        description: t("CONNECTION_CHANGE_DETECTED"),
         status: "info",
         duration: 5000,
       });

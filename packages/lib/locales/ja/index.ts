@@ -138,4 +138,5 @@ export default {
   TEMPLATE_EXPLANATION: "各テンプレートの説明 ",
   SIGN_SAFE_ACCOUNT: "このページから離れずにSafeアカウントで署名してください",
   SWITCH_NETWORK_TO: "{{chainName}}へ切り替え",
+  CONNECTION_CHANGE_DETECTED: "接続が変更されたためログアウトしました。再度ログインしてください",
 };
