@@ -55,6 +55,7 @@ import WithdrawERC20 from "./WithdrawERC20OnSale";
 import { useLocale } from "../../../hooks/useLocale";
 import ConnectButton from "../../shared/connectButton";
 import { DetailPageParams } from "../AuctionDetail";
+import { ChainNameTag } from "../../shared/ChainNameTag";
 
 export default memo(function DetailPage({
   chainId,
@@ -88,6 +89,7 @@ export default memo(function DetailPage({
 
   const { data: rateData, refetch: updateRate } = useRate(chainId);
   const { chain: connectedChain } = useNetwork();
+  // TODO Consider getting chain from getChainById in case of supported chain reduced in the future
   const chain = getSupportedChain(chainId);
 
   useInterval(() => {
@@ -193,9 +195,7 @@ export default memo(function DetailPage({
             alt={metaData.title}
           />
           <Box px={{ base: 0, md: 8 }} w={{ base: "full", md: "auto" }}>
-            <Tag variant="solid" colorScheme="teal" borderRadius="full">
-              {chain?.name}
-            </Tag>
+            {chain && <ChainNameTag chainId={chain.id} />}
             <Heading>{metaData.title ? metaData.title : "Unnamed Auction"}</Heading>
             <HStack spacing={{ base: 4, lg: 4 }} mt={1}>
               <chakra.p fontSize={"sm"}>

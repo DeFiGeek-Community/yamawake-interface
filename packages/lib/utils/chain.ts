@@ -41,6 +41,11 @@ export const getDefaultChain = (): chains.Chain => {
   return chain;
 };
 
+export const getChainById = (chainId: string | number): chains.Chain | undefined => {
+  const chain = Object.entries(chains).find(([, chain]) => chain.id === Number(chainId));
+  return chain ? chain[1] : undefined;
+};
+
 export const getEtherscanLink = (
   chain: chains.Chain | undefined,
   hash: string,

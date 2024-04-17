@@ -8,7 +8,6 @@ import {
   ModalCloseButton,
 } from "@chakra-ui/react";
 import { useToast, useColorMode } from "@chakra-ui/react";
-import { useAccount } from "wagmi";
 import { CustomProvider } from "rsuite";
 import { useAtom } from "jotai";
 import { creatingAuctionAtom } from "lib/store";
@@ -20,6 +19,7 @@ import TxSentToast from "../shared/TxSentToast";
 import AuctionFormWrapper from "./AuctionFormWrapper";
 import { useSafeWaitForTransaction } from "../../hooks/useSafeWaitForTransaction";
 import { decodeEventLog, parseAbi } from "viem";
+import { ChainNameTag } from "../shared/ChainNameTag";
 
 type AuctionFormModalProps = {
   chainId: number;
@@ -137,7 +137,10 @@ export default function AuctionFormModal({
       >
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>{t("CREATE_NEW_SALE")}</ModalHeader>
+          <ModalHeader>
+            {t("CREATE_NEW_SALE")}
+            <ChainNameTag chainId={chainId} ml={4} verticalAlign={"text-bottom"} />
+          </ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
             <Steps
