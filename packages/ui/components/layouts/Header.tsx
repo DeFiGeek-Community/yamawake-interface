@@ -31,6 +31,7 @@ import CurrentUserContext from "../../contexts/CurrentUserContext";
 import SignInButton from "../shared/SignInButton";
 import ProviderLogo from "../shared/ProviderLogo";
 import ConnectButton from "../shared/connectButton";
+import { ChainLogo } from "../shared/ChainLogo";
 
 type HeaderProps = {
   title?: string;
@@ -93,7 +94,14 @@ export default function Header({ title }: HeaderProps) {
                     variant="solid"
                     colorScheme="teal"
                   >
-                    {chain?.unsupported ? "Unsupported Chain" : chain?.name}
+                    {chain?.unsupported ? (
+                      "Unsupported Chain"
+                    ) : (
+                      <>
+                        <ChainLogo chainId={chain.id} mr={1} />
+                        {chain.name}
+                      </>
+                    )}
                     {chain?.testnet && (
                       <Tag ml={2} size={"sm"}>
                         Testnet
@@ -107,6 +115,7 @@ export default function Header({ title }: HeaderProps) {
                       key={chain.id}
                       onClick={() => handleSwitchNetwork({ chainId: chain.id })}
                     >
+                      <ChainLogo chainId={chain.id} mr={2} />
                       {chain.name}
                       {chain.testnet && (
                         <Tag ml={1} size={"sm"}>
@@ -176,6 +185,7 @@ export default function Header({ title }: HeaderProps) {
                           key={chain.id}
                           onClick={() => handleSwitchNetwork({ chainId: chain.id })}
                         >
+                          <ChainLogo chainId={chain.id} mr={2} />
                           {chain.name}
                           {chain.testnet && (
                             <Tag ml={1} size={"sm"}>
@@ -328,9 +338,14 @@ export default function Header({ title }: HeaderProps) {
                     variant="solid"
                     colorScheme="teal"
                   >
-                    {!isSupportedChain(requestedChain.id)
-                      ? "Unsupported Chain"
-                      : requestedChain.name}
+                    {!isSupportedChain(requestedChain.id) ? (
+                      "Unsupported Chain"
+                    ) : (
+                      <>
+                        <ChainLogo chainId={requestedChain.id} mr={1} />
+                        {requestedChain.name}
+                      </>
+                    )}
                     {requestedChain.testnet && (
                       <Tag ml={2} size={"sm"}>
                         Testnet
@@ -344,6 +359,7 @@ export default function Header({ title }: HeaderProps) {
                       key={chain.id}
                       onClick={() => router.push(getLinkPath(router.asPath, chain.id))}
                     >
+                      <ChainLogo chainId={chain.id} mr={2} />
                       {chain.name}
                       {chain.testnet && (
                         <Tag ml={1} size={"sm"}>
