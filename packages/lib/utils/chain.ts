@@ -2,7 +2,14 @@ import * as chains from "viem/chains";
 
 // Get supported chain from NEXT_PUBLIC_SUPPOTED_CHAIN_IDS
 export const getSupportedChains = (): chains.Chain[] => {
-  const fallbackChains = [chains.sepolia];
+  if (typeof process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID !== "string") {
+    throw new Error("NEXT_PUBLIC_DEFAULT_CHAIN_ID is not set");
+  }
+
+  const defaultChain = getChainById(process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID);
+  if (!defaultChain) throw new Error("Unknown chain is set as a default");
+
+  const fallbackChains = [defaultChain];
   try {
     const chainIds: number[] = process.env
       .NEXT_PUBLIC_SUPPOTED_CHAIN_IDS!.split(",")
