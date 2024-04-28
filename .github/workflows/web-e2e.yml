@@ -107,6 +107,9 @@ jobs:
           echo NEXT_PUBLIC_SUBGRAPH_ENDPOINT_ARBITRUM=${{ vars.SUBGRAPH_ENDPOINT_ARBITRUM }} >> yamawake-interface/.env
           echo NEXT_PUBLIC_SUBGRAPH_ENDPOINT_SEPOLIA=${{ vars.SUBGRAPH_ENDPOINT_SEPOLIA }} >> yamawake-interface/.env
           echo NEXT_PUBLIC_SUBGRAPH_HARDHAT=${{ vars.SUBGRAPH_ENDPOINT_HARDHAT }} >> yamawake-interface/.env
+          echo NEXT_PUBLIC_LOCAL_FACTORY_ADDRESS=${{ vars.TEST_FACTORY_ADDRESS }} >> yamawake-interface/.env
+          echo NEXT_PUBLIC_LOCAL_DISTRIBUTOR_ADDRESS=${{ vars.TEST_DISTRIBUTOR_ADDRESS }} >> yamawake-interface/.env
+          echo NEXT_PUBLIC_LOCAL_YMWK_ADDRESS=${{ vars.TEST_YMWK_ADDRESS }} >> yamawake-interface/.env
           echo TEST_PRIVATE_KEY=${{ secrets.PRIVATE_KEY }} >> yamawake-interface/.env
           echo TEST_PROVIDER_ENDPOINT=http://localhost:8545 >> yamawake-interface/.env
           echo TEST_FACTORY_ADDRESS=${{ vars.TEST_FACTORY_ADDRESS }} >> yamawake-interface/.env
