@@ -16,11 +16,18 @@ import { AuctionProps } from "lib/types/Auction";
 import Layout from "ui/components/layouts/layout";
 import AuctionCard, { AuctionCardSkeleton } from "ui/components/auctions/AuctionCard";
 import { useSWRAuctions } from "ui/hooks/useAuctions";
+import { useRequestedChain } from "ui/hooks/useRequestedChain";
 import { QueryType } from "lib/graphql/query";
 import { useLocale } from "ui/hooks/useLocale";
 import MetaTags from "ui/components/layouts/MetaTags";
+import CustomError from "../../_error";
 
 export default function AuctionPage() {
+  const { t } = useLocale();
+  const { requestedChain, falledBack } = useRequestedChain({
+    redirectOnSwitchNetwork: true,
+  });
+
   const {
     auctions: activeAuctions,
     isLast: isLastActiveAuctions,
@@ -28,7 +35,7 @@ export default function AuctionPage() {
     isValidating: isValidatingActiveAuctions,
     error: activeAuctionsError,
     loadMoreAuctions: loadMoreActiveAuctions,
-  } = useSWRAuctions({});
+  } = useSWRAuctions({}, QueryType.ACTIVE_AND_UPCOMING, requestedChain?.id);
   // const { auctions: activeAuctions, isLast: isLastActiveAuctions, isLoading: isLoadingActiveAuctions, isValidating: isValidatingActiveAuctions, error: activeAuctionsError, loadMoreAuctions: loadMoreActiveAuctions } = useSWRAuctions({}, QueryType.ACTIVE);
   // const { auctions: upcomingAuctions, isLast: isLastUpcomingAuctions, isLoading: isLoadingUpcomingAuctions, isValidating: isValidatingUpcomingAuctions, error: upcomingAuctionsError, loadMoreAuctions: loadMoreUpcomingAuctions } = useSWRAuctions({}, QueryType.UPCOMING);
   const {
@@ -38,8 +45,9 @@ export default function AuctionPage() {
     isValidating: isValidatingClosedAuctions,
     error: closedAuctionsError,
     loadMoreAuctions: loadMoreClosedAuctions,
-  } = useSWRAuctions({}, QueryType.CLOSED);
-  const { t } = useLocale();
+  } = useSWRAuctions({}, QueryType.CLOSED, requestedChain?.id);
+
+  if (falledBack) return <CustomError statusCode={404} />;
 
   return (
     <Layout>
@@ -69,7 +77,13 @@ export default function AuctionPage() {
                   </>
                 ) : (
                   activeAuctions.map((auctionProps: AuctionProps) => {
-                    return <AuctionCard key={auctionProps.id} auctionProps={auctionProps} />;
+                    return (
+                      <AuctionCard
+                        chainId={requestedChain.id}
+                        key={auctionProps.id}
+                        auctionProps={auctionProps}
+                      />
+                    );
                   })
                 )}
                 {!isLastActiveAuctions && activeAuctions.length > 0 && (
@@ -130,7 +144,13 @@ export default function AuctionPage() {
                   </>
                 ) : (
                   closedAuctions.map((auctionProps: AuctionProps) => {
-                    return <AuctionCard key={auctionProps.id} auctionProps={auctionProps} />;
+                    return (
+                      <AuctionCard
+                        chainId={requestedChain.id}
+                        key={auctionProps.id}
+                        auctionProps={auctionProps}
+                      />
+                    );
                   })
                 )}
                 {!isLastClosedAuctions && closedAuctions.length > 0 && (

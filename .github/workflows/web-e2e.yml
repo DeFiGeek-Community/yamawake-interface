@@ -1,5 +1,5 @@
 name: Web app E2E tests
-on: [pull_request]
+on: [push, pull_request]
 
 jobs:
   run-synpress:
@@ -93,10 +93,8 @@ jobs:
       - name: Create env file for Yamawake interface
         run: |
           touch yamawake-interface/.env
-          echo NEXT_PUBLIC_FACTORY_ADDRESS=${{ vars.FACTORY_ADDRESS }} >> yamawake-interface/.env
-          echo NEXT_PUBLIC_DISTRIBUTOR_ADDRESS=${{ vars.DISTRIBUTOR_ADDRESS }} >> yamawake-interface/.env
-          echo NEXT_PUBLIC_YMWK_ADDRESS=${{ vars.YMWK_ADDRESS }} >> yamawake-interface/.env
-          echo NEXT_PUBLIC_CHAIN_ID=${{ vars.DEFAULT_CHAIN_ID }} >> yamawake-interface/.env
+          echo NEXT_PUBLIC_DEFAULT_CHAIN_ID=${{ vars.DEFAULT_CHAIN_ID }} >> yamawake-interface/.env
+          echo NEXT_PUBLIC_SUPPOTED_CHAIN_IDS=${{ vars.SUPPOTED_CHAIN_IDS }} >> yamawake-interface/.env
           echo NETWORK_NAME=${{ vars.NETWORK_NAME }} >> yamawake-interface/.env
           echo TEST_TOKEN=${{ vars.TEST_TOKEN }} >> yamawake-interface/.env
           echo NEXT_PUBLIC_WALLET_CONNECT_ID=${{ secrets.WALLET_CONNECT_ID }} >> yamawake-interface/.env
@@ -105,9 +103,16 @@ jobs:
           echo _AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} >> yamawake-interface/.env
           echo _AWS_REGION=${{ secrets.AWS_REGION }} >> yamawake-interface/.env
           echo _AWS_DYNAMO_TABLE_NAME=${{ secrets.AWS_DYNAMO_TABLE_NAME }} >> yamawake-interface/.env
-          echo NEXT_PUBLIC_SUBGRAPH_ENDPOINT=${{ vars.SUBGRAPH_ENDPOINT }} >> yamawake-interface/.env
+          echo NEXT_PUBLIC_SUBGRAPH_ENDPOINT_MAINNET=${{ vars.SUBGRAPH_ENDPOINT_MAINNET }} >> yamawake-interface/.env
+          echo NEXT_PUBLIC_SUBGRAPH_ENDPOINT_ARBITRUM=${{ vars.SUBGRAPH_ENDPOINT_ARBITRUM }} >> yamawake-interface/.env
+          echo NEXT_PUBLIC_SUBGRAPH_ENDPOINT_SEPOLIA=${{ vars.SUBGRAPH_ENDPOINT_SEPOLIA }} >> yamawake-interface/.env
+          echo NEXT_PUBLIC_SUBGRAPH_HARDHAT=${{ vars.SUBGRAPH_ENDPOINT_HARDHAT }} >> yamawake-interface/.env
+          echo NEXT_PUBLIC_LOCAL_FACTORY_ADDRESS=${{ vars.TEST_FACTORY_ADDRESS }} >> yamawake-interface/.env
+          echo NEXT_PUBLIC_LOCAL_DISTRIBUTOR_ADDRESS=${{ vars.TEST_DISTRIBUTOR_ADDRESS }} >> yamawake-interface/.env
+          echo NEXT_PUBLIC_LOCAL_YMWK_ADDRESS=${{ vars.TEST_YMWK_ADDRESS }} >> yamawake-interface/.env
           echo TEST_PRIVATE_KEY=${{ secrets.PRIVATE_KEY }} >> yamawake-interface/.env
           echo TEST_PROVIDER_ENDPOINT=http://localhost:8545 >> yamawake-interface/.env
+          echo TEST_FACTORY_ADDRESS=${{ vars.TEST_FACTORY_ADDRESS }} >> yamawake-interface/.env
           echo IRON_SESSION_PASSWORD=complex_password_at_least_32_characters_long >> yamawake-interface/.env
           echo IRON_SESSION_COOKIE_NAME=test_session >> yamawake-interface/.env
 

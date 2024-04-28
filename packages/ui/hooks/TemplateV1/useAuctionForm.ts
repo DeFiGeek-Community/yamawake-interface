@@ -16,12 +16,14 @@ import { AuctionForm } from "lib/types/Auction";
 import Big, { multiply } from "lib/utils/bignumber";
 import FactoryABI from "lib/constants/abis/Factory.json";
 import { TEMPLATE_V1_NAME } from "lib/constants/templates";
+import { CONTRACT_ADDRESSES } from "lib/constants/contracts";
 import { creatingAuctionAtom, waitingCreationTxAtom } from "lib/store";
 import "rsuite/dist/rsuite-no-reset.min.css";
 import "assets/css/rsuite-override.css";
 
 const now = new Date().getTime();
 export default function useAuctionForm({
+  chainId,
   address,
   onSubmitSuccess,
   onSubmitError,
@@ -30,6 +32,7 @@ export default function useAuctionForm({
   onApprovalTxSent,
   onApprovalTxConfirmed,
 }: {
+  chainId: number;
   address: `0x${string}`;
   onSubmitSuccess?: (result: any) => void;
   onSubmitError?: (e: any) => void;
@@ -102,6 +105,10 @@ export default function useAuctionForm({
   const validate = (values: AuctionForm) => {
     const errors: any = {};
 
+    if (!values.owner) {
+      errors.owner = "Owner is required";
+    }
+
     if (!values.templateName) {
       errors.templateName = "Template is required";
     }
@@ -173,7 +180,7 @@ export default function useAuctionForm({
     functionName: "balanceOf",
     args: [address],
     watch: true,
-    enabled: !!debouncedAuction.token && isAddress(debouncedAuction.token),
+    enabled: !!address && !!debouncedAuction.token && isAddress(debouncedAuction.token),
   });
 
   const {
@@ -181,19 +188,21 @@ export default function useAuctionForm({
     isLoading: tokenLoading,
     isFetched: tokenFetched,
   } = useToken({
+    chainId,
     address: debouncedAuction.token as `0x${string}`,
     enabled: !!debouncedAuction.token && isAddress(debouncedAuction.token),
   });
 
   const prepareFn = usePrepareContractWrite({
-    address: process.env.NEXT_PUBLIC_FACTORY_ADDRESS as `0x${string}`, //factory
+    chainId,
+    address: CONTRACT_ADDRESSES[chainId]?.FACTORY, //factory
     abi: FactoryABI,
     functionName: "deployAuction",
     args: [
       debouncedAuction.templateName, //TEMPLATE_V1_NAME
       getEncodedArgs(),
     ],
-    enabled: !!debouncedAuction.token && isAddress(debouncedAuction.token),
+    enabled: !!address && !!debouncedAuction.token && isAddress(debouncedAuction.token),
   });
 
   const writeFn = useContractWrite({
@@ -211,9 +220,10 @@ export default function useAuctionForm({
   });
 
   const approvals = useApprove({
+    chainId,
     targetAddress: debouncedAuction.token,
-    owner: address as `0x${string}`,
-    spender: process.env.NEXT_PUBLIC_FACTORY_ADDRESS as `0x${string}`,
+    owner: address,
+    spender: CONTRACT_ADDRESSES[chainId]?.FACTORY,
     onSuccessWrite(data) {
       onApprovalTxSent && onApprovalTxSent(data);
     },
@@ -221,7 +231,7 @@ export default function useAuctionForm({
       onApprovalTxConfirmed && onApprovalTxConfirmed(data);
       prepareFn.refetch();
     },
-    enabled: !!debouncedAuction.token && isAddress(debouncedAuction.token),
+    enabled: !!address && !!debouncedAuction.token && isAddress(debouncedAuction.token),
   });
 
   return {

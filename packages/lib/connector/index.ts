@@ -2,19 +2,14 @@ import { Chain, configureChains, createConfig } from "wagmi";
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import { infuraProvider } from "wagmi/providers/infura";
 import { publicProvider } from "wagmi/providers/public";
-
 import { CoinbaseWalletConnector } from "@wagmi/core/connectors/coinbaseWallet";
 import { InjectedConnector } from "@wagmi/core/connectors/injected";
 import { MetaMaskConnector } from "@wagmi/core/connectors/metaMask";
 import { WalletConnectConnector } from "@wagmi/core/connectors/walletConnect";
-import { getChain } from "../utils/chain";
-
-function getSupportedChain(): Chain[] {
-  return [getChain(Number(process.env.NEXT_PUBLIC_CHAIN_ID))];
-}
+import { getSupportedChains } from "../utils/chain";
 
 const { chains, publicClient, webSocketPublicClient } = configureChains<Chain>(
-  getSupportedChain(),
+  getSupportedChains(),
   [
     infuraProvider({ apiKey: process.env.NEXT_PUBLIC_INFURA_API_TOKEN! }),
     alchemyProvider({ apiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY! }),
@@ -30,7 +25,7 @@ const config: any = createConfig({
       chains,
       options: {
         name: "Injected Wallet",
-        shimDisconnect: false,
+        shimDisconnect: true,
       },
     }),
     new CoinbaseWalletConnector({

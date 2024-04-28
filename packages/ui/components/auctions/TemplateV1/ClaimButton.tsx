@@ -10,6 +10,7 @@ import { useLocale } from "../../../hooks/useLocale";
 import { KeyedMutator } from "swr";
 
 interface Props {
+  chainId: number;
   auction: TemplateV1;
   address: `0x${string}`;
   myContribution: Big;
@@ -17,6 +18,7 @@ interface Props {
   mutateIsClaimed: KeyedMutator<any>;
 }
 export default function ClaimButton({
+  chainId,
   auction,
   address,
   myContribution,
@@ -28,13 +30,14 @@ export default function ClaimButton({
   const [claimSucceeded, setClaimSucceeded] = useState<boolean>(false);
   // Local state to show that it is waiting for updateed subgraph data after the claim tx is confirmed
   const [waitForSubgraphUpdate, setWaitForSubgraphUpdate] = useState<boolean>(false);
-  const { chain } = useNetwork();
+  const { chain: connectedChain } = useNetwork();
 
   const {
     prepareFn: claimPrepareFn,
     writeFn: claimWriteFn,
     waitFn: claimWaitFn,
   } = useClaim({
+    chainId,
     targetAddress: auction.id as `0x${string}`,
     address,
     onSuccessWrite: (data) => {
@@ -73,7 +76,13 @@ export default function ClaimButton({
   return (
     <Button
       variant={"solid"}
-      isDisabled={chain?.unsupported || isClaimed || claimSucceeded || !claimWriteFn.write}
+      isDisabled={
+        connectedChain?.id !== chainId ||
+        connectedChain?.unsupported ||
+        isClaimed ||
+        claimSucceeded ||
+        !claimWriteFn.write
+      }
       isLoading={claimWriteFn?.isLoading || claimWaitFn?.isLoading || waitForSubgraphUpdate}
       onClick={() => {
         claimWriteFn.write!();

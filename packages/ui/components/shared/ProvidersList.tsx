@@ -1,4 +1,5 @@
-import { useConnect, useDisconnect, useSwitchNetwork } from "wagmi";
+import { useConnect, useDisconnect } from "wagmi";
+import { switchNetwork } from "@wagmi/core";
 import { Button, Stack, Flex, useToast } from "@chakra-ui/react";
 import {
   Modal,
@@ -10,6 +11,8 @@ import {
 } from "@chakra-ui/react";
 import ProviderLogo from "./ProviderLogo";
 import { useLocale } from "../../hooks/useLocale";
+import { useRequestedChain } from "../../hooks/useRequestedChain";
+import { getDefaultChain, isSupportedChain } from "lib/utils/chain";
 
 export default function ProvidersList({
   isOpen,
@@ -20,14 +23,21 @@ export default function ProvidersList({
   onConnectSuccess?: ({ address, chainId }: { address: `0x${string}`; chainId: number }) => void;
   onClose: () => void;
 }) {
+  const { requestedChain } = useRequestedChain();
   const toast = useToast({ position: "top-right", isClosable: true });
   const { connect, connectors, error, isLoading, pendingConnector } = useConnect({
-    chainId: Number(process.env.NEXT_PUBLIC_CHAIN_ID),
+    chainId: requestedChain.id,
     onSuccess: async (data) => {
+      let chainId = data.chain.id;
+      if (!isSupportedChain(data.chain.id) && switchNetwork) {
+        chainId = getDefaultChain().id;
+        await switchNetwork({ chainId });
+      }
+
       onConnectSuccess &&
         onConnectSuccess({
           address: data.account,
-          chainId: data.chain.id,
+          chainId,
         });
     },
     onError: (error: Error) => {
@@ -37,7 +47,6 @@ export default function ProvidersList({
         status: "error",
         duration: 5000,
       });
-      // onClose();
     },
   });
   const { disconnect } = useDisconnect();

@@ -1,18 +1,19 @@
 import { useContractRead } from "wagmi";
-import { CHAINLINK_PRICE_FEED } from "lib/constants";
+import { CHAINLINK_PRICE_FEED } from "lib/constants/priceFeeds";
 import PriceFeedABI from "lib/constants/abis/ChainlinkPriceFeed.json";
 
 const useRate = (
-  chainId: number | null,
+  chainId: number,
   pair: "ETH-USD" = "ETH-USD",
 ): ReturnType<
   typeof useContractRead<typeof PriceFeedABI, "latestRoundData", number | undefined>
 > => {
   const contractRead = useContractRead<typeof PriceFeedABI, "latestRoundData", number | undefined>({
-    address: chainId ? (CHAINLINK_PRICE_FEED[pair][chainId] as `0x${string}`) : "0x00",
+    chainId,
+    address: CHAINLINK_PRICE_FEED[pair][chainId] as `0x${string}`,
     abi: PriceFeedABI,
     functionName: "latestRoundData",
-    enabled: !!chainId,
+    enabled: !!chainId && !!CHAINLINK_PRICE_FEED[pair][chainId],
     scopeKey: pair,
     cacheTime: 60_000,
     staleTime: 60_000,

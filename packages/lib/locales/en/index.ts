@@ -114,7 +114,7 @@ export default {
   UNNAMED_SALE: "Unnamed Auction",
   BALANCE: "Balance",
   CANCEL: "Cancel",
-  CONFIRMATION: "Confirmation",
+  CONFIRMATION: "[Confirmation] Deploy to {{network}}",
   ACHIEVED: "Achieved 🎉",
   PRICE_AGAINST_ETH: "Price against ETH",
   JOIN_AUCTION: "Join Auction",
@@ -138,4 +138,6 @@ export default {
     "The target amount of this auction. Users can buy even after this value is achieved.",
   TEMPLATE_EXPLANATION: "Explanation of Each Template ",
   SIGN_SAFE_ACCOUNT: "Please sign the message from your Safe account without leaving this page.",
+  SWITCH_NETWORK_TO: "Switch to {{chainName}}",
+  CONNECTION_CHANGE_DETECTED: "Connection change detected. Please sign-in again.",
 };

@@ -9,11 +9,13 @@ import TxSentToast from "../../shared/TxSentToast";
 import { useLocale } from "../../../hooks/useLocale";
 
 type Props = {
+  chainId: number;
   auction: TemplateV1;
   onSuccessConfirm?: (data: any) => void;
 };
-export default function WithdrawRaisedETH({ auction, onSuccessConfirm }: Props) {
+export default function WithdrawRaisedETH({ chainId, auction, onSuccessConfirm }: Props) {
   const toast = useToast({ position: "top-right", isClosable: true });
+  const { chain: connectedChain } = useNetwork();
   const { data: balanceData, isLoading: isLoadingBalance } = useBalance({
     address: auction.id as `0x${string}`,
   });
@@ -49,10 +51,10 @@ export default function WithdrawRaisedETH({ auction, onSuccessConfirm }: Props) 
     isReady:
       auction.closingAt < new Date().getTime() / 1000 &&
       !!balanceData &&
-      balanceData.value !== BigInt(0),
+      balanceData.value !== BigInt(0) &&
+      chainId === connectedChain?.id,
   });
   const { t } = useLocale();
-  const { chain } = useNetwork();
 
   return (
     <Box>
@@ -72,7 +74,8 @@ export default function WithdrawRaisedETH({ auction, onSuccessConfirm }: Props) 
         <Button
           variant={"solid"}
           isDisabled={
-            chain?.unsupported ||
+            chainId !== connectedChain?.id ||
+            connectedChain?.unsupported ||
             !balanceData ||
             balanceData.value === BigInt(0) ||
             !withdrawETHWriteFn.write

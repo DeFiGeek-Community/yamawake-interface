@@ -7,12 +7,14 @@ import {
 import TemplateV1 from "lib/constants/abis/TemplateV1.json";
 
 export default function useClaim({
+  chainId,
   targetAddress,
   address,
   onSuccessWrite,
   onSuccessConfirm,
   claimed,
 }: {
+  chainId: number;
   targetAddress: `0x${string}` | null;
   address: `0x${string}` | undefined;
   onSuccessWrite?: (data: any) => void;
@@ -23,11 +25,12 @@ export default function useClaim({
   writeFn: ReturnType<typeof useContractWrite>;
   waitFn: ReturnType<typeof useWaitForTransaction>;
 } {
-  const { chain } = useNetwork();
-  const enabled: boolean = !!targetAddress && !!address && !!chain && !claimed;
+  const { chain: connectedChain } = useNetwork();
+  const enabled: boolean =
+    !!targetAddress && !!address && !!connectedChain && chainId === connectedChain?.id && !claimed;
 
   const prepareFn = usePrepareContractWrite({
-    chainId: chain?.id,
+    chainId: connectedChain?.id,
     address: targetAddress ? targetAddress : "0x00",
     abi: TemplateV1,
     functionName: "claim",
@@ -43,7 +46,7 @@ export default function useClaim({
   });
 
   const waitFn = useWaitForTransaction({
-    chainId: chain?.id,
+    chainId: connectedChain?.id,
     hash: writeFn.data?.hash,
     onSuccess(data) {
       onSuccessConfirm && onSuccessConfirm(data);

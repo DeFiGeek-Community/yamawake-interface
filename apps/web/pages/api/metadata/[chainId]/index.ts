@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { withIronSessionApiRoute } from "iron-session/next";
-import { erc20ABI } from "wagmi";
+import type { IronSessionOptions, IronSession } from "iron-session";
 import {
   createPublicClient,
   http,
@@ -11,10 +11,10 @@ import {
   Transport,
 } from "viem";
 import { Chain } from "viem/chains";
-import { getChain } from "lib/utils/chain";
+import { getSupportedChain, isSupportedChain } from "lib/utils/chain";
 import { DBClient } from "lib/dynamodb/metaData";
 import BaseTemplateABI from "lib/constants/abis/BaseTemplate.json";
-import { IronSessionOptions } from "iron-session";
+import { MetaData } from "lib/types/Auction";
 
 const ironOptions: IronSessionOptions = {
   cookieName: process.env.IRON_SESSION_COOKIE_NAME!,
@@ -31,43 +31,42 @@ const dbClient = new DBClient({
   tableName: process.env._AWS_DYNAMO_TABLE_NAME as string,
 });
 
-const availableNetwork = [Number(process.env.NEXT_PUBLIC_CHAIN_ID)];
-
 const getViemProvider = (chainId: number) => {
-  const chain = getChain(chainId);
-  const chainName = chain.name.toLowerCase();
+  const chain = getSupportedChain(chainId);
+  if (!chain) throw new Error("Wrong network");
+
   // const alchemy = http(`https://eth-${chainName}.g.alchemy.com/v2/${}`)
-  const infura = http(
-    `https://${chainName}.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_API_TOKEN}`,
-  );
+  const rpc = chain.rpcUrls.infura
+    ? http(`${chain.rpcUrls.infura.http}/${process.env.NEXT_PUBLIC_INFURA_API_TOKEN}`)
+    : http(`${chain.rpcUrls.public.http}`);
   const client = createPublicClient({
-    // chain: getViemChain(chainName),
     chain,
-    transport: fallback([infura]),
+    transport: fallback([rpc]),
   });
   return client;
 };
 
 const requireContractOwner = (
-  req: NextApiRequest,
+  body: any,
+  session: IronSession,
+  chainId: number,
 ): Promise<{
-  metaData: any;
+  metaData: MetaData;
   auctionContract: GetContractReturnType<typeof BaseTemplateABI, PublicClient>;
   provider: PublicClient<Transport, Chain | undefined>;
 }> => {
   return new Promise(async (resolve, reject) => {
     try {
-      if (!req.session.siwe) return reject("Unauthorized");
-      const metaData = req.body;
-      const provider = getViemProvider(req.session.siwe.chainId) as PublicClient;
+      if (!session.siwe) return reject("Unauthorized");
+      const metaData = Object.assign(body, { chainId });
+      const provider = getViemProvider(chainId) as PublicClient;
       const auctionContract = getContract({
         address: metaData.id,
         abi: BaseTemplateABI,
         publicClient: provider,
       });
       const contractOwner = await auctionContract.read.owner();
-      if (contractOwner !== req.session.siwe.address)
-        reject("You are not the owner of this contract");
+      if (contractOwner !== session.siwe.address) reject("You are not the owner of this contract");
       resolve({ metaData, auctionContract, provider });
     } catch (error: any) {
       reject(error.message);
@@ -75,23 +74,10 @@ const requireContractOwner = (
   });
 };
 
-const requireAvailableNetwork = (req: NextApiRequest) => {
+const requireAvailableNetwork = (req: NextApiRequest): number => {
   if (!req.session.siwe) throw new Error("Sign in required");
-  if (!availableNetwork.includes(req.session.siwe.chainId)) throw new Error("Wrong network");
-};
-
-const getTokenInfo = async (tokenAddress: `0x${string}`, provider: PublicClient) => {
-  const token = getContract({
-    address: tokenAddress,
-    abi: erc20ABI,
-    publicClient: provider,
-  });
-  const result = await Promise.all([token.read.name(), token.read.symbol(), token.read.decimals()]);
-  return {
-    tokenName: result[0],
-    tokenSymbol: result[1],
-    tokenDecimal: result[2],
-  };
+  if (!isSupportedChain(req.session.siwe.chainId)) throw new Error("Wrong network");
+  return req.session.siwe.chainId;
 };
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
@@ -99,8 +85,15 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   switch (method) {
     case "GET":
       try {
-        const { lastEvaluatedKeyId, lastEvaluatedKeyCreatedAt } = req.query;
+        const { lastEvaluatedKeyId, lastEvaluatedKeyCreatedAt, chainId } = req.query;
+        let requestedChain: Chain | undefined;
+        if (typeof chainId === "string") {
+          requestedChain = getSupportedChain(chainId);
+        }
+        if (!requestedChain) return res.status(404).end("No auction found");
+
         const metaData = await dbClient.scanMetaData(
+          requestedChain.id,
           lastEvaluatedKeyId as string,
           lastEvaluatedKeyCreatedAt as string,
         );
@@ -112,8 +105,18 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       break;
     case "POST":
       try {
-        requireAvailableNetwork(req);
-        const { metaData } = await requireContractOwner(req);
+        const sessionChainId = requireAvailableNetwork(req);
+        const { chainId } = req.query;
+
+        // To prevent editing off-chain data related to a contract on a different chain than the user signed,
+        // ensure that the requested chainId matches the chainId included in the session.
+        // Even without this check, data on the requested chain will only be updated if the user is the owner of the contract for the requested chainId,
+        // but this behavior would not be expected by the application, so it might be better to check just in case.
+        if (Number(chainId) !== sessionChainId)
+          throw new Error("Network does not match. Please logout and login again");
+
+        const { metaData } = await requireContractOwner(req.body, req.session, Number(chainId));
+
         const result = await dbClient.addMetaData(metaData);
         res.json({ result });
       } catch (_error) {
@@ -123,8 +126,13 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       break;
     case "PUT":
       try {
-        requireAvailableNetwork(req);
-        const { metaData } = await requireContractOwner(req);
+        const sessionChainId = requireAvailableNetwork(req);
+        const { chainId } = req.query;
+        if (Number(chainId) !== sessionChainId)
+          throw new Error("Network does not match. Please logout and login again");
+
+        const { metaData } = await requireContractOwner(req.body, req.session, Number(chainId));
+
         const result = await dbClient.updateAuction(metaData);
         res.json({ result });
       } catch (_error: any) {

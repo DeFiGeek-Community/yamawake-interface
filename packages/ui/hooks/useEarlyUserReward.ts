@@ -5,15 +5,19 @@ import {
   useWaitForTransaction,
 } from "wagmi";
 import DistributorABI from "lib/constants/abis/Distributor.json";
+import { CONTRACT_ADDRESSES } from "lib/constants/contracts";
+import { isSupportedChain } from "lib/utils/chain";
 
 export default function useEarlyUserReward({
+  chainId,
   address,
   onSuccessWrite,
   onErrorWrite,
   onSuccessConfirm,
   onErrorConfirm,
 }: {
-  address: `0x${string}`;
+  chainId: number;
+  address: `0x${string}` | undefined;
   onSuccessWrite?: (data: any) => void;
   onErrorWrite?: (error: Error) => void;
   onSuccessConfirm?: (data: any) => void;
@@ -24,7 +28,7 @@ export default function useEarlyUserReward({
   waitFn: ReturnType<typeof useWaitForTransaction>;
 } {
   const config = {
-    address: process.env.NEXT_PUBLIC_DISTRIBUTOR_ADDRESS as `0x${string}`,
+    address: CONTRACT_ADDRESSES[chainId]?.DISTRIBUTOR,
     abi: DistributorABI,
   };
   const readFn = useContractRead<typeof DistributorABI, "scores", bigint>({
@@ -32,14 +36,14 @@ export default function useEarlyUserReward({
     functionName: "scores",
     args: [address],
     watch: true,
-    enabled: !!address,
+    enabled: isSupportedChain(chainId) && !!address,
   });
 
   const { config: claimConfig } = usePrepareContractWrite({
     ...config,
     functionName: "claim",
     args: [address],
-    enabled: !!address && !!readFn.data,
+    enabled: isSupportedChain(chainId) && !!address && !!readFn.data,
   });
 
   const writeFn = useContractWrite({

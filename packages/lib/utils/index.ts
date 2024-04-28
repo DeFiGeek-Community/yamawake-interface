@@ -110,14 +110,6 @@ export const etherAmountFormat = (
   }
 };
 
-export const getEtherscanLink = (
-  chain: string,
-  hash: string,
-  type: "tx" | "token" | "address" | "block",
-): string => {
-  return `https://${chain === "mainnet" ? "" : `${chain}.`}etherscan.io/${type}/${hash}`;
-};
-
 type Countdown = { days: string; hours: string; mins: string; secs: string };
 
 export const getCountdown = (duration: number): Countdown => {
@@ -167,5 +159,23 @@ export const getDecimalsForView = (amount: Big, decimals: number): number => {
     }
   } else {
     return Math.min(10 - digits, decimals);
+  }
+};
+
+export const getLinkPath = (path: string, chainId: number): string => {
+  const auctionRegex = /^\/auctions\/(\d+)\/(0x[a-fA-F0-9]{40})$/;
+
+  if (path.startsWith("/auctions")) {
+    const match = path.match(auctionRegex);
+    if (match) {
+      // Return the same url when user is on the detail page
+      return `/auctions/${match[1]}/${match[2]}`;
+    } else {
+      return `/auctions/${chainId}`;
+    }
+  } else if (path.startsWith("/dashboard")) {
+    return "/dashboard";
+  } else {
+    return `?chainId=${chainId}`;
   }
 };

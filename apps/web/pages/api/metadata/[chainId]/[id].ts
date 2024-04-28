@@ -1,7 +1,9 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { withIronSessionApiRoute } from "iron-session/next";
+import { Chain } from "viem/chains";
 import { DBClient } from "lib/dynamodb/metaData";
 import { IronSessionOptions } from "iron-session";
+import { getDefaultChain, getSupportedChain } from "lib/utils/chain";
 
 const ironOptions: IronSessionOptions = {
   cookieName: process.env.IRON_SESSION_COOKIE_NAME!,
@@ -18,20 +20,21 @@ const dbClient = new DBClient({
   tableName: process.env._AWS_DYNAMO_TABLE_NAME as string,
 });
 
-const availableNetwork = [Number(process.env.NEXT_PUBLIC_CHAIN_ID)];
-
-const requireAvailableNetwork = (chainId: number) => {
-  if (!availableNetwork.includes(chainId)) throw new Error("Wrong network");
-};
-
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const { method } = req;
   switch (method) {
     case "GET":
       try {
-        const { id } = req.query;
+        const { id, chainId } = req.query;
         // requireAvailableNetwork(chainId);
-        const metaData = await dbClient.fetchMetaData(id as string);
+        let requestedChain: Chain;
+        if (typeof chainId === "string") {
+          requestedChain = getSupportedChain(chainId) ?? getDefaultChain();
+        } else {
+          return res.status(404).end("No auction found");
+        }
+
+        const metaData = await dbClient.fetchMetaData(id as string, requestedChain.id);
         res.json({ metaData });
       } catch (_error: any) {
         console.log(_error.message);

@@ -8,7 +8,6 @@ import {
   ModalCloseButton,
 } from "@chakra-ui/react";
 import { useToast, useColorMode } from "@chakra-ui/react";
-import { useAccount } from "wagmi";
 import { CustomProvider } from "rsuite";
 import { useAtom } from "jotai";
 import { creatingAuctionAtom } from "lib/store";
@@ -20,8 +19,11 @@ import TxSentToast from "../shared/TxSentToast";
 import AuctionFormWrapper from "./AuctionFormWrapper";
 import { useSafeWaitForTransaction } from "../../hooks/useSafeWaitForTransaction";
 import { decodeEventLog, parseAbi } from "viem";
+import { ChainNameTag } from "../shared/ChainNameTag";
 
 type AuctionFormModalProps = {
+  chainId: number;
+  address: `0x${string}`;
   isOpen: boolean;
   onClose: () => void;
   onDeploy?: () => void;
@@ -31,6 +33,8 @@ type AuctionFormModalProps = {
 };
 
 export default function AuctionFormModal({
+  chainId,
+  address,
   isOpen,
   onClose,
   onDeploy,
@@ -38,7 +42,6 @@ export default function AuctionFormModal({
   onInformationSaved,
   onInformationCanceled,
 }: AuctionFormModalProps) {
-  const { address } = useAccount();
   const toast = useToast({ position: "top-right", isClosable: true });
   const { colorMode, setColorMode, toggleColorMode } = useColorMode();
   const [step, setStep] = useState<1 | 2>(1);
@@ -95,6 +98,7 @@ export default function AuctionFormModal({
   };
 
   const { formikProps: metaFormikProps } = useMetaDataForm({
+    chainId,
     contractId: contractAddress,
     minRaisedAmount:
       creatingAuction && creatingAuction.minRaisedAmount ? creatingAuction.minRaisedAmount : 0,
@@ -133,7 +137,10 @@ export default function AuctionFormModal({
       >
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>{t("CREATE_NEW_SALE")}</ModalHeader>
+          <ModalHeader>
+            {t("CREATE_NEW_SALE")}
+            <ChainNameTag chainId={chainId} ml={4} verticalAlign={"text-bottom"} />
+          </ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
             <Steps
@@ -145,22 +152,21 @@ export default function AuctionFormModal({
               currentStep={step}
             />
             {step === 1 ? (
-              <>
-                <AuctionFormWrapper
-                  address={address as `0x${string}`}
-                  onSubmitSuccess={(result) => {
-                    setTx(result.hash);
-                    setStep(2);
-                    onDeploy && onDeploy();
-                    toast({
-                      title: t("TRANSACTION_SENT"),
-                      status: "success",
-                      duration: 5000,
-                      render: (props) => <TxSentToast txid={result.hash} {...props} />,
-                    });
-                  }}
-                />
-              </>
+              <AuctionFormWrapper
+                chainId={chainId}
+                address={address}
+                onSubmitSuccess={(result) => {
+                  setTx(result.hash);
+                  setStep(2);
+                  onDeploy && onDeploy();
+                  toast({
+                    title: t("TRANSACTION_SENT"),
+                    status: "success",
+                    duration: 5000,
+                    render: (props) => <TxSentToast txid={result.hash} {...props} />,
+                  });
+                }}
+              />
             ) : (
               <MetaDataForm
                 formikProps={metaFormikProps}

@@ -4,10 +4,15 @@ import Big, { getBigNumber } from "lib/utils/bignumber";
 import { TemplateV1 } from "lib/types/Auction";
 import { ContractFunctionConfig, Abi } from "viem";
 
-export default function useRaised(
-  auction: TemplateV1,
-  address: `0x${string}` | undefined,
-): {
+export default function useRaised({
+  auction,
+  chainId,
+  address,
+}: {
+  auction: TemplateV1;
+  chainId: number;
+  address: `0x${string}` | undefined;
+}): {
   raised: Big;
   totalRaised: Big;
   isLoading: boolean;
@@ -15,6 +20,7 @@ export default function useRaised(
   refetch: (() => Promise<any>) | (() => void);
 } {
   const auctionContractConfig = {
+    chainId,
     address: auction.id as `0x${string}`,
     abi: TemplateV1ABI as Abi,
   };

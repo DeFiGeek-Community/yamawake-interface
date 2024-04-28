@@ -15,7 +15,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   switch (method) {
     case "GET":
       res.send({
-        user: req.session.siwe ? { address: req.session.siwe?.address } : null,
+        user: req.session.siwe
+          ? { address: req.session.siwe.address, chainId: req.session.siwe.chainId }
+          : null,
       });
       break;
     default:

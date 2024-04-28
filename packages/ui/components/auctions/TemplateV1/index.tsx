@@ -38,6 +38,8 @@ import {
   useNetwork,
 } from "wagmi";
 import Big, { getBigNumber } from "lib/utils/bignumber";
+import { getSupportedChain, isSupportedChain, getEtherscanLink } from "lib/utils/chain";
+import { getDecimalsForView, tokenAmountFormat, parseEther } from "lib/utils";
 import CalendarInCircle from "./CalendarInCircle";
 import PersonalStatistics from "./PersonalStatistics";
 import StatisticsInCircle from "./StatisticsInCircle";
@@ -51,12 +53,12 @@ import TxSentToast from "../../shared/TxSentToast";
 import WithdrawRaisedETH from "./WithdrawRaisedETH";
 import WithdrawERC20 from "./WithdrawERC20OnSale";
 import { useLocale } from "../../../hooks/useLocale";
-import { getDecimalsForView, getEtherscanLink, tokenAmountFormat, parseEther } from "lib/utils";
-import { getChain } from "lib/utils/chain";
 import ConnectButton from "../../shared/connectButton";
 import { DetailPageParams } from "../AuctionDetail";
+import { ChainNameTag } from "../../shared/ChainNameTag";
 
 export default memo(function DetailPage({
+  chainId,
   auctionProps,
   refetchAuction,
   metaData,
@@ -72,14 +74,12 @@ export default memo(function DetailPage({
     isLoading: isLoadingRaisedAmount,
     isError: isErrorFetchRaised,
     refetch: refetchRaised,
-  } = useRaised(auction, address);
+  } = useRaised({ auction, chainId, address });
   const {
     data: balanceData,
     isLoading: isLoadingBalance,
     refetch: refetchBalance,
-  } = useBalance({ address, enabled: !!address });
-  const { chain } = useNetwork();
-
+  } = useBalance({ chainId, address, enabled: !!address });
   const raisedTokenSymbol = "ETH";
   const raisedTokenDecimal = 18;
   const fiatSymbol = "usd";
@@ -87,7 +87,10 @@ export default memo(function DetailPage({
   const [started, setStarted] = useState<boolean>(false);
   const [ended, setEnded] = useState<boolean>(false);
 
-  const { data: rateData, refetch: updateRate } = useRate(Number(process.env.NEXT_PUBLIC_CHAIN_ID));
+  const { data: rateData, refetch: updateRate } = useRate(chainId);
+  const { chain: connectedChain } = useNetwork();
+  // TODO Consider getting chain from getChainById in case of supported chain reduced in the future
+  const chain = getSupportedChain(chainId);
 
   useInterval(() => {
     setStarted(auction.startingAt * 1000 <= new Date().getTime());
@@ -122,7 +125,7 @@ export default memo(function DetailPage({
   const { config, isError } = usePrepareSendTransaction({
     to: contractAddress,
     value: formikProps.values.amount ? BigInt(parseEther(formikProps.values.amount)) : undefined,
-    enabled: started && !ended && formikProps.values.amount > 0,
+    enabled: started && !ended && formikProps.values.amount > 0 && connectedChain?.id === chainId,
   });
 
   const {
@@ -148,7 +151,7 @@ export default memo(function DetailPage({
     },
   });
 
-  const { isLoading: isLoadingWaitTX, isSuccess } = useWaitForTransaction({
+  const { isLoading: isLoadingWaitTX } = useWaitForTransaction({
     hash: data?.hash,
     confirmations: 2,
     onError(e: Error) {
@@ -192,6 +195,7 @@ export default memo(function DetailPage({
             alt={metaData.title}
           />
           <Box px={{ base: 0, md: 8 }} w={{ base: "full", md: "auto" }}>
+            {chain && <ChainNameTag chainId={chain.id} />}
             <Heading>{metaData.title ? metaData.title : "Unnamed Auction"}</Heading>
             <HStack spacing={{ base: 4, lg: 4 }} mt={1}>
               <chakra.p fontSize={"sm"}>
@@ -200,11 +204,7 @@ export default memo(function DetailPage({
                 </Tag>
                 <Link
                   ml={1}
-                  href={getEtherscanLink(
-                    getChain(Number(process.env.NEXT_PUBLIC_CHAIN_ID)).name.toLowerCase(),
-                    auction.auctionToken.id as `0x${string}`,
-                    "token",
-                  )}
+                  href={getEtherscanLink(chain, auction.auctionToken.id as `0x${string}`, "token")}
                   target={"_blank"}
                   fontSize={{ base: "xs", lg: "sm" }}
                   display={{ base: "block", lg: "inline" }}
@@ -232,11 +232,7 @@ export default memo(function DetailPage({
                   fontFamily={"'Meiryo', 'Osaka'"}
                   letterSpacing={"-0.5px"}
                   fontSize={"xs"}
-                  href={getEtherscanLink(
-                    getChain(Number(process.env.NEXT_PUBLIC_CHAIN_ID)).name.toLowerCase(),
-                    auction.id as `0x${string}`,
-                    "address",
-                  )}
+                  href={getEtherscanLink(chain, auction.id as `0x${string}`, "address")}
                   target={"_blank"}
                   display={{ base: "block", lg: "inline" }}
                 >
@@ -368,7 +364,12 @@ export default memo(function DetailPage({
                             {address ? (
                               <Button
                                 isLoading={isLoadingWaitTX || isLoadingSendTX}
-                                isDisabled={chain?.unsupported || !sendTransactionAsync || !started}
+                                isDisabled={
+                                  connectedChain?.id !== chainId ||
+                                  !isSupportedChain(chainId) ||
+                                  !sendTransactionAsync ||
+                                  !started
+                                }
                                 type="submit"
                                 variant="solid"
                                 colorScheme={"green"}
@@ -412,6 +413,7 @@ export default memo(function DetailPage({
                   {address && ended && (
                     <chakra.div textAlign={"right"} mt={4}>
                       <ClaimButton
+                        chainId={chainId}
                         auction={auction}
                         address={address}
                         myContribution={raised}
@@ -448,11 +450,19 @@ export default memo(function DetailPage({
               <CardBody>
                 <Stack divider={<StackDivider />} spacing="4">
                   <chakra.div textAlign={"center"}>
-                    <WithdrawERC20 auction={auction} onSuccessConfirm={refetchAuction} />
+                    <WithdrawERC20
+                      chainId={chainId}
+                      auction={auction}
+                      onSuccessConfirm={refetchAuction}
+                    />
                   </chakra.div>
 
                   <chakra.div textAlign={"center"}>
-                    <WithdrawRaisedETH auction={auction} onSuccessConfirm={refetchAuction} />
+                    <WithdrawRaisedETH
+                      chainId={chainId}
+                      auction={auction}
+                      onSuccessConfirm={refetchAuction}
+                    />
                   </chakra.div>
                 </Stack>
               </CardBody>

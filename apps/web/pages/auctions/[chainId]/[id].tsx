@@ -7,16 +7,17 @@ import useAuction from "ui/hooks/useAuction";
 import useSWRMetaData from "ui/hooks/useSWRMetaData";
 import { useLocale } from "ui/hooks/useLocale";
 import { zeroAddress } from "viem";
-import CustomError from "../_error";
+import CustomError from "../../_error";
 import AuctionDetail, { SkeletonAuction } from "ui/components/auctions/AuctionDetail";
+import { getSupportedChain } from "lib/utils/chain";
 
 export default function AuctionPage() {
-  const { address, isConnected, connector } = useAccount();
+  const { address } = useAccount();
   const router = useRouter();
-  const { id } = router.query;
-  const { t, locale } = useLocale();
+  const { id, chainId } = router.query;
+  const { t } = useLocale();
   const toast = useToast({ position: "top-right", isClosable: true });
-
+  const chain = getSupportedChain(String(chainId));
   const {
     data: auctionData,
     mutate: refetch,
@@ -24,9 +25,17 @@ export default function AuctionPage() {
   } = useAuction(
     id as `0x${string}`,
     address ? (address.toLowerCase() as `0x${string}`) : (zeroAddress as `0x${string}`),
+    chain?.id,
   );
+  const { data: metaData, mutate, error: dynamodbError } = useSWRMetaData(chain?.id, id as string);
 
-  const { data: metaData, mutate, error: dynamodbError } = useSWRMetaData(id as string);
+  if (!chainId)
+    return (
+      <Layout>
+        <SkeletonAuction />
+      </Layout>
+    );
+  if (!chain) return <CustomError statusCode={404} />;
 
   if (apolloError || dynamodbError)
     toast({
@@ -58,6 +67,7 @@ export default function AuctionPage() {
         image={metaData.metaData.logoURL && metaData.metaData.logoURL}
       />
       <AuctionDetail
+        chainId={chain.id}
         auctionProps={auctionData.auction}
         refetchAuction={refetch}
         metaData={metaData.metaData}

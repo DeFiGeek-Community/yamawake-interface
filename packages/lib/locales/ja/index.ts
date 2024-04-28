@@ -113,7 +113,7 @@ export default {
   UNNAMED_SALE: "名称未設定のオークション",
   BALANCE: "残高",
   CANCEL: "キャンセル",
-  CONFIRMATION: "確認",
+  CONFIRMATION: "[確認] {{network}}へのデプロイ",
   ACHIEVED: "達成しました 🎉",
   PRICE_AGAINST_ETH: "ETH建て価格",
   JOIN_AUCTION: "オークションに参加する",
@@ -137,4 +137,6 @@ export default {
     "このオークションの目標調達額です。目標調達額を達成した後も入札は可能です。",
   TEMPLATE_EXPLANATION: "各テンプレートの説明 ",
   SIGN_SAFE_ACCOUNT: "このページから離れずにSafeアカウントで署名してください",
+  SWITCH_NETWORK_TO: "{{chainName}}へ切り替え",
+  CONNECTION_CHANGE_DETECTED: "接続が変更されたためログアウトしました。再度ログインしてください",
 };
