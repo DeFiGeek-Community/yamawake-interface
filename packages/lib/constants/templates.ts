@@ -1,4 +1,4 @@
-import { mainnet, sepolia, arbitrum, hardhat } from "viem/chains";
+import { mainnet, sepolia, holesky, arbitrum, hardhat } from "viem/chains";
 
 type CompatibleTemplates = {
   readonly [key: number]: [string];
@@ -11,5 +11,6 @@ export const COMPATIBLE_TEMPLATES: CompatibleTemplates = {
   [mainnet.id]: [TEMPLATE_V1_NAME],
   [arbitrum.id]: [TEMPLATE_V1_NAME],
   [sepolia.id]: [TEMPLATE_V1_NAME],
+  [holesky.id]: [TEMPLATE_V1_NAME],
   [hardhat.id]: [TEMPLATE_V1_NAME],
 };

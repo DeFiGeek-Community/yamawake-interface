@@ -58,6 +58,8 @@ export const getEtherscanLink = (
   hash: string,
   type: "tx" | "token" | "address" | "block",
 ): string => {
-  if (typeof chain === "undefined" || typeof chain.blockExplorers === "undefined") return "";
+  if (typeof chain === "undefined") return "";
+  if (typeof chain.blockExplorers === "undefined")
+    return `https://${chain.network}.etherscan.io/${type}/${hash}`;
   return `${chain.blockExplorers.default.url}/${type}/${hash}`;
 };
