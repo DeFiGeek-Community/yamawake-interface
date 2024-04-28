@@ -32,7 +32,12 @@ import { differenceInSeconds, format } from "date-fns";
 import { ethers } from "ethers";
 import { getDecimalsForView, tokenAmountFormat } from "lib/utils";
 import Big, { divide, getBigNumber, multiply } from "lib/utils/bignumber";
-import { getSupportedChain, isSupportedChain, getEtherscanLink } from "lib/utils/chain";
+import {
+  getSupportedChain,
+  isSupportedChain,
+  getEtherscanLink,
+  getChainById,
+} from "lib/utils/chain";
 import type { AuctionForm } from "lib/types/Auction";
 import { useLocale } from "../../../hooks/useLocale";
 import useAuctionForm from "../../../hooks/TemplateV1/useAuctionForm";
@@ -356,7 +361,7 @@ export default function AuctionForm({
               <AlertDialogOverlay>
                 <AlertDialogContent>
                   <AlertDialogHeader fontSize="lg" fontWeight="bold">
-                    {t("CONFIRMATION")}
+                    {t("CONFIRMATION", { network: getChainById(chainId)?.name ?? "" })}
                   </AlertDialogHeader>
 
                   <AlertDialogBody>

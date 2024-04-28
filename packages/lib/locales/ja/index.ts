@@ -113,7 +113,7 @@ export default {
   UNNAMED_SALE: "名称未設定のオークション",
   BALANCE: "残高",
   CANCEL: "キャンセル",
-  CONFIRMATION: "確認",
+  CONFIRMATION: "[確認] {{network}}へのデプロイ",
   ACHIEVED: "達成しました 🎉",
   PRICE_AGAINST_ETH: "ETH建て価格",
   JOIN_AUCTION: "オークションに参加する",

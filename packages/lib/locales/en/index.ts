@@ -114,7 +114,7 @@ export default {
   UNNAMED_SALE: "Unnamed Auction",
   BALANCE: "Balance",
   CANCEL: "Cancel",
-  CONFIRMATION: "Confirmation",
+  CONFIRMATION: "[Confirmation] Deploy to {{network}}",
   ACHIEVED: "Achieved 🎉",
   PRICE_AGAINST_ETH: "Price against ETH",
   JOIN_AUCTION: "Join Auction",
