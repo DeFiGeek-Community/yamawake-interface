@@ -55,6 +55,7 @@ Example of .env.test for local chain.
 
 ```
 NEXT_PUBLIC_DEFAULT_CHAIN_ID='31337'
+NEXT_PUBLIC_SUPPOTED_CHAIN_IDS="31337"
 NETWORK_NAME="hardhat"
 TEST_PROVIDER_ENDPOINT="http://localhost:8545"
 TEST_FACTORY_ADDRESS="0x..."
@@ -75,6 +76,18 @@ TEST_FACTORY_ADDRESS="0x..."
 - packages/ui/components/auctions/AuctionCard.tsx
 - packages/ui/components/auctions/AuctionDetail.tsx
 - packages/ui/components/auctions/AuctionFormWrapper.tsx
+
+### How to add new network
+
+1. Deploy subgraph to the target network
+2. Set up network configs in `packages/lib/constants/contracts` as you need
+   - `packages/lib/constants/contracts.ts`
+   - `packages/lib/constants/subgraphEndpoints.ts`
+   - `packages/lib/constants/templates.ts`
+   - `packages/lib/constants/priceFeeds.ts`
+3. Update environment variables
+   - Add chain id to NEXT_PUBLIC_SUPPOTED_CHAIN_IDS
+   - Add NEXT_PUBLIC_SUBGRAPH_ENDPOINT\_{NETWORK NAME}
 
 ## Subgraph
 
