@@ -1,18 +1,31 @@
-import { GraphQLClient } from "graphql-request";
-import { RequestConfig } from "graphql-request/build/esm/types";
+import { ClientError, GraphQLClient } from "graphql-request";
+import type { RequestConfig, ResponseMiddleware } from "graphql-request/build/esm/types";
 import { Chain } from "viem/chains";
-import { SUBGRAPH_ENDPOINTS } from "../constants/subgraphEndpoints";
+import { SUBGRAPH_ENDPOINTS, SUBGRAPH_SECONDARY_ENDPOINTS } from "../constants/subgraphEndpoints";
 import { getDefaultChain, getSupportedChain } from "../utils/chain";
 
 export class GraphQLChainClient extends GraphQLClient {
-  constructor({ chainId, requestConfig }: { chainId?: number; requestConfig?: RequestConfig }) {
+  constructor({
+    chainId,
+    requestConfig,
+    useSecondaryEndpoint = false,
+  }: {
+    chainId?: number;
+    requestConfig?: RequestConfig;
+    useSecondaryEndpoint?: boolean;
+  }) {
     let requestedChain: Chain | undefined;
-    let endpoint: string = SUBGRAPH_ENDPOINTS[getDefaultChain().id];
+    let endpoint: string = useSecondaryEndpoint
+      ? SUBGRAPH_SECONDARY_ENDPOINTS[getDefaultChain().id]
+      : SUBGRAPH_ENDPOINTS[getDefaultChain().id];
 
     if (typeof chainId !== "undefined") {
       requestedChain = getSupportedChain(chainId);
     }
-    if (requestedChain) endpoint = SUBGRAPH_ENDPOINTS[requestedChain.id];
+    if (requestedChain)
+      endpoint = useSecondaryEndpoint
+        ? SUBGRAPH_SECONDARY_ENDPOINTS[requestedChain.id]
+        : SUBGRAPH_ENDPOINTS[requestedChain.id];
     super(endpoint, requestConfig);
   }
 }
