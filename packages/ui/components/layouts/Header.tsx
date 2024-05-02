@@ -33,11 +33,63 @@ import ProviderLogo from "../shared/ProviderLogo";
 import ConnectButton from "../shared/connectButton";
 import { ChainLogo } from "../shared/ChainLogo";
 
-type HeaderProps = {
-  title?: string;
+type NetworkMenuProps = {
+  allowNetworkChange: boolean;
+  chain: Chain;
+  handleSwitchNetwork: (chain: Chain) => void;
 };
 
-export default function Header({ title }: HeaderProps) {
+function NetworkMenu({ allowNetworkChange, chain, handleSwitchNetwork }: NetworkMenuProps) {
+  return (
+    <Menu>
+      <MenuButton
+        disabled={!allowNetworkChange}
+        cursor={allowNetworkChange ? "pointer" : "not-allowed"}
+      >
+        <Tag
+          size={"lg"}
+          display={{ base: "none", md: "flex" }}
+          variant="solid"
+          colorScheme={allowNetworkChange ? "teal" : "gray"}
+        >
+          {!isSupportedChain(chain.id) ? (
+            "Unsupported Chain"
+          ) : (
+            <>
+              <ChainLogo chainId={chain.id} mr={1} />
+              {chain.name}
+            </>
+          )}
+          {chain.testnet && (
+            <Tag ml={2} size={"sm"}>
+              Testnet
+            </Tag>
+          )}
+        </Tag>
+      </MenuButton>
+      <MenuList zIndex={101}>
+        {getSupportedChains().map((chain: Chain & { testnet?: boolean }) => (
+          <MenuItem key={chain.id} onClick={() => handleSwitchNetwork(chain)}>
+            <ChainLogo chainId={chain.id} mr={2} />
+            {chain.name}
+            {chain.testnet && (
+              <Tag ml={1} size={"sm"}>
+                Testnet
+              </Tag>
+            )}
+          </MenuItem>
+        ))}
+      </MenuList>
+    </Menu>
+  );
+}
+
+export type HeaderProps = {
+  title?: string;
+  allowNetworkChange?: boolean;
+};
+
+export default function Header({ title = "Yamawake", allowNetworkChange = true }: HeaderProps) {
   const router = useRouter();
   const { requestedChain, connectedChain: chain } = useRequestedChain();
   const toast = useToast({ position: "top-right", isClosable: true });
@@ -86,46 +138,11 @@ export default function Header({ title }: HeaderProps) {
                 {t("SWITCH_NETWORK_TO", { chainName: requestedChain.name })}
               </Button>
             ) : (
-              <Menu>
-                <MenuButton>
-                  <Tag
-                    size={"lg"}
-                    display={{ base: "none", md: "flex" }}
-                    variant="solid"
-                    colorScheme="teal"
-                  >
-                    {chain?.unsupported ? (
-                      "Unsupported Chain"
-                    ) : (
-                      <>
-                        <ChainLogo chainId={chain.id} mr={1} />
-                        {chain.name}
-                      </>
-                    )}
-                    {chain?.testnet && (
-                      <Tag ml={2} size={"sm"}>
-                        Testnet
-                      </Tag>
-                    )}
-                  </Tag>
-                </MenuButton>
-                <MenuList zIndex={101}>
-                  {getSupportedChains().map((chain: Chain & { testnet?: boolean }) => (
-                    <MenuItem
-                      key={chain.id}
-                      onClick={() => handleSwitchNetwork({ chainId: chain.id })}
-                    >
-                      <ChainLogo chainId={chain.id} mr={2} />
-                      {chain.name}
-                      {chain.testnet && (
-                        <Tag ml={1} size={"sm"}>
-                          Testnet
-                        </Tag>
-                      )}
-                    </MenuItem>
-                  ))}
-                </MenuList>
-              </Menu>
+              <NetworkMenu
+                allowNetworkChange={allowNetworkChange}
+                chain={requestedChain}
+                handleSwitchNetwork={(chain: Chain) => handleSwitchNetwork({ chainId: chain.id })}
+              />
             )}
 
             {connector?.id && (
@@ -167,7 +184,7 @@ export default function Header({ title }: HeaderProps) {
               <MenuList zIndex={101}>
                 <HStack spacing={1} px={2} mb={2} display={{ base: "block", md: "none" }}>
                   <Menu>
-                    <MenuButton as={chakra.span} cursor={"pointer"}>
+                    <MenuButton as={chakra.span} cursor={"pointer"} disabled={!allowNetworkChange}>
                       <Tag
                         size={"md"}
                         display={{ base: "inline-flex", md: "none" }}
@@ -179,22 +196,24 @@ export default function Header({ title }: HeaderProps) {
                         <ChevronDownIcon />
                       </Tag>
                     </MenuButton>
-                    <MenuList zIndex={101}>
-                      {getSupportedChains().map((chain: Chain & { testnet?: boolean }) => (
-                        <MenuItem
-                          key={chain.id}
-                          onClick={() => handleSwitchNetwork({ chainId: chain.id })}
-                        >
-                          <ChainLogo chainId={chain.id} mr={2} />
-                          {chain.name}
-                          {chain.testnet && (
-                            <Tag ml={1} size={"sm"}>
-                              Testnet
-                            </Tag>
-                          )}
-                        </MenuItem>
-                      ))}
-                    </MenuList>
+                    {allowNetworkChange && (
+                      <MenuList zIndex={101}>
+                        {getSupportedChains().map((chain: Chain & { testnet?: boolean }) => (
+                          <MenuItem
+                            key={chain.id}
+                            onClick={() => handleSwitchNetwork({ chainId: chain.id })}
+                          >
+                            <ChainLogo chainId={chain.id} mr={2} />
+                            {chain.name}
+                            {chain.testnet && (
+                              <Tag ml={1} size={"sm"}>
+                                Testnet
+                              </Tag>
+                            )}
+                          </MenuItem>
+                        ))}
+                      </MenuList>
+                    )}
                   </Menu>
                   {currentUser && (
                     <Tag size={"sm"} ml={1}>
@@ -330,46 +349,13 @@ export default function Header({ title }: HeaderProps) {
             </Button>
 
             {!isConnected && (
-              <Menu>
-                <MenuButton>
-                  <Tag
-                    size={"lg"}
-                    display={{ base: "none", md: "flex" }}
-                    variant="solid"
-                    colorScheme="teal"
-                  >
-                    {!isSupportedChain(requestedChain.id) ? (
-                      "Unsupported Chain"
-                    ) : (
-                      <>
-                        <ChainLogo chainId={requestedChain.id} mr={1} />
-                        {requestedChain.name}
-                      </>
-                    )}
-                    {requestedChain.testnet && (
-                      <Tag ml={2} size={"sm"}>
-                        Testnet
-                      </Tag>
-                    )}
-                  </Tag>
-                </MenuButton>
-                <MenuList zIndex={101}>
-                  {getSupportedChains().map((chain: Chain & { testnet?: boolean }) => (
-                    <MenuItem
-                      key={chain.id}
-                      onClick={() => router.push(getLinkPath(router.asPath, chain.id))}
-                    >
-                      <ChainLogo chainId={chain.id} mr={2} />
-                      {chain.name}
-                      {chain.testnet && (
-                        <Tag ml={1} size={"sm"}>
-                          Testnet
-                        </Tag>
-                      )}
-                    </MenuItem>
-                  ))}
-                </MenuList>
-              </Menu>
+              <NetworkMenu
+                allowNetworkChange={allowNetworkChange}
+                chain={requestedChain}
+                handleSwitchNetwork={(chain: Chain) =>
+                  router.push(getLinkPath(router.asPath, chain.id))
+                }
+              />
             )}
 
             {!currentUser && !isConnected && (
