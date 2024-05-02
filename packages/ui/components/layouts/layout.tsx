@@ -4,9 +4,15 @@ import { useIsMounted } from "../../hooks/useIsMounted";
 import { useLocale } from "../../hooks/useLocale";
 import { useRequestedChain } from "../../hooks/useRequestedChain";
 import Header from "./Header";
+import type { HeaderProps } from "./Header";
 import Footer from "./Footer";
 
-export default function Layout({ title, children }: { title?: string; children: React.ReactNode }) {
+export default function Layout({
+  children,
+  ...headerProps
+}: {
+  children: React.ReactNode;
+} & HeaderProps) {
   const isMounted = useIsMounted();
   const { requestedChain, connectedChain: chain } = useRequestedChain();
 
@@ -24,7 +30,7 @@ export default function Layout({ title, children }: { title?: string; children: 
 
   return (
     <>
-      <Header title={title ? title : "Yamawake"} />
+      <Header {...headerProps} />
       {chain && chain?.id !== requestedChain.id && (
         <chakra.div px={{ base: 0, md: 8 }} mt={1} position={"absolute"} w={"full"} zIndex={"10"}>
           <Alert status="warning" mb={4}>

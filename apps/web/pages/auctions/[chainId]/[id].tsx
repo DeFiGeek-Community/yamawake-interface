@@ -31,7 +31,7 @@ export default function AuctionPage() {
 
   if (!chainId)
     return (
-      <Layout>
+      <Layout allowNetworkChange={false}>
         <SkeletonAuction />
       </Layout>
     );
@@ -46,7 +46,7 @@ export default function AuctionPage() {
 
   if (!auctionData || !metaData)
     return (
-      <Layout>
+      <Layout allowNetworkChange={false}>
         <SkeletonAuction />
       </Layout>
     );
@@ -54,7 +54,7 @@ export default function AuctionPage() {
   if (!auctionData.auction) return <CustomError statusCode={404} />;
 
   return (
-    <Layout>
+    <Layout allowNetworkChange={false}>
       <MetaTags
         title={`${metaData.metaData.title ? metaData.metaData.title : t("SALES")} | ${t(
           "APP_NAME",
