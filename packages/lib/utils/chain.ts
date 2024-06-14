@@ -1,7 +1,7 @@
 import * as chains from "viem/chains";
 
 // Get supported chain from NEXT_PUBLIC_SUPPOTED_CHAIN_IDS
-export const getSupportedChains = (): chains.Chain[] => {
+export const getSupportedChains = (): readonly [chains.Chain, ...chains.Chain[]] => {
   if (typeof process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID !== "string") {
     throw new Error("NEXT_PUBLIC_DEFAULT_CHAIN_ID is not set");
   }
@@ -9,7 +9,7 @@ export const getSupportedChains = (): chains.Chain[] => {
   const defaultChain = getChainById(process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID);
   if (!defaultChain) throw new Error("Unknown chain is set as a default");
 
-  const fallbackChains = [defaultChain];
+  const fallbackChains: [chains.Chain, ...chains.Chain[]] = [defaultChain];
   try {
     const chainIds: number[] = process.env
       .NEXT_PUBLIC_SUPPOTED_CHAIN_IDS!.split(",")
@@ -20,7 +20,9 @@ export const getSupportedChains = (): chains.Chain[] => {
         return Object.values(chains).find((chain) => chain.id === id) as chains.Chain;
       })
       .filter((chain: chains.Chain) => chain !== undefined);
-    return matchedChains.length === 0 ? fallbackChains : matchedChains;
+    return matchedChains.length === 0
+      ? fallbackChains
+      : (matchedChains as [chains.Chain, ...chains.Chain[]]);
   } catch (e) {
     return fallbackChains;
   }

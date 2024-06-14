@@ -1,55 +1,44 @@
-import { Chain, configureChains, createConfig } from "wagmi";
-import { alchemyProvider } from "wagmi/providers/alchemy";
-import { infuraProvider } from "wagmi/providers/infura";
-import { publicProvider } from "wagmi/providers/public";
-import { CoinbaseWalletConnector } from "@wagmi/core/connectors/coinbaseWallet";
-import { InjectedConnector } from "@wagmi/core/connectors/injected";
-import { MetaMaskConnector } from "@wagmi/core/connectors/metaMask";
-import { WalletConnectConnector } from "@wagmi/core/connectors/walletConnect";
+import { createClient, http, fallback, HttpTransport } from "viem";
+import { createConfig } from "wagmi";
+import { injected, metaMask, coinbaseWallet, walletConnect } from "wagmi/connectors";
 import { getSupportedChains } from "../utils/chain";
 
-const { chains, publicClient, webSocketPublicClient } = configureChains<Chain>(
-  getSupportedChains(),
-  [
-    infuraProvider({ apiKey: process.env.NEXT_PUBLIC_INFURA_API_TOKEN! }),
-    alchemyProvider({ apiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY! }),
-    publicProvider(),
-  ],
-);
+const chains = getSupportedChains();
 
 const config: any = createConfig({
-  autoConnect: true,
+  chains,
   connectors: [
-    new MetaMaskConnector({ chains }),
-    new InjectedConnector({
-      chains,
-      options: {
-        name: "Injected Wallet",
-        shimDisconnect: true,
-      },
-    }),
-    new CoinbaseWalletConnector({
-      chains,
-      options: {
-        appName: "Yamawake",
-      },
-    }),
-    new WalletConnectConnector({
-      chains,
-      options: {
-        projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_ID!,
-        qrModalOptions: {
-          themeVariables: {
-            // Type error Workaround
-            // @ts-ignore
-            "--wcm-z-index": "2000",
-          },
+    metaMask(),
+    injected({ shimDisconnect: true }),
+    coinbaseWallet({ appName: "Yamawake" }),
+    walletConnect({
+      projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_ID!,
+      qrModalOptions: {
+        themeVariables: {
+          // Type error Workaround
+          // @ts-ignore
+          "--wcm-z-index": "2000",
         },
       },
     }),
   ],
-  publicClient,
-  webSocketPublicClient,
+  client({ chain }) {
+    const rpcEndpoints: HttpTransport[] = [];
+    chain.rpcUrls.infura &&
+      rpcEndpoints.push(
+        http(`${chain.rpcUrls.infura.http[0]}/${process.env.NEXT_PUBLIC_INFURA_API_TOKEN}`),
+      );
+    chain.rpcUrls.alchemy &&
+      rpcEndpoints.push(
+        http(`${chain.rpcUrls.alchemy.http[0]}/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}`),
+      );
+    rpcEndpoints.push(http(`${chain.rpcUrls.public.http[0]}`));
+
+    // For debug
+    console.log(rpcEndpoints);
+
+    return createClient({ chain, transport: fallback(rpcEndpoints) });
+  },
 });
 
 export default config;
