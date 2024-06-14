@@ -9,6 +9,7 @@ import {
   PublicClient,
   GetContractReturnType,
   Transport,
+  HttpTransport,
 } from "viem";
 import { Chain } from "viem/chains";
 import { getSupportedChain, isSupportedChain } from "lib/utils/chain";
@@ -35,13 +36,19 @@ const getViemProvider = (chainId: number) => {
   const chain = getSupportedChain(chainId);
   if (!chain) throw new Error("Wrong network");
 
-  // const alchemy = http(`https://eth-${chainName}.g.alchemy.com/v2/${}`)
-  const rpc = chain.rpcUrls.infura
-    ? http(`${chain.rpcUrls.infura.http}/${process.env.NEXT_PUBLIC_INFURA_API_TOKEN}`)
-    : http(`${chain.rpcUrls.public.http}`);
+  const rpcEndpoints: HttpTransport[] = [];
+  chain.rpcUrls.infura &&
+    rpcEndpoints.push(
+      http(`${chain.rpcUrls.infura.http[0]}/${process.env.NEXT_PUBLIC_INFURA_API_TOKEN}`),
+    );
+  chain.rpcUrls.alchemy &&
+    rpcEndpoints.push(
+      http(`${chain.rpcUrls.alchemy.http[0]}/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}`),
+    );
+  rpcEndpoints.push(http(`${chain.rpcUrls.public.http[0]}`));
   const client = createPublicClient({
     chain,
-    transport: fallback([rpc]),
+    transport: fallback(rpcEndpoints),
   });
   return client;
 };
