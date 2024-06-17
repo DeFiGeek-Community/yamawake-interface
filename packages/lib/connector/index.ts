@@ -5,10 +5,17 @@ import { getSupportedChains } from "../utils/chain";
 
 const chains = getSupportedChains();
 
+const MetaMaskOptions = {
+  dappMetadata: {
+    name: "Yamawake",
+  },
+  infuraAPIKey: process.env.NEXT_PUBLIC_INFURA_API_TOKEN,
+};
+
 const config: any = createConfig({
   chains,
   connectors: [
-    metaMask(),
+    metaMask(MetaMaskOptions),
     injected({ shimDisconnect: true }),
     coinbaseWallet({ appName: "Yamawake" }),
     walletConnect({
