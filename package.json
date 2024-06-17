@@ -26,7 +26,7 @@
     "@chakra-ui/theme-tools": "^2.1.2",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
-    "@tanstack/react-query": "^5.45.0",
+    "@tanstack/react-query": "^5.40.0",
     "@types/big.js": "^6.2.2",
     "@wagmi/core": "^1.4.12",
     "abitype": "^0.10.3",
