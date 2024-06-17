@@ -1,5 +1,5 @@
 import { FC, ReactNode, useEffect } from "react";
-import { useAccount, useDisconnect, useNetwork } from "wagmi";
+import { useAccount, useDisconnect } from "wagmi";
 import { useToast } from "@chakra-ui/react";
 import type { SignInParams } from "lib/types";
 import { getLinkPath } from "lib/utils";
@@ -10,8 +10,7 @@ import CurrentUserContext from "../../contexts/CurrentUserContext";
 import { useRouter } from "next/router";
 
 export const CurrentUserProvider: FC<{ children: ReactNode }> = ({ children }) => {
-  const { address } = useAccount();
-  const { chain } = useNetwork();
+  const { address, chain } = useAccount();
   const { disconnect } = useDisconnect();
   const { data, mutate, error } = useCurrentUser();
   const { loading, signIn } = useSIWE();

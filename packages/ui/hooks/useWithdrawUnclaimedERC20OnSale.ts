@@ -1,5 +1,5 @@
 import {
-  useNetwork,
+  useAccount,
   usePrepareContractWrite,
   useContractWrite,
   useWaitForTransaction,
@@ -23,7 +23,7 @@ export default function useWithdrawUnclaimedERC20OnSale({
   writeFn: any;
   waitFn: ReturnType<typeof useWaitForTransaction>;
 } {
-  const { chain } = useNetwork();
+  const { chain } = useAccount();
   const enabled: boolean = !!targetAddress && !!chain;
 
   const prepareFn = usePrepareContractWrite({

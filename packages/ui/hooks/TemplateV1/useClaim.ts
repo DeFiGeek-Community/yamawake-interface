@@ -1,5 +1,5 @@
 import {
-  useNetwork,
+  useAccount,
   usePrepareContractWrite,
   useContractWrite,
   useWaitForTransaction,
@@ -25,7 +25,7 @@ export default function useClaim({
   writeFn: ReturnType<typeof useContractWrite>;
   waitFn: ReturnType<typeof useWaitForTransaction>;
 } {
-  const { chain: connectedChain } = useNetwork();
+  const { chain: connectedChain } = useAccount();
   const enabled: boolean =
     !!targetAddress && !!address && !!connectedChain && chainId === connectedChain?.id && !claimed;
 

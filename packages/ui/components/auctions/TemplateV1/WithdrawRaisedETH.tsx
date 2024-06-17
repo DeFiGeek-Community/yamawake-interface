@@ -1,6 +1,6 @@
 import { InfoIcon, QuestionIcon } from "@chakra-ui/icons";
 import { useToast, Box, Heading, chakra, Button, Tooltip, Flex } from "@chakra-ui/react";
-import { useBalance, useNetwork } from "wagmi";
+import { useBalance, useAccount } from "wagmi";
 import useWithdrawRaisedETH from "../../../hooks/useWithdrawRaisedETH";
 import { TemplateV1 } from "lib/types/Auction";
 import { tokenAmountFormat } from "lib/utils";
@@ -15,7 +15,7 @@ type Props = {
 };
 export default function WithdrawRaisedETH({ chainId, auction, onSuccessConfirm }: Props) {
   const toast = useToast({ position: "top-right", isClosable: true });
-  const { chain: connectedChain } = useNetwork();
+  const { chain: connectedChain } = useAccount();
   const { data: balanceData, isLoading: isLoadingBalance } = useBalance({
     address: auction.id as `0x${string}`,
   });

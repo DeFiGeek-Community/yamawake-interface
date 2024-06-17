@@ -2,7 +2,7 @@
 import { useIsContractWallet } from "./useIsContractWallet";
 import { resolveSafeTx } from "lib/utils/safe";
 import { useEffect, useState } from "react";
-import { useAccount, useNetwork, useWaitForTransaction } from "wagmi";
+import { useAccount, useAccount, useWaitForTransaction } from "wagmi";
 import { WaitForTransactionArgs } from "wagmi/actions";
 
 type UseSafeWaitForTransactionReturn = ReturnType<typeof useWaitForTransaction> & {
@@ -15,7 +15,7 @@ export const useSafeWaitForTransaction = (
 ): UseSafeWaitForTransactionReturn => {
   const { address } = useAccount();
   const { isSafe: isSafeWallet } = useIsContractWallet(address);
-  const { chain } = useNetwork();
+  const { chain } = useAccount();
   const [safeResult, setSafeResult] = useState<Partial<WaitForTransactionArgs>>();
   const waitResponse = useWaitForTransaction({ ...safeResult, enabled: !!safeResult?.hash });
 

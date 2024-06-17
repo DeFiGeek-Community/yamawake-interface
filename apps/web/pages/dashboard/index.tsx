@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import Router from "next/router";
-import { useAccount, useNetwork } from "wagmi";
+import { useAccount, useAccount } from "wagmi";
 import {
   Spinner,
   Container,
@@ -22,7 +22,7 @@ import { useLocale } from "ui/hooks/useLocale";
 
 export default function DashboardPage() {
   const { address } = useAccount();
-  const { chain } = useNetwork();
+  const { chain } = useAccount();
   const { currentUser } = useContext(CurrentUserContext);
   const { t } = useLocale();
 

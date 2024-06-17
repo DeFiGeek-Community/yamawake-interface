@@ -10,7 +10,7 @@ import {
   Link,
 } from "@chakra-ui/react";
 import { getEtherscanLink } from "lib/utils/chain";
-import { useNetwork } from "wagmi";
+import { useAccount } from "wagmi";
 
 export interface TxSentToast extends ToastProps {
   txid: `0x${string}`;
@@ -37,7 +37,7 @@ export default function TxSentToast(props: TxSentToast) {
         description: `toast-${id}-description`,
       }
     : undefined;
-  const { chain } = useNetwork();
+  const { chain } = useAccount();
 
   return (
     <Alert

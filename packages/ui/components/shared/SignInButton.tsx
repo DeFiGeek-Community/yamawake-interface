@@ -1,4 +1,4 @@
-import { useAccount, useNetwork, usePublicClient } from "wagmi";
+import { useAccount, usePublicClient } from "wagmi";
 import { switchNetwork } from "@wagmi/core";
 import { Button, ButtonProps, useDisclosure, useToast } from "@chakra-ui/react";
 import { SignInParams } from "lib/types";
@@ -24,7 +24,7 @@ export default function SignInButton({
   });
   const publicClient = usePublicClient();
 
-  const { chain } = useNetwork();
+  const { chain } = useAccount();
   const { t } = useLocale();
   const toast = useToast({ position: "top-right", isClosable: true });
   const { loading, signIn } = useSIWE();

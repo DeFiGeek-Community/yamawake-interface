@@ -1,5 +1,5 @@
 import {
-  useNetwork,
+  useAccount,
   usePrepareContractWrite,
   useContractWrite,
   useWaitForTransaction,
@@ -25,7 +25,7 @@ export default function useWithdrawRaisedETH({
   writeFn: any;
   waitFn: ReturnType<typeof useWaitForTransaction>;
 } {
-  const { chain } = useNetwork();
+  const { chain } = useAccount();
   const enabled: boolean = isReady && !!targetAddress && !!chain;
 
   const prepareFn = usePrepareContractWrite({

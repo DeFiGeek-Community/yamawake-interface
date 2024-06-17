@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNetwork } from "wagmi";
+import { useAccount } from "wagmi";
 import { ButtonProps, Button, useToast } from "@chakra-ui/react";
 import { TemplateV1 } from "lib/types/Auction";
 import { getExpectedAmount } from "lib/utils";
@@ -30,7 +30,7 @@ export default function ClaimButton({
   const [claimSucceeded, setClaimSucceeded] = useState<boolean>(false);
   // Local state to show that it is waiting for updateed subgraph data after the claim tx is confirmed
   const [waitForSubgraphUpdate, setWaitForSubgraphUpdate] = useState<boolean>(false);
-  const { chain: connectedChain } = useNetwork();
+  const { chain: connectedChain } = useAccount();
 
   const {
     prepareFn: claimPrepareFn,

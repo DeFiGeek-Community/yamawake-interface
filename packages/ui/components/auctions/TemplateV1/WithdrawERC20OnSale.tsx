@@ -1,6 +1,6 @@
 import { QuestionIcon } from "@chakra-ui/icons";
 import { chakra, useToast, Button, Tooltip, Flex, Box, Heading } from "@chakra-ui/react";
-import { useContractRead, erc20ABI, useNetwork } from "wagmi";
+import { useContractRead, erc20ABI, useAccount } from "wagmi";
 import useWithdrawERC20OnSale from "../../../hooks/useWithdrawERC20OnSale";
 import { TemplateV1 } from "lib/types/Auction";
 import { getDecimalsForView, tokenAmountFormat } from "lib/utils";
@@ -15,7 +15,7 @@ type Props = {
 };
 export default function WithdrawERC20({ chainId, auction, onSuccessConfirm }: Props) {
   const toast = useToast({ position: "top-right", isClosable: true });
-  const { chain: connectedChain } = useNetwork();
+  const { chain: connectedChain } = useAccount();
   const { data: balance } = useContractRead({
     address: auction.auctionToken.id as `0x${string}`,
     abi: erc20ABI,

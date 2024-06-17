@@ -35,7 +35,7 @@ import {
   usePrepareSendTransaction,
   useSendTransaction,
   useBalance,
-  useNetwork,
+  useAccount,
 } from "wagmi";
 import Big, { getBigNumber } from "lib/utils/bignumber";
 import { getSupportedChain, isSupportedChain, getEtherscanLink } from "lib/utils/chain";
@@ -88,7 +88,7 @@ export default memo(function DetailPage({
   const [ended, setEnded] = useState<boolean>(false);
 
   const { data: rateData, refetch: updateRate } = useRate(chainId);
-  const { chain: connectedChain } = useNetwork();
+  const { chain: connectedChain } = useAccount();
   // TODO Consider getting chain from getChainById in case of supported chain reduced in the future
   const chain = getSupportedChain(chainId);
 
