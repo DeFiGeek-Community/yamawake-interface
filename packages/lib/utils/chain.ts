@@ -1,6 +1,10 @@
 import * as chains from "viem/chains";
+import { CHAIN_INFO } from "../constants/chains";
 
-// Get supported chain from NEXT_PUBLIC_SUPPOTED_CHAIN_IDS
+/**
+ * Get supported chain from NEXT_PUBLIC_SUPPOTED_CHAIN_IDS
+ * @deprecated Use `CHAIN_INFO` instead.
+ */
 export const getSupportedChains = (): chains.Chain[] => {
   if (typeof process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID !== "string") {
     throw new Error("NEXT_PUBLIC_DEFAULT_CHAIN_ID is not set");
@@ -31,7 +35,7 @@ export const isSupportedChain = (chainId: string | number): boolean => {
 };
 
 export const getSupportedChain = (chainId: string | number): chains.Chain | undefined => {
-  return getSupportedChains().find((c) => c.id === Number(chainId));
+  return Object.values(CHAIN_INFO).find((c) => c.id === Number(chainId));
 };
 
 export const getDefaultChain = (): chains.Chain => {
