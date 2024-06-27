@@ -8,7 +8,7 @@ export const CHAIN_INFO: { [id: number]: ChainInfo } =
     ? {
         [mainnet.id]: { ...mainnet, belongsTo: null },
         [arbitrum.id]: { ...arbitrum, belongsTo: mainnet.id },
-        [base.id]: { ...arbitrum, belongsTo: mainnet.id },
+        [base.id]: { ...base, belongsTo: mainnet.id },
       }
     : {
         [sepolia.id]: { ...sepolia, belongsTo: null },
