@@ -51,6 +51,47 @@ cd apps/web
 npx env-cmd -f ../../.env.test pnpm test:build
 ```
 
+Example CHAIN_INFO settings for local development with CCIP
+
+```json
+{
+   31337: {
+      ...sepolia,
+      id: 31337,
+      name: "Local8545",
+      network: "local8545",
+      rpcUrls: {
+      default: {
+         http: ["http://127.0.0.1:8545"],
+      },
+      public: {
+         http: ["http://127.0.0.1:8545"],
+      },
+      },
+      contracts: undefined,
+      belongsTo: null,
+      chainSelector: 16015286601757825753n,
+   },
+   31338: {
+      ...arbitrumSepolia,
+      id: 31338,
+      name: "Local8546",
+      network: "local8546",
+      rpcUrls: {
+      default: {
+         http: ["http://127.0.0.1:8546"],
+      },
+      public: {
+         http: ["http://127.0.0.1:8546"],
+      },
+      },
+      contracts: undefined,
+      belongsTo: sepolia.id,
+      chainSelector: 3478487238524512106n,
+   },
+}
+```
+
 Example of .env.test for local chain.
 
 ```
