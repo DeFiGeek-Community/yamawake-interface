@@ -1,5 +1,6 @@
 import * as chains from "viem/chains";
 import { CHAIN_INFO } from "../constants/chains";
+import type { ChainInfo } from "../constants/chains";
 
 /**
  * Get supported chain from NEXT_PUBLIC_SUPPOTED_CHAIN_IDS
@@ -34,7 +35,7 @@ export const isSupportedChain = (chainId: string | number): boolean => {
   return !!getSupportedChain(chainId);
 };
 
-export const getSupportedChain = (chainId: string | number): chains.Chain | undefined => {
+export const getSupportedChain = (chainId: string | number): ChainInfo | undefined => {
   return Object.values(CHAIN_INFO).find((c) => c.id === Number(chainId));
 };
 
