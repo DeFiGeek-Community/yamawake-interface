@@ -10,17 +10,16 @@ export function ChainLogo({ chainId, ...props }: { chainId: number } & ImageProp
   const height = props.h ?? defaultHeight;
   const width = props.w ?? defaultWidth;
 
-  if (!chain) return <></>;
   return (
     <Image
-      alt={chain.name}
-      src={`/images/chainLogos/${chain.id}.svg`}
+      alt={chain ? chain.name : "?"}
+      src={`/images/chainLogos/${chainId}.svg`}
       h={defaultHeight}
       w={defaultWidth}
       borderRadius={defaultBorderRadius}
       fallbackSrc={`https://via.placeholder.com/${parseInt(String(width))}x${parseInt(
         String(height),
-      )}?text=${chain.name[0].toUpperCase()}`}
+      )}?text=${chain ? chain.name[0].toUpperCase() : "?"}`}
       {...props}
     />
   );
