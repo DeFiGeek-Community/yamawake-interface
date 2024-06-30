@@ -11,12 +11,18 @@ import {
   CardFooter,
   Spinner,
   Text,
+  Box,
+  Flex,
+  Select,
+  Checkbox,
+  Switch,
 } from "@chakra-ui/react";
 import { useLocale } from "../../hooks/useLocale";
 import { QuestionIcon } from "@chakra-ui/icons";
-import useEarlyUserReward from "../../hooks/useEarlyUserReward";
+import useSubChainEarlyUserReward from "../../hooks/useSubChainEarlyUserReward";
 import { formatEtherInBig } from "lib/utils";
 import TxSentToast from "../shared/TxSentToast";
+import { CONTRACT_ADDRESSES } from "lib/constants/contracts";
 
 export default function SubChainEarlyUserReward({
   chainId,
@@ -27,7 +33,7 @@ export default function SubChainEarlyUserReward({
 }) {
   const toast = useToast({ position: "top-right", isClosable: true });
   const { t } = useLocale();
-  const { readFn, writeFn, waitFn } = useEarlyUserReward({
+  const { readScore, sendScorePayNative, waitFn } = useSubChainEarlyUserReward({
     chainId,
     address,
     onSuccessWrite: (data: any) => {
@@ -58,7 +64,7 @@ export default function SubChainEarlyUserReward({
     <Card flex={1}>
       <CardBody>
         <Heading fontSize={"xl"}>
-          {t("EARLY_USER_REWARD")}サブチェーン
+          {t("EARLY_USER_REWARD")}
           <Tooltip
             hasArrow
             label={<Text whiteSpace={"pre-wrap"}>{t("EARLY_USER_REWARD_HELP")}</Text>}
@@ -70,10 +76,10 @@ export default function SubChainEarlyUserReward({
         <HStack justifyContent={"space-between"}>
           <chakra.div color={"gray.400"}>{t("CLAIMABLE")}</chakra.div>
           <chakra.div fontSize={"2xl"}>
-            {readFn.isLoading || typeof readFn.data === "undefined" ? (
+            {readScore.isLoading || typeof readScore.data === "undefined" ? (
               <Spinner />
             ) : (
-              formatEtherInBig(readFn.data.toString()).toFixed(3)
+              formatEtherInBig(readScore.data.toString()).toFixed(3)
             )}
             <chakra.span color={"gray.400"} fontSize={"lg"} ml={1}>
               YMWK
@@ -81,23 +87,65 @@ export default function SubChainEarlyUserReward({
           </chakra.div>
         </HStack>
       </CardBody>
-      <CardFooter pt={0} justifyContent={"flex-end"}>
-        <Button
-          isLoading={
-            readFn.isLoading ||
-            typeof readFn.data === "undefined" ||
-            writeFn?.isLoading ||
-            waitFn?.isLoading
-          }
-          isDisabled={(typeof readFn.data === "bigint" && readFn.data === 0n) || !writeFn.write}
-          onClick={() => {
-            writeFn.write?.();
-          }}
-          variant={"solid"}
-          colorScheme="green"
-        >
-          {t("CLAIM")}
-        </Button>
+      <CardFooter pt={0}>
+        <Box w={"full"}>
+          <Divider mt={2} mb={4} />
+          <HStack justifyContent={"space-between"}>
+            <chakra.p color={"gray.400"}>CCIP手数料支払いトークン</chakra.p>
+            <Select
+              isDisabled={false}
+              id="feeToken"
+              name="feeToken"
+              defaultValue={"0x00"}
+              onChange={(ev) => {}}
+              maxW={"150px"}
+            >
+              <option key={"eth"} value={"0x00"}>
+                ETH
+              </option>
+              <option key={"weth"} value={CONTRACT_ADDRESSES[chainId].WETH}>
+                WETH
+              </option>
+              <option key={"link"} value={CONTRACT_ADDRESSES[chainId].LINK}>
+                LINK
+              </option>
+            </Select>
+          </HStack>
+          <HStack justifyContent={"space-between"} mt={2}>
+            <chakra.p color={"gray.400"}>L1へのスコア移行と同時にリワードを請求する</chakra.p>
+            <Switch size={"lg"} colorScheme={"green"}></Switch>
+          </HStack>
+          <HStack justifyContent={"space-between"} mt={2}>
+            <chakra.p color={"gray.400"}>手数料</chakra.p>
+            <chakra.p fontSize={"2xl"}>
+              -
+              <chakra.span color={"gray.400"} fontSize={"lg"} ml={1}>
+                ETH<chakra.span fontSize={"xs"}> + TX Fee</chakra.span>
+              </chakra.span>
+            </chakra.p>
+          </HStack>
+          <Flex justifyContent={"flex-end"} mt={2}>
+            <Button
+              isLoading={
+                readScore.isLoading ||
+                typeof readScore.data === "undefined" ||
+                sendScorePayNative?.isLoading ||
+                waitFn?.isLoading
+              }
+              isDisabled={
+                (typeof readScore.data === "bigint" && readScore.data === 0n) ||
+                !sendScorePayNative.write
+              }
+              onClick={() => {
+                sendScorePayNative.write?.();
+              }}
+              variant={"solid"}
+              colorScheme="green"
+            >
+              リワードスコアをL1に送信し、請求する
+            </Button>
+          </Flex>
+        </Box>
       </CardFooter>
     </Card>
   );

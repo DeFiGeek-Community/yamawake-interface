@@ -23,15 +23,15 @@ export default function useSubChainEarlyUserReward({
   onSuccessConfirm?: (data: any) => void;
   onErrorConfirm?: (error: Error) => void;
 }): {
-  readFn: ReturnType<typeof useContractRead<typeof DistributorABI, "scores", bigint>>;
-  writeFn: ReturnType<typeof useContractWrite>;
+  readScore: ReturnType<typeof useContractRead<typeof DistributorABI, "scores", bigint>>;
+  sendScorePayNative: ReturnType<typeof useContractWrite>;
   waitFn: ReturnType<typeof useWaitForTransaction>;
 } {
   const config = {
     address: CONTRACT_ADDRESSES[chainId]?.DISTRIBUTOR,
     abi: DistributorABI,
   };
-  const readFn = useContractRead<typeof DistributorABI, "scores", bigint>({
+  const readScore = useContractRead<typeof DistributorABI, "scores", bigint>({
     ...config,
     functionName: "scores",
     args: [address],
@@ -39,15 +39,15 @@ export default function useSubChainEarlyUserReward({
     enabled: isSupportedChain(chainId) && !!address,
   });
 
-  const { config: claimConfig } = usePrepareContractWrite({
+  const { config: sendScorePayNativeConfig } = usePrepareContractWrite({
     ...config,
-    functionName: "claim",
+    functionName: "sendScorePayNative",
     args: [address],
-    enabled: isSupportedChain(chainId) && !!address && !!readFn.data,
+    enabled: isSupportedChain(chainId) && !!address && !!readScore.data,
   });
 
-  const writeFn = useContractWrite({
-    ...claimConfig,
+  const sendScorePayNative = useContractWrite({
+    ...sendScorePayNativeConfig,
     onSuccess(data) {
       onSuccessWrite && onSuccessWrite(data);
     },
@@ -57,7 +57,7 @@ export default function useSubChainEarlyUserReward({
   });
 
   const waitFn = useWaitForTransaction({
-    hash: writeFn.data?.hash,
+    hash: sendScorePayNative.data?.hash,
     onSuccess(data) {
       onSuccessConfirm && onSuccessConfirm(data);
     },
@@ -67,8 +67,8 @@ export default function useSubChainEarlyUserReward({
   });
 
   return {
-    readFn,
-    writeFn,
+    readScore,
+    sendScorePayNative,
     waitFn,
   };
 }
