@@ -91,7 +91,12 @@ export default function SubChainEarlyUserReward({
         <Box w={"full"}>
           <Divider mt={2} mb={4} />
           <HStack justifyContent={"space-between"}>
-            <chakra.p color={"gray.400"}>CCIP手数料支払いトークン</chakra.p>
+            <chakra.p color={"gray.400"}>
+              CCIP手数料支払いトークン
+              <Tooltip hasArrow label={""}>
+                <QuestionIcon fontSize={"md"} mb={1} ml={1} />
+              </Tooltip>
+            </chakra.p>
             <Select
               isDisabled={false}
               id="feeToken"
@@ -112,7 +117,12 @@ export default function SubChainEarlyUserReward({
             </Select>
           </HStack>
           <HStack justifyContent={"space-between"} mt={2}>
-            <chakra.p color={"gray.400"}>L1へのスコア移行と同時にリワードを請求する</chakra.p>
+            <chakra.p color={"gray.400"}>
+              L1へのスコア移行と同時にリワードを請求する
+              <Tooltip hasArrow label={""}>
+                <QuestionIcon fontSize={"md"} mb={1} ml={1} />
+              </Tooltip>
+            </chakra.p>
             <Switch size={"lg"} colorScheme={"green"}></Switch>
           </HStack>
           <HStack justifyContent={"space-between"} mt={2}>
