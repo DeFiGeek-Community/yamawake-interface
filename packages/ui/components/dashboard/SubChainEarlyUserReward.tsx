@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Button,
   useToast,
@@ -14,15 +15,14 @@ import {
   Box,
   Flex,
   Select,
-  Checkbox,
   Switch,
 } from "@chakra-ui/react";
-import { useLocale } from "../../hooks/useLocale";
 import { QuestionIcon } from "@chakra-ui/icons";
-import useSubChainEarlyUserReward from "../../hooks/useSubChainEarlyUserReward";
 import { formatEtherInBig } from "lib/utils";
-import TxSentToast from "../shared/TxSentToast";
 import { CONTRACT_ADDRESSES } from "lib/constants/contracts";
+import { useLocale } from "../../hooks/useLocale";
+import useSubChainEarlyUserReward from "../../hooks/useSubChainEarlyUserReward";
+import TxSentToast from "../shared/TxSentToast";
 
 export default function SubChainEarlyUserReward({
   chainId,
@@ -33,9 +33,14 @@ export default function SubChainEarlyUserReward({
 }) {
   const toast = useToast({ position: "top-right", isClosable: true });
   const { t } = useLocale();
-  const { readScore, sendScorePayNative, waitFn } = useSubChainEarlyUserReward({
+
+  const [feeToken, setFeeToken] = useState<`0x${string}`>("0x00");
+  const [shouldClaim, setShouldClaim] = useState<boolean>(true);
+  const { readScore, sendScore, waitFn, fee } = useSubChainEarlyUserReward({
     chainId,
     address,
+    feeToken,
+    shouldClaim,
     onSuccessWrite: (data: any) => {
       toast({
         title: "Transaction sent!",
@@ -102,7 +107,7 @@ export default function SubChainEarlyUserReward({
               id="feeToken"
               name="feeToken"
               defaultValue={"0x00"}
-              onChange={(ev) => {}}
+              onChange={(ev) => setFeeToken(ev.target.value as `0x${string}`)}
               maxW={"150px"}
             >
               <option key={"eth"} value={"0x00"}>
@@ -123,12 +128,17 @@ export default function SubChainEarlyUserReward({
                 <QuestionIcon fontSize={"md"} mb={1} ml={1} />
               </Tooltip>
             </chakra.p>
-            <Switch size={"lg"} colorScheme={"green"}></Switch>
+            <Switch
+              size={"lg"}
+              colorScheme={"green"}
+              defaultChecked={true}
+              onChange={(ev) => setShouldClaim(ev.target.checked)}
+            ></Switch>
           </HStack>
           <HStack justifyContent={"space-between"} mt={2}>
             <chakra.p color={"gray.400"}>手数料</chakra.p>
             <chakra.p fontSize={"2xl"}>
-              -
+              {fee.data ? formatEtherInBig(fee.data.toString()).toFixed(3) : "-"}
               <chakra.span color={"gray.400"} fontSize={"lg"} ml={1}>
                 ETH<chakra.span fontSize={"xs"}> + TX Fee</chakra.span>
               </chakra.span>
@@ -139,15 +149,14 @@ export default function SubChainEarlyUserReward({
               isLoading={
                 readScore.isLoading ||
                 typeof readScore.data === "undefined" ||
-                sendScorePayNative?.isLoading ||
+                sendScore?.isLoading ||
                 waitFn?.isLoading
               }
               isDisabled={
-                (typeof readScore.data === "bigint" && readScore.data === 0n) ||
-                !sendScorePayNative.write
+                (typeof readScore.data === "bigint" && readScore.data === 0n) || !sendScore.write
               }
               onClick={() => {
-                sendScorePayNative.write?.();
+                sendScore.write?.();
               }}
               variant={"solid"}
               colorScheme="green"

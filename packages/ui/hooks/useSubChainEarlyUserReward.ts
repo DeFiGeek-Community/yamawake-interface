@@ -5,12 +5,18 @@ import {
   useWaitForTransaction,
 } from "wagmi";
 import DistributorABI from "lib/constants/abis/DistributorSender.json";
+import RouterABI from "lib/constants/abis/Router.json";
 import { CONTRACT_ADDRESSES } from "lib/constants/contracts";
 import { isSupportedChain } from "lib/utils/chain";
+import { CHAIN_INFO } from "lib/constants/chains";
+import { useMemo } from "react";
+import { parseAbiParameters, encodeAbiParameters } from "viem";
 
 export default function useSubChainEarlyUserReward({
   chainId,
   address,
+  feeToken,
+  shouldClaim,
   onSuccessWrite,
   onErrorWrite,
   onSuccessConfirm,
@@ -18,15 +24,36 @@ export default function useSubChainEarlyUserReward({
 }: {
   chainId: number;
   address: `0x${string}` | undefined;
+  feeToken: `0x${string}`;
+  shouldClaim: boolean;
   onSuccessWrite?: (data: any) => void;
   onErrorWrite?: (error: Error) => void;
   onSuccessConfirm?: (data: any) => void;
   onErrorConfirm?: (error: Error) => void;
 }): {
   readScore: ReturnType<typeof useContractRead<typeof DistributorABI, "scores", bigint>>;
-  sendScorePayNative: ReturnType<typeof useContractWrite>;
+  sendScore: ReturnType<typeof useContractWrite>;
   waitFn: ReturnType<typeof useWaitForTransaction>;
+  fee: ReturnType<typeof useContractRead<typeof RouterABI, "getFee", bigint>>;
 } {
+  const getDistinationChainInfo = useMemo(() => {
+    const destinationChainId = CHAIN_INFO[chainId].belongsTo;
+    if (!destinationChainId) throw new Error("Destination chain information is incorrect");
+
+    const destinationChain = CHAIN_INFO[destinationChainId];
+
+    if (!destinationChain.chainSelector) throw new Error("Destination chain selector is incorrect");
+
+    const destinationChainDistributor = CONTRACT_ADDRESSES[destinationChainId].DISTRIBUTOR;
+
+    if (!destinationChainDistributor) throw new Error("Destination chain distributor is incorrect");
+
+    return {
+      chainSelector: destinationChain.chainSelector,
+      destinationChainDistributor,
+    };
+  }, [chainId]);
+
   const config = {
     address: CONTRACT_ADDRESSES[chainId]?.DISTRIBUTOR,
     abi: DistributorABI,
@@ -39,15 +66,18 @@ export default function useSubChainEarlyUserReward({
     enabled: isSupportedChain(chainId) && !!address,
   });
 
-  const { config: sendScorePayNativeConfig } = usePrepareContractWrite({
+  const { chainSelector, destinationChainDistributor } = getDistinationChainInfo;
+  const { config: sendScoreConfig } = usePrepareContractWrite({
     ...config,
-    functionName: "sendScorePayNative",
-    args: [address],
+    functionName: feeToken === "0x00" ? "sendScorePayNative" : "sendScorePayNative",
+    args: feeToken
+      ? [chainSelector, destinationChainDistributor, address, shouldClaim, feeToken]
+      : [chainSelector, destinationChainDistributor, address, shouldClaim],
     enabled: isSupportedChain(chainId) && !!address && !!readScore.data,
   });
 
-  const sendScorePayNative = useContractWrite({
-    ...sendScorePayNativeConfig,
+  const sendScore = useContractWrite({
+    ...sendScoreConfig,
     onSuccess(data) {
       onSuccessWrite && onSuccessWrite(data);
     },
@@ -57,7 +87,7 @@ export default function useSubChainEarlyUserReward({
   });
 
   const waitFn = useWaitForTransaction({
-    hash: sendScorePayNative.data?.hash,
+    hash: sendScore.data?.hash,
     onSuccess(data) {
       onSuccessConfirm && onSuccessConfirm(data);
     },
@@ -66,9 +96,34 @@ export default function useSubChainEarlyUserReward({
     },
   });
 
+  const routerConfig = {
+    address: CONTRACT_ADDRESSES[chainId]?.ROUTER,
+    abi: RouterABI,
+  };
+
+  const message = {
+    receiver: encodeAbiParameters(parseAbiParameters("bytes"), [destinationChainDistributor]),
+    data: encodeAbiParameters(parseAbiParameters("address, uint256, bool"), [
+      address ?? "0x",
+      readScore.data ?? 0n,
+      shouldClaim,
+    ]),
+    tokenAmounts: [],
+    extraArgs: "0x",
+    feeToken: feeToken,
+  };
+
+  const fee = useContractRead<typeof RouterABI, "getFee", bigint>({
+    ...routerConfig,
+    functionName: "getFee",
+    args: [chainSelector, message],
+    enabled: isSupportedChain(chainId) && !!address && !!readScore.data,
+  });
+
   return {
     readScore,
-    sendScorePayNative,
+    sendScore,
     waitFn,
+    fee,
   };
 }

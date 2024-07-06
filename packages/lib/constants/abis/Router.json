@@ -1,0 +1,57 @@
+[
+    {
+        "constant": true,
+        "inputs": [
+            {
+            "name": "destinationChainSelector",
+            "type": "uint64"
+            },
+            {
+            "components": [
+                {
+                "name": "receiver",
+                "type": "bytes"
+                },
+                {
+                "name": "data",
+                "type": "bytes"
+                },
+                {
+                "components": [
+                    {
+                    "name": "token",
+                    "type": "address"
+                    },
+                    {
+                    "name": "amount",
+                    "type": "uint256"
+                    }
+                ],
+                "name": "tokenAmounts",
+                "type": "tuple[]"
+                },
+                {
+                "name": "feeToken",
+                "type": "address"
+                },
+                {
+                "name": "extraArgs",
+                "type": "bytes"
+                }
+            ],
+            "name": "message",
+            "type": "tuple"
+            }
+        ],
+        "name": "getFee",
+        "outputs": [
+            {
+            "name": "fee",
+            "type": "uint256"
+            }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+    }
+]
