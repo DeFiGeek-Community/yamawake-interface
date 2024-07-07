@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { zeroAddress } from "viem";
 import {
   Button,
   useToast,
@@ -23,6 +24,7 @@ import { CONTRACT_ADDRESSES } from "lib/constants/contracts";
 import { useLocale } from "../../hooks/useLocale";
 import useSubChainEarlyUserReward from "../../hooks/useSubChainEarlyUserReward";
 import TxSentToast from "../shared/TxSentToast";
+import useApprove from "../../hooks/useApprove";
 
 export default function SubChainEarlyUserReward({
   chainId,
@@ -34,12 +36,23 @@ export default function SubChainEarlyUserReward({
   const toast = useToast({ position: "top-right", isClosable: true });
   const { t } = useLocale();
 
-  const [feeToken, setFeeToken] = useState<`0x${string}`>("0x00");
+  type FeeToken = {
+    symbol: string;
+    address: `0x${string}`;
+  };
+
+  const feeTokens: FeeToken[] = [
+    { symbol: "ETH", address: zeroAddress },
+    { symbol: "WETH", address: CONTRACT_ADDRESSES[chainId].WETH },
+    { symbol: "LINK", address: CONTRACT_ADDRESSES[chainId].LINK },
+  ];
+  const [feeTokenIndex, setFeeTokenIndex] = useState<number>(0);
   const [shouldClaim, setShouldClaim] = useState<boolean>(true);
+
   const { readScore, sendScore, waitFn, fee } = useSubChainEarlyUserReward({
     chainId,
     address,
-    feeToken,
+    feeToken: feeTokens[feeTokenIndex].address,
     shouldClaim,
     onSuccessWrite: (data: any) => {
       toast({
@@ -59,6 +72,30 @@ export default function SubChainEarlyUserReward({
     onSuccessConfirm: (data: any) => {
       toast({
         description: `Transaction confirmed!`,
+        status: "success",
+        duration: 5000,
+      });
+    },
+  });
+
+  const approvals = useApprove({
+    chainId,
+    targetAddress: feeTokens[feeTokenIndex].address,
+    owner: address ?? "0x",
+    spender: CONTRACT_ADDRESSES[chainId].DISTRIBUTOR,
+    enabled: !!address && feeTokens[feeTokenIndex].address !== zeroAddress,
+    amount: fee.data,
+    onSuccessWrite(data) {
+      toast({
+        title: t("TRANSACTION_SENT"),
+        status: "success",
+        duration: 5000,
+        render: (props) => <TxSentToast txid={data.hash} {...props} />,
+      });
+    },
+    onSuccessConfirm(data) {
+      toast({
+        title: t("APPROVAL_CONFIRMED"),
         status: "success",
         duration: 5000,
       });
@@ -106,19 +143,15 @@ export default function SubChainEarlyUserReward({
               isDisabled={false}
               id="feeToken"
               name="feeToken"
-              defaultValue={"0x00"}
-              onChange={(ev) => setFeeToken(ev.target.value as `0x${string}`)}
+              defaultValue={0}
+              onChange={(ev) => setFeeTokenIndex(parseInt(ev.target.value))}
               maxW={"150px"}
             >
-              <option key={"eth"} value={"0x00"}>
-                ETH
-              </option>
-              <option key={"weth"} value={CONTRACT_ADDRESSES[chainId].WETH}>
-                WETH
-              </option>
-              <option key={"link"} value={CONTRACT_ADDRESSES[chainId].LINK}>
-                LINK
-              </option>
+              {feeTokens.map((feeToken, index) => (
+                <option key={index} value={index}>
+                  {feeToken.symbol}
+                </option>
+              ))}
             </Select>
           </HStack>
           <HStack justifyContent={"space-between"} mt={2}>
@@ -140,29 +173,44 @@ export default function SubChainEarlyUserReward({
             <chakra.p fontSize={"2xl"}>
               {fee.data ? formatEtherInBig(fee.data.toString()).toFixed(3) : "-"}
               <chakra.span color={"gray.400"} fontSize={"lg"} ml={1}>
-                ETH<chakra.span fontSize={"xs"}> + TX Fee</chakra.span>
+                {feeTokens[feeTokenIndex].symbol}
+                <chakra.span fontSize={"xs"}> + TX Fee</chakra.span>
               </chakra.span>
             </chakra.p>
           </HStack>
           <Flex justifyContent={"flex-end"} mt={2}>
-            <Button
-              isLoading={
-                readScore.isLoading ||
-                typeof readScore.data === "undefined" ||
-                sendScore?.isLoading ||
-                waitFn?.isLoading
-              }
-              isDisabled={
-                (typeof readScore.data === "bigint" && readScore.data === 0n) || !sendScore.write
-              }
-              onClick={() => {
-                sendScore.write?.();
-              }}
-              variant={"solid"}
-              colorScheme="green"
-            >
-              リワードスコアをL1に送信し、請求する
-            </Button>
+            {!!fee.data && approvals.allowance < fee.data ? (
+              <Button
+                variant="solid"
+                colorScheme="blue"
+                onClick={approvals.writeFn.write}
+                isLoading={approvals.writeFn.isLoading || approvals.waitFn.isLoading}
+                isDisabled={!approvals.writeFn.write}
+              >
+                {t("APPROVE_TOKEN")}
+              </Button>
+            ) : (
+              <Button
+                isLoading={
+                  readScore.isLoading ||
+                  typeof readScore.data === "undefined" ||
+                  sendScore?.isLoading ||
+                  waitFn?.isLoading
+                }
+                isDisabled={
+                  (typeof readScore.data === "bigint" && readScore.data === 0n) || !sendScore.write
+                }
+                onClick={() => {
+                  sendScore.write?.();
+                }}
+                variant={"solid"}
+                colorScheme="green"
+              >
+                {shouldClaim
+                  ? "リワードスコアをL1に送信し、請求する"
+                  : "リワードスコアをL1に送信する"}
+              </Button>
+            )}
           </Flex>
         </Box>
       </CardFooter>

@@ -10,7 +10,7 @@ import { CONTRACT_ADDRESSES } from "lib/constants/contracts";
 import { isSupportedChain } from "lib/utils/chain";
 import { CHAIN_INFO } from "lib/constants/chains";
 import { useMemo } from "react";
-import { parseAbiParameters, encodeAbiParameters } from "viem";
+import { parseAbiParameters, encodeAbiParameters, zeroAddress } from "viem";
 
 export default function useSubChainEarlyUserReward({
   chainId,
@@ -54,6 +54,8 @@ export default function useSubChainEarlyUserReward({
     };
   }, [chainId]);
 
+  const { chainSelector, destinationChainDistributor } = getDistinationChainInfo;
+
   const config = {
     address: CONTRACT_ADDRESSES[chainId]?.DISTRIBUTOR,
     abi: DistributorABI,
@@ -64,36 +66,6 @@ export default function useSubChainEarlyUserReward({
     args: [address],
     watch: true,
     enabled: isSupportedChain(chainId) && !!address,
-  });
-
-  const { chainSelector, destinationChainDistributor } = getDistinationChainInfo;
-  const { config: sendScoreConfig } = usePrepareContractWrite({
-    ...config,
-    functionName: feeToken === "0x00" ? "sendScorePayNative" : "sendScorePayNative",
-    args: feeToken
-      ? [chainSelector, destinationChainDistributor, address, shouldClaim, feeToken]
-      : [chainSelector, destinationChainDistributor, address, shouldClaim],
-    enabled: isSupportedChain(chainId) && !!address && !!readScore.data,
-  });
-
-  const sendScore = useContractWrite({
-    ...sendScoreConfig,
-    onSuccess(data) {
-      onSuccessWrite && onSuccessWrite(data);
-    },
-    onError(e: Error) {
-      onErrorWrite && onErrorWrite(e);
-    },
-  });
-
-  const waitFn = useWaitForTransaction({
-    hash: sendScore.data?.hash,
-    onSuccess(data) {
-      onSuccessConfirm && onSuccessConfirm(data);
-    },
-    onError(e: Error) {
-      onErrorConfirm && onErrorConfirm(e);
-    },
   });
 
   const routerConfig = {
@@ -118,6 +90,37 @@ export default function useSubChainEarlyUserReward({
     functionName: "getFee",
     args: [chainSelector, message],
     enabled: isSupportedChain(chainId) && !!address && !!readScore.data,
+  });
+
+  const { config: sendScoreConfig } = usePrepareContractWrite({
+    ...config,
+    functionName: feeToken === zeroAddress ? "sendScorePayNative" : "sendScorePayToken",
+    args:
+      feeToken === zeroAddress
+        ? [chainSelector, destinationChainDistributor, address, shouldClaim]
+        : [chainSelector, destinationChainDistributor, address, shouldClaim, feeToken],
+    enabled: isSupportedChain(chainId) && !!address && !!readScore.data,
+    value: feeToken === zeroAddress ? fee.data : 0n,
+  });
+
+  const sendScore = useContractWrite({
+    ...sendScoreConfig,
+    onSuccess(data) {
+      onSuccessWrite && onSuccessWrite(data);
+    },
+    onError(e: Error) {
+      onErrorWrite && onErrorWrite(e);
+    },
+  });
+
+  const waitFn = useWaitForTransaction({
+    hash: sendScore.data?.hash,
+    onSuccess(data) {
+      onSuccessConfirm && onSuccessConfirm(data);
+    },
+    onError(e: Error) {
+      onErrorConfirm && onErrorConfirm(e);
+    },
   });
 
   return {
