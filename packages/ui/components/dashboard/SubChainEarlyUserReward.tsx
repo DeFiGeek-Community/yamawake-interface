@@ -179,13 +179,13 @@ export default function SubChainEarlyUserReward({
             </chakra.p>
           </HStack>
           <Flex justifyContent={"flex-end"} mt={2}>
-            {!!fee.data && approvals.allowance < fee.data ? (
+            {feeTokenIndex > 0 && !!fee.data && approvals.allowance < fee.data ? (
               <Button
                 variant="solid"
                 colorScheme="blue"
                 onClick={approvals.writeFn.write}
                 isLoading={approvals.writeFn.isLoading || approvals.waitFn.isLoading}
-                isDisabled={!approvals.writeFn.write}
+                isDisabled={!approvals.writeFn.write || !fee.data}
               >
                 {t("APPROVE_TOKEN")}
               </Button>
@@ -195,11 +195,10 @@ export default function SubChainEarlyUserReward({
                   readScore.isLoading ||
                   typeof readScore.data === "undefined" ||
                   sendScore?.isLoading ||
-                  waitFn?.isLoading
+                  waitFn?.isLoading ||
+                  fee.isLoading
                 }
-                isDisabled={
-                  (typeof readScore.data === "bigint" && readScore.data === 0n) || !sendScore.write
-                }
+                isDisabled={!readScore.data || !sendScore.write || !fee.data}
                 onClick={() => {
                   sendScore.write?.();
                 }}

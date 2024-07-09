@@ -76,7 +76,7 @@ export default function useSubChainEarlyUserReward({
   const message = {
     receiver: encodeAbiParameters(parseAbiParameters("bytes"), [destinationChainDistributor]),
     data: encodeAbiParameters(parseAbiParameters("address, uint256, bool"), [
-      address ?? "0x",
+      address ?? zeroAddress,
       readScore.data ?? 0n,
       shouldClaim,
     ]),
