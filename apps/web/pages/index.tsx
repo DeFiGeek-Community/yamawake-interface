@@ -20,7 +20,7 @@ export default function Web() {
     isValidating: isValidatingActiveAuctions,
     error: activeAuctionsError,
     loadMoreAuctions: loadMoreActiveAuctions,
-  } = useSWRAuctions({ first: 5, keySuffix: "top" }, QueryType.ACTIVE);
+  } = useSWRAuctions({ first: 5, keySuffix: "top" }, QueryType.ACTIVE_AND_UPCOMING);
   const { t } = useLocale();
 
   return (
@@ -32,7 +32,7 @@ export default function Web() {
         subtitle={t("AN_INCLUSIVE_AND_TRANSPARENT_TOKEN_LAUNCHPAD")}
       />
       <Container maxW={"container.xl"}>
-        <Heading fontSize={{ base: "xl", md: "3xl" }}>{t("LIVE_SALES")}</Heading>
+        <Heading fontSize={{ base: "xl", md: "3xl" }}>{t("LIVE_UPCOMING_SALES")}</Heading>
         <HStack spacing={8} py={8} w={"full"} flexWrap={"wrap"}>
           {activeAuctionsError && (
             <Alert status={"error"}>
