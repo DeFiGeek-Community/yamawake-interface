@@ -1,6 +1,7 @@
 import * as chains from "viem/chains";
 import { CHAIN_INFO } from "../constants/chains";
 import type { ChainInfo } from "../constants/chains";
+import { HttpTransport, http } from "viem";
 
 /**
  * Get supported chain from NEXT_PUBLIC_SUPPOTED_CHAIN_IDS
@@ -67,4 +68,22 @@ export const getEtherscanLink = (
   if (typeof chain.blockExplorers === "undefined")
     return `https://${chain.network}.etherscan.io/${type}/${hash}`;
   return `${chain.blockExplorers.default.url}/${type}/${hash}`;
+};
+
+export const getRPCEndpoints = (chainId: number): HttpTransport[] => {
+  const chain = CHAIN_INFO[chainId];
+  if (!chain) throw Error("Chain id is invalid");
+
+  const endpoints: HttpTransport[] = [];
+  chain.rpcUrls.infura &&
+    endpoints.push(
+      http(`${chain.rpcUrls.infura.http[0]}/${process.env.NEXT_PUBLIC_INFURA_API_TOKEN}`),
+    );
+  chain.rpcUrls.alchemy &&
+    endpoints.push(
+      http(`${chain.rpcUrls.alchemy.http[0]}/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}`),
+    );
+  endpoints.push(http(`${chain.rpcUrls.public.http[0]}`));
+
+  return endpoints;
 };
