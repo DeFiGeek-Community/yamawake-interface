@@ -25,7 +25,7 @@ export default function AuctionFormWrapper(props: AuctionFormWrapperParams) {
     if (!templateData) return;
 
     const compatibleTemplates = templateData.templates.filter((template: Template) =>
-      COMPATIBLE_TEMPLATES.includes(template.templateName),
+      COMPATIBLE_TEMPLATES[props.chainId].includes(template.templateName),
     );
     compatibleTemplates.length > 0 && setTemplateName(compatibleTemplates[0].templateName);
   }, [templateData]);
