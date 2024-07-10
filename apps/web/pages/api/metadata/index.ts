@@ -35,15 +35,9 @@ const availableNetwork = [Number(process.env.NEXT_PUBLIC_CHAIN_ID)];
 
 const getViemProvider = (chainId: number) => {
   const chain = getChain(chainId);
-  const chainName = chain.name.toLowerCase() === "ethereum" ? "mainnet" : chain.name.toLowerCase();
-  // const alchemy = http(`https://eth-${chainName}.g.alchemy.com/v2/${}`)
-  const infura = http(
-    `https://${chainName}.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_API_TOKEN}`,
-  );
   const client = createPublicClient({
-    // chain: getViemChain(chainName),
     chain,
-    transport: fallback([infura]),
+    transport: fallback(chain.rpcUrls.public.http.map((url) => http(url))),
   });
   return client;
 };

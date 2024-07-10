@@ -54,7 +54,7 @@ export default function AuctionCardContent({
       alignItems={"stretch"}
     >
       <Image
-        objectFit="cover"
+        objectFit="contain"
         w={{ base: "100%", md: "260px" }}
         h={{ base: "100%", md: "260px" }}
         maxW={{ base: "100%", md: "260px" }}
