@@ -21,10 +21,14 @@ export default function AuctionFormWrapper(props: AuctionFormWrapperParams) {
   const [templateName, setTemplateName] = useState<string | undefined>(TEMPLATE_V1_NAME);
   const { t } = useLocale();
   useEffect(() => {
-    templateData &&
-      templateData.templates.length > 0 &&
-      setTemplateName(templateData.templates[0].templateName);
+    if (!templateData) return;
+
+    const compatibleTemplates = templateData.templates.filter((template: Template) =>
+      COMPATIBLE_TEMPLATES.includes(template.templateName),
+    );
+    compatibleTemplates.length > 0 && setTemplateName(compatibleTemplates[0].templateName);
   }, [templateData]);
+
   return (
     <>
       <FormLabel htmlFor="token" alignItems={"baseline"}>
@@ -48,11 +52,7 @@ export default function AuctionFormWrapper(props: AuctionFormWrapperParams) {
         isDisabled={true}
         id="templateName"
         name="templateName"
-        defaultValue={
-          templateData &&
-          templateData.templates.length > 0 &&
-          templateData.templates[0].templateName
-        }
+        defaultValue={templateName}
         onChange={(ev) => setTemplateName(ev.target.value)}
         value={templateName}
       >
