@@ -21,7 +21,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         const { message, signature } = req.body;
         const siweMessage = new SiweMessage(message);
         const chain = getChain(Number(process.env.NEXT_PUBLIC_CHAIN_ID));
-        const chainName = chain.name.toLowerCase();
+        const chainName =
+          chain.name.toLowerCase() === "ethereum" ? "mainnet" : chain.name.toLowerCase();
         const provider = new ethers.JsonRpcProvider(
           ["foundry", "hardhat", "localhost"].includes(chainName)
             ? `http://localhost:8545`

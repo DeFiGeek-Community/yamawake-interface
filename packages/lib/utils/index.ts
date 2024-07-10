@@ -115,7 +115,7 @@ export const getEtherscanLink = (
   hash: string,
   type: "tx" | "token" | "address" | "block",
 ): string => {
-  return `https://${chain === "mainnet" ? "" : `${chain}.`}etherscan.io/${type}/${hash}`;
+  return `https://${chain === "ethereum" ? "" : `${chain}.`}etherscan.io/${type}/${hash}`;
 };
 
 type Countdown = { days: string; hours: string; mins: string; secs: string };
