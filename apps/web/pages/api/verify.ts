@@ -23,10 +23,12 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         const chain = getSupportedChain(Number(chainId));
         if (!chain) throw Error("Unsupported chain");
 
+        const chainName =
+          chain.name.toLowerCase() === "ethereum" ? "mainnet" : chain.name.toLowerCase();
         const provider = new ethers.JsonRpcProvider(
-          chain.rpcUrls.infura?.http
-            ? `${chain.rpcUrls.infura.http[0]}/${process.env.NEXT_PUBLIC_INFURA_API_TOKEN}`
-            : chain.rpcUrls.default.http[0],
+          ["foundry", "hardhat", "localhost"].includes(chainName)
+            ? `http://localhost:8545`
+            : chain.rpcUrls.public.http[0],
         );
 
         const fields = await siweMessage.verify({ signature }, { provider });
