@@ -26,7 +26,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         const provider = new ethers.JsonRpcProvider(
           ["foundry", "hardhat", "localhost"].includes(chainName)
             ? `http://localhost:8545`
-            : `https://${chainName}.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_API_TOKEN}`,
+            : chain.rpcUrls.public.http[0],
         );
 
         const fields = await siweMessage.verify({ signature }, { provider });
