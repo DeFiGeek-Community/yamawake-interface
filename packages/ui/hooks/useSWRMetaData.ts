@@ -6,6 +6,7 @@ import { useLocale } from "./useLocale";
 const useSWRMetaData = (
   chainId: number | undefined,
   id: string,
+  fallbackData?: MetaData | null,
 ): SWRResponse<{ metaData: MetaData } | undefined, Error> => {
   const { t } = useLocale();
 
@@ -30,7 +31,10 @@ const useSWRMetaData = (
   return useSWR<{ metaData: MetaData } | undefined, Error>(
     `/api/metadata/${chain.id}/${id}`,
     fetcher,
-    { errorRetryCount: 2 },
+    {
+      errorRetryCount: 2,
+      fallbackData: fallbackData ? { metaData: fallbackData } : undefined,
+    },
   );
 };
 

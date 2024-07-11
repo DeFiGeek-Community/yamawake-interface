@@ -32,6 +32,7 @@ import SignInButton from "../shared/SignInButton";
 import ProviderLogo from "../shared/ProviderLogo";
 import ConnectButton from "../shared/connectButton";
 import { ChainLogo } from "../shared/ChainLogo";
+import { useIsMounted } from "../../hooks/useIsMounted";
 
 type NetworkMenuProps = {
   allowNetworkChange: boolean;
@@ -106,6 +107,7 @@ export default function Header({ title = "Yamawake", allowNetworkChange = true }
   const [addressString, setAddressString] = useState<string>("");
   const { disconnect } = useDisconnect();
   const { t, locale } = useLocale();
+  const isMounted = useIsMounted();
 
   useEffect(() => {
     const _address = currentUser ? currentUser.address : address;
@@ -123,6 +125,9 @@ export default function Header({ title = "Yamawake", allowNetworkChange = true }
       });
     }
   };
+  // To avoid hydration issues
+  // https://github.com/wagmi-dev/wagmi/issues/542#issuecomment-1144178142
+  if (!isMounted) return null;
 
   const connectedMenu = () => {
     return (
