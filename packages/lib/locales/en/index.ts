@@ -94,7 +94,8 @@ export default {
   PROJECT_URL: "Project URL",
   INPUT_YOUR_PROJECT_URL_IF_YOU_HAVE_IT: "Input your project URL if you have it",
   PROJECT_LOGO_URL: "Project Logo URL",
-  INPUT_YOUR_PROJECT_LOGO_URL_IF_YOU_HAVE_IT: "Input your project logo URL if you have it",
+  INPUT_YOUR_PROJECT_LOGO_URL_IF_YOU_HAVE_IT:
+    "Input your project logo URL if you have it. You can upload a logo image to services like Gyazo, Imgur, Google Drive, and so on to get a public URL.",
   OTHER_URL: "Other URL",
   INPUT_ANY_URL_IF_YOU_WANT_TO_SHOW_SOMETHING_TO_USERS:
     "Input any URL if you want to show something to users",
