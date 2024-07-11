@@ -27,6 +27,7 @@ import CurrentUserContext from "../../contexts/CurrentUserContext";
 import SignInButton from "../shared/SignInButton";
 import ProviderLogo from "../shared/ProviderLogo";
 import ConnectButton from "../shared/connectButton";
+import { useIsMounted } from "../../hooks/useIsMounted";
 
 type HeaderProps = {
   title?: string;
@@ -48,11 +49,16 @@ export default function Header({ title }: HeaderProps) {
   const [addressString, setAddressString] = useState<string>("");
   const { disconnect } = useDisconnect();
   const { t, locale } = useLocale();
+  const isMounted = useIsMounted();
 
   useEffect(() => {
     const _address = currentUser ? currentUser.address : address;
     setAddressString(`${_address?.slice(0, 5)}...${_address?.slice(-4)}`);
   }, [currentUser, address]);
+
+  // To avoid hydration issues
+  // https://github.com/wagmi-dev/wagmi/issues/542#issuecomment-1144178142
+  if (!isMounted) return null;
 
   const connectedMenu = () => {
     return (
