@@ -94,7 +94,8 @@ export default {
   PROJECT_URL: "プロジェクトURL",
   INPUT_YOUR_PROJECT_URL_IF_YOU_HAVE_IT: "プロジェクトのURLがあれば入力してください",
   PROJECT_LOGO_URL: "プロジェクトのロゴURL",
-  INPUT_YOUR_PROJECT_LOGO_URL_IF_YOU_HAVE_IT: "プロジェクトのロゴURLがあれば入力してください",
+  INPUT_YOUR_PROJECT_LOGO_URL_IF_YOU_HAVE_IT:
+    "プロジェクトのロゴURLがあれば入力してください。GyazoやImgur、Google Driveといったサービスで画像をアップロードすることでURLを発行できます。",
   OTHER_URL: "その他のURL",
   INPUT_ANY_URL_IF_YOU_WANT_TO_SHOW_SOMETHING_TO_USERS:
     "その他、オークションページに表示したいリンクがあれば入力してください。",
