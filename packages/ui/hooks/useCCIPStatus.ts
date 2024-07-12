@@ -16,8 +16,8 @@ export default function useCCIPStatus({
   sourceChainId: number;
   destinationChainId: number;
   messageId: string | null;
-}): string | null {
-  const [status, setStatus] = useState<string | null>(null);
+}): keyof typeof CCIP_MESSAGE_STATES | null {
+  const [status, setStatus] = useState<keyof typeof CCIP_MESSAGE_STATES | null>(null);
   const destinationChain = CHAIN_INFO[destinationChainId];
   const destinationRpcEndpoints = getRPCEndpoints(destinationChainId);
   const destinationClient = createPublicClient({
@@ -48,7 +48,11 @@ export default function useCCIPStatus({
     chainId: destinationChainId,
   };
 
-  const offRamps = useContractRead({ ...destinationRouterContract, functionName: "getOffRamps" });
+  const offRamps = useContractRead<typeof RouterABI, "getOffRamps", any[]>({
+    ...destinationRouterContract,
+    functionName: "getOffRamps",
+    watch: status !== "SUCCESS",
+  });
 
   const matchingOffRamps = offRamps.data?.filter(
     (offRamp: any) => offRamp.sourceChainSelector === sourceChainSelector,
@@ -76,15 +80,17 @@ export default function useCCIPStatus({
     if (events.length > 0) {
       const state = events[0].args.state;
       if (typeof state === "undefined") throw Error("unknown state");
-      setStatus(CCIP_MESSAGE_STATES[state]);
+      setStatus(CCIP_MESSAGE_STATES[state] as keyof typeof CCIP_MESSAGE_STATES);
       console.log(
         `Status of message ${messageId} on offRamp ${matchingOffRamp.offRamp} is ${CCIP_MESSAGE_STATES[state]}\n`,
       );
     }
   };
 
-  for (const matchingOffRamp of matchingOffRamps) {
-    getLogs(matchingOffRamp);
+  if (matchingOffRamps) {
+    for (const matchingOffRamp of matchingOffRamps) {
+      getLogs(matchingOffRamp);
+    }
   }
 
   return status;
