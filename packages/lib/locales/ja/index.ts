@@ -139,4 +139,14 @@ export default {
   SIGN_SAFE_ACCOUNT: "このページから離れずにSafeアカウントで署名してください",
   SWITCH_NETWORK_TO: "{{chainName}}へ切り替え",
   CONNECTION_CHANGE_DETECTED: "接続が変更されたためログアウトしました。再度ログインしてください",
+  CCIP_FEE_PAYMENT_TOKEN: "CCIP手数料支払いトークン",
+  CCIP_FEE_PAYMENT_TOKEN_HELP:
+    "Cross-Chain Interoperability Protocol (CCIP)を利用して{{sourceChainName}}のリワードスコアを{{destinationChainName}}に送信します。CCIP手数料はETH, WETH, LINKで支払いが可能です。",
+  CLAIM_REWARD_WHILE_TRANSFERING_SCORES_TO_L1: "L1へのスコア移行と同時にリワードを請求する",
+  CLAIM_REWARD_WHILE_TRANSFERING_SCORES_TO_L1_HELP:
+    "OFFにするとリワードスコアの送信だけを実行します。この場合、リワードの請求は{{destinationChainName}}で行う必要があります。",
+  FEE: "手数料",
+  TRANSFER_SCORE_TO_L1_WITH_CLAIM: "リワードスコアをL1に送信し、請求する",
+  TRANSFER_SCORE_TO_L1: "リワードスコアをL1に送信する",
+  TRANSACTION: "トランザクション",
 };

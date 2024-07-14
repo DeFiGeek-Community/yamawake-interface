@@ -53,7 +53,9 @@ export default function SubChainEarlyUserReward({
   const toast = useToast({ position: "top-right", isClosable: true });
   const { t } = useLocale();
 
-  const destinationChainId = CHAIN_INFO[chainId].belongsTo!;
+  const sourceChain = CHAIN_INFO[chainId];
+  const destinationChainId = sourceChain.belongsTo!;
+  const destinationChain = CHAIN_INFO[destinationChainId];
   const ccipMessageKey = `ccipMessage${chainId}`;
   const feeTokens: FeeToken[] = [
     { symbol: "ETH", address: zeroAddress },
@@ -182,8 +184,14 @@ export default function SubChainEarlyUserReward({
           <Divider mt={2} mb={4} />
           <HStack justifyContent={"space-between"}>
             <chakra.p color={"gray.400"}>
-              CCIP手数料支払いトークン
-              <Tooltip hasArrow label={""}>
+              {t("CCIP_FEE_PAYMENT_TOKEN")}
+              <Tooltip
+                hasArrow
+                label={t("CCIP_FEE_PAYMENT_TOKEN_HELP", {
+                  sourceChainName: sourceChain.name,
+                  destinationChainName: destinationChain.name,
+                })}
+              >
                 <QuestionIcon fontSize={"md"} mb={1} ml={1} />
               </Tooltip>
             </chakra.p>
@@ -204,8 +212,13 @@ export default function SubChainEarlyUserReward({
           </HStack>
           <HStack justifyContent={"space-between"} mt={2}>
             <chakra.p color={"gray.400"}>
-              L1へのスコア移行と同時にリワードを請求する
-              <Tooltip hasArrow label={""}>
+              {t("CLAIM_REWARD_WHILE_TRANSFERING_SCORES_TO_L1")}
+              <Tooltip
+                hasArrow
+                label={t("CLAIM_REWARD_WHILE_TRANSFERING_SCORES_TO_L1_HELP", {
+                  destinationChainName: destinationChain.name,
+                })}
+              >
                 <QuestionIcon fontSize={"md"} mb={1} ml={1} />
               </Tooltip>
             </chakra.p>
@@ -217,7 +230,7 @@ export default function SubChainEarlyUserReward({
             ></Switch>
           </HStack>
           <HStack justifyContent={"space-between"} mt={2}>
-            <chakra.p color={"gray.400"}>手数料</chakra.p>
+            <chakra.p color={"gray.400"}>{t("FEE")}</chakra.p>
             <chakra.p fontSize={"2xl"}>
               {fee.data ? formatEtherInBig(fee.data.toString()).toFixed(3) : "-"}
               <chakra.span color={"gray.400"} fontSize={"lg"} ml={1}>
@@ -253,15 +266,13 @@ export default function SubChainEarlyUserReward({
                 variant={"solid"}
                 colorScheme="green"
               >
-                {shouldClaim
-                  ? "リワードスコアをL1に送信し、請求する"
-                  : "リワードスコアをL1に送信する"}
+                {shouldClaim ? t("TRANSFER_SCORE_TO_L1_WITH_CLAIM") : t("TRANSFER_SCORE_TO_L1")}
               </Button>
             )}
           </Flex>
           {ccipMessageId && status && (
             <Box mt={2}>
-              <Heading fontSize={"sm"}>トランザクション</Heading>
+              <Heading fontSize={"sm"}>{t("TRANSACTION")}</Heading>
               <HStack justifyContent={"space-between"} mt={2}>
                 <chakra.p color={"gray.400"}>
                   <Link href={`https://ccip.chain.link/msg/${ccipMessageId}`} target="_blank">
