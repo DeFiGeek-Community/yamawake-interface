@@ -74,7 +74,7 @@ export default function MetaDataFormModal({
           <ModalHeader>{t("UPDATE_SALE_INFORMATION")}</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
-            <MetaDataForm formikProps={formikProps} />
+            <MetaDataForm chainId={chainId} formikProps={formikProps} />
           </ModalBody>
         </ModalContent>
       </Modal>

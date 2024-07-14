@@ -1,17 +1,10 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { withIronSessionApiRoute } from "iron-session/next";
 import type { IronSessionOptions, IronSession } from "iron-session";
-import {
-  createPublicClient,
-  http,
-  fallback,
-  getContract,
-  PublicClient,
-  GetContractReturnType,
-  Transport,
-} from "viem";
+import { getContract, PublicClient, GetContractReturnType, Transport } from "viem";
 import { Chain } from "viem/chains";
 import { getSupportedChain, isSupportedChain } from "lib/utils/chain";
+import { getViemProvider } from "lib/utils/serverside";
 import { DBClient } from "lib/dynamodb/metaData";
 import BaseTemplateABI from "lib/constants/abis/BaseTemplate.json";
 import { MetaData } from "lib/types/Auction";
@@ -31,17 +24,6 @@ const dbClient = new DBClient({
   tableName: process.env._AWS_DYNAMO_TABLE_NAME as string,
 });
 
-const getViemProvider = (chainId: number) => {
-  const chain = getSupportedChain(chainId);
-  if (!chain) throw new Error("Wrong network");
-
-  const client = createPublicClient({
-    chain,
-    transport: fallback(chain.rpcUrls.public.http.map((url) => http(url))),
-  });
-  return client;
-};
-
 const requireContractOwner = (
   body: any,
   session: IronSession,
@@ -52,20 +34,26 @@ const requireContractOwner = (
   provider: PublicClient<Transport, Chain | undefined>;
 }> => {
   return new Promise(async (resolve, reject) => {
+    if (!session.siwe) return reject("Unauthorized");
+    const metaData = Object.assign(body, { chainId });
+    const provider = getViemProvider(chainId) as PublicClient;
+    const auctionContract = getContract({
+      address: metaData.id,
+      abi: BaseTemplateABI,
+      publicClient: provider,
+    });
     try {
-      if (!session.siwe) return reject("Unauthorized");
-      const metaData = Object.assign(body, { chainId });
-      const provider = getViemProvider(chainId) as PublicClient;
-      const auctionContract = getContract({
-        address: metaData.id,
-        abi: BaseTemplateABI,
-        publicClient: provider,
-      });
       const contractOwner = await auctionContract.read.owner();
       if (contractOwner !== session.siwe.address) reject("You are not the owner of this contract");
       resolve({ metaData, auctionContract, provider });
-    } catch (error: any) {
-      reject(error.message);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        reject(error.name);
+        console.error(`[ERROR] ${error.name} ${error.message}`);
+      } else {
+        reject("Unknown error");
+        console.error(`[ERROR] Unknown error ${error}`);
+      }
     }
   });
 };
