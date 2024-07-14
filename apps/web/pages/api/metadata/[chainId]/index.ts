@@ -35,13 +35,9 @@ const getViemProvider = (chainId: number) => {
   const chain = getSupportedChain(chainId);
   if (!chain) throw new Error("Wrong network");
 
-  // const alchemy = http(`https://eth-${chainName}.g.alchemy.com/v2/${}`)
-  const rpc = chain.rpcUrls.infura
-    ? http(`${chain.rpcUrls.infura.http}/${process.env.NEXT_PUBLIC_INFURA_API_TOKEN}`)
-    : http(`${chain.rpcUrls.public.http}`);
   const client = createPublicClient({
     chain,
-    transport: fallback([rpc]),
+    transport: fallback(chain.rpcUrls.public.http.map((url) => http(url))),
   });
   return client;
 };

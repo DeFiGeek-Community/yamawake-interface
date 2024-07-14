@@ -184,7 +184,7 @@ export default memo(function DetailPage({
         <Flex flexDirection={{ base: "column", md: "row" }} alignItems={"center"} minH={"150px"}>
           <Image
             borderRadius={"100%"}
-            objectFit="cover"
+            objectFit="contain"
             w={"150px"}
             h={"150px"}
             src={

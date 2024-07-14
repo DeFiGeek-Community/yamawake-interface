@@ -1,17 +1,19 @@
+import { GetServerSidePropsContext } from "next";
 import { useRouter } from "next/router";
+import { zeroAddress } from "viem";
 import { useAccount } from "wagmi";
 import { useToast } from "@chakra-ui/react";
+import { DBClient } from "lib/dynamodb/metaData";
 import Layout from "ui/components/layouts/layout";
 import MetaTags from "ui/components/layouts/MetaTags";
 import useAuction from "ui/hooks/useAuction";
 import useSWRMetaData from "ui/hooks/useSWRMetaData";
 import { useLocale } from "ui/hooks/useLocale";
-import { zeroAddress } from "viem";
 import CustomError from "../../_error";
 import AuctionDetail, { SkeletonAuction } from "ui/components/auctions/AuctionDetail";
 import { getSupportedChain } from "lib/utils/chain";
 
-export default function AuctionPage() {
+export default function AuctionPage({ initialMetaData }: { initialMetaData: any }) {
   const { address } = useAccount();
   const router = useRouter();
   const { id, chainId } = router.query;
@@ -27,7 +29,11 @@ export default function AuctionPage() {
     address ? (address.toLowerCase() as `0x${string}`) : (zeroAddress as `0x${string}`),
     chain?.id,
   );
-  const { data: metaData, mutate, error: dynamodbError } = useSWRMetaData(chain?.id, id as string);
+  const {
+    data: metaData,
+    mutate,
+    error: dynamodbError,
+  } = useSWRMetaData(chain?.id, id as string, initialMetaData);
 
   if (!chainId)
     return (
@@ -35,7 +41,7 @@ export default function AuctionPage() {
         <SkeletonAuction />
       </Layout>
     );
-  if (!chain) return <CustomError statusCode={404} />;
+  if (!chain || !metaData) return <CustomError statusCode={404} />;
 
   if (apolloError || dynamodbError)
     toast({
@@ -44,9 +50,20 @@ export default function AuctionPage() {
       duration: 5000,
     });
 
-  if (!auctionData || !metaData)
+  if (!auctionData)
     return (
       <Layout allowNetworkChange={false}>
+        <MetaTags
+          title={`${metaData?.metaData.title ? metaData.metaData.title : t("SALES")} | ${t(
+            "APP_NAME",
+          )}`}
+          description={
+            metaData?.metaData.description
+              ? metaData.metaData.description
+              : t("AN_INCLUSIVE_AND_TRANSPARENT_TOKEN_LAUNCHPAD").replace(/\n/g, "")
+          }
+          image={metaData?.metaData.logoURL && metaData.metaData.logoURL}
+        />
         <SkeletonAuction />
       </Layout>
     );
@@ -56,15 +73,15 @@ export default function AuctionPage() {
   return (
     <Layout allowNetworkChange={false}>
       <MetaTags
-        title={`${metaData.metaData.title ? metaData.metaData.title : t("SALES")} | ${t(
+        title={`${metaData?.metaData.title ? metaData.metaData.title : t("SALES")} | ${t(
           "APP_NAME",
         )}`}
         description={
-          metaData.metaData.description
+          metaData?.metaData.description
             ? metaData.metaData.description
             : t("AN_INCLUSIVE_AND_TRANSPARENT_TOKEN_LAUNCHPAD").replace(/\n/g, "")
         }
-        image={metaData.metaData.logoURL && metaData.metaData.logoURL}
+        image={metaData?.metaData.logoURL && metaData.metaData.logoURL}
       />
       <AuctionDetail
         chainId={chain.id}
@@ -77,4 +94,20 @@ export default function AuctionPage() {
       />
     </Layout>
   );
+}
+
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const { id, chainId } = context.params!;
+  const dbClient = new DBClient({
+    region: process.env._AWS_REGION as string,
+    accessKey: process.env._AWS_ACCESS_KEY_ID as string,
+    secretKey: process.env._AWS_SECRET_ACCESS_KEY as string,
+    tableName: process.env._AWS_DYNAMO_TABLE_NAME as string,
+  });
+  const initialMetaData = await dbClient.fetchMetaData(id as string, parseInt(chainId as string));
+  return {
+    props: {
+      initialMetaData: initialMetaData ?? null,
+    },
+  };
 }

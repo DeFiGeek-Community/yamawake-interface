@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import { chakra, Alert, AlertIcon, useColorMode } from "@chakra-ui/react";
-import { useIsMounted } from "../../hooks/useIsMounted";
 import { useLocale } from "../../hooks/useLocale";
 import { useRequestedChain } from "../../hooks/useRequestedChain";
 import Header from "./Header";
@@ -13,7 +12,6 @@ export default function Layout({
 }: {
   children: React.ReactNode;
 } & HeaderProps) {
-  const isMounted = useIsMounted();
   const { requestedChain, connectedChain: chain } = useRequestedChain();
 
   const { t } = useLocale();
@@ -23,10 +21,6 @@ export default function Layout({
   useEffect(() => {
     if (colorMode === "light") toggleColorMode();
   }, [colorMode]);
-
-  // To avoid hydration issues
-  // https://github.com/wagmi-dev/wagmi/issues/542#issuecomment-1144178142
-  if (!isMounted) return null;
 
   return (
     <>
