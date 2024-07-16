@@ -29,12 +29,8 @@ import {
 import { formatEtherInBig } from "lib/utils";
 import { CONTRACT_ADDRESSES } from "lib/constants/contracts";
 import { CHAIN_INFO } from "lib/constants/chains";
-import {
-  type DecodedLog,
-  type CCIPSendRequestedEventArgs,
-  type FeeToken,
-  CCIP_MESSAGE_STATES,
-} from "lib/constants/ccip";
+import { CCIP_MESSAGE_STATES } from "lib/constants/ccip";
+import type { DecodedLog, CCIPSendRequestedEventArgs, FeeToken } from "lib/types/ccip";
 import { useLocale } from "../../hooks/useLocale";
 import useSubChainEarlyUserReward from "../../hooks/useSubChainEarlyUserReward";
 import TxSentToast from "../shared/TxSentToast";
