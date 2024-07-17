@@ -15,11 +15,11 @@ export const CHAIN_INFO: { [id: number]: ChainInfo } =
       }
     : {
         [sepolia.id]: { ...sepolia, belongsTo: null, chainSelector: 16015286601757825753n },
-        [arbitrumSepolia.id]: {
-          ...arbitrumSepolia,
-          belongsTo: sepolia.id,
-          chainSelector: 3478487238524512106n,
-        },
+        // [arbitrumSepolia.id]: {
+        //   ...arbitrumSepolia,
+        //   belongsTo: sepolia.id,
+        //   chainSelector: 3478487238524512106n,
+        // },
         [baseSepolia.id]: {
           ...baseSepolia,
           belongsTo: sepolia.id,
