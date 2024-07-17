@@ -1,7 +1,7 @@
-import { createPublicClient, fallback, http } from "viem";
+import { type PublicClient, createPublicClient, fallback, http } from "viem";
 import { getSupportedChain } from "./chain";
 
-export const getViemProvider = (chainId: number) => {
+export const getViemProvider = (chainId: number): PublicClient => {
   const chain = getSupportedChain(chainId);
   if (!chain) throw new Error("Wrong network");
 

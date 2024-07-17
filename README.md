@@ -122,6 +122,7 @@ TEST_FACTORY_ADDRESS="0x..."
 
 1. Deploy subgraph to the target network
 2. Set up network configs in `packages/lib/constants/contracts` as you need
+   - `packages/lib/constants/chains.ts`
    - `packages/lib/constants/contracts.ts`
    - `packages/lib/constants/subgraphEndpoints.ts`
    - `packages/lib/constants/templates.ts`
