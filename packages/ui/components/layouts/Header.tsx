@@ -24,7 +24,7 @@ import { useRouter } from "next/router";
 import { useAccount, useEnsAvatar, useEnsName, useDisconnect } from "wagmi";
 import { Chain, switchNetwork, SwitchNetworkArgs } from "@wagmi/core";
 import { getLinkPath } from "lib/utils";
-import { getSupportedChains, isSupportedChain } from "lib/utils/chain";
+import { isSupportedChain } from "lib/utils/chain";
 import { useLocale } from "../../hooks/useLocale";
 import { useRequestedChain } from "../../hooks/useRequestedChain";
 import CurrentUserContext from "../../contexts/CurrentUserContext";
@@ -32,6 +32,7 @@ import SignInButton from "../shared/SignInButton";
 import ProviderLogo from "../shared/ProviderLogo";
 import ConnectButton from "../shared/connectButton";
 import { ChainLogo } from "../shared/ChainLogo";
+import { CHAIN_INFO } from "lib/constants/chains";
 import { useIsMounted } from "../../hooks/useIsMounted";
 
 type NetworkMenuProps = {
@@ -69,7 +70,7 @@ function NetworkMenu({ allowNetworkChange, chain, handleSwitchNetwork }: Network
         </Tag>
       </MenuButton>
       <MenuList zIndex={101}>
-        {getSupportedChains().map((chain: Chain & { testnet?: boolean }) => (
+        {Object.values(CHAIN_INFO).map((chain: Chain & { testnet?: boolean }) => (
           <MenuItem key={chain.id} onClick={() => handleSwitchNetwork(chain)}>
             <ChainLogo chainId={chain.id} mr={2} />
             {chain.name}
@@ -203,7 +204,7 @@ export default function Header({ title = "Yamawake", allowNetworkChange = true }
                     </MenuButton>
                     {allowNetworkChange && (
                       <MenuList zIndex={101}>
-                        {getSupportedChains().map((chain: Chain & { testnet?: boolean }) => (
+                        {Object.values(CHAIN_INFO).map((chain: Chain & { testnet?: boolean }) => (
                           <MenuItem
                             key={chain.id}
                             onClick={() => handleSwitchNetwork({ chainId: chain.id })}

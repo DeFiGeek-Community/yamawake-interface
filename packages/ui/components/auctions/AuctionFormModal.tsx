@@ -169,6 +169,7 @@ export default function AuctionFormModal({
               />
             ) : (
               <MetaDataForm
+                chainId={chainId}
                 formikProps={metaFormikProps}
                 waitFn={waitFn}
                 onSkip={() => {

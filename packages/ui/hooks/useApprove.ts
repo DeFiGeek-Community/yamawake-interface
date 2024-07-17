@@ -13,21 +13,23 @@ export default function useApprove({
   targetAddress,
   owner,
   spender,
+  enabled,
+  amount,
   onSuccessWrite,
   onErrorWrite,
   onSuccessConfirm,
   onErrorConfirm,
-  enabled,
 }: {
   chainId: number;
   targetAddress: `0x${string}` | null;
   owner: `0x${string}`;
   spender: `0x${string}`;
+  enabled: boolean;
+  amount?: bigint;
   onSuccessWrite?: (data: any) => void;
   onErrorWrite?: (e: Error) => void;
   onSuccessConfirm?: (data: any) => void;
   onErrorConfirm?: (e: Error) => void;
-  enabled: boolean;
 }): {
   prepareFn: any;
   writeFn: any;
@@ -37,7 +39,7 @@ export default function useApprove({
 } {
   const MaxUint256 = 2n ** 256n - 1n;
   const [allowance, setAllowance] = useState<bigint>(BigInt(0));
-  const approveArgs: [`0x${string}`, bigint] = [spender, BigInt(MaxUint256.toString())];
+  const approveArgs: [`0x${string}`, bigint] = [spender, amount ?? MaxUint256];
   const allowanceArgs: [`0x${string}`, `0x${string}`] = [owner, spender];
   const isReady: boolean = !!targetAddress && !!owner && !!spender && !!chainId && enabled;
 

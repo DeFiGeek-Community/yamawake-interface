@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import Router from "next/router";
 import { useAccount, useNetwork } from "wagmi";
 import {
@@ -15,16 +15,29 @@ import {
 import CurrentUserContext from "ui/contexts/CurrentUserContext";
 import Layout from "ui/components/layouts/layout";
 import EarlyUserReward from "ui/components/dashboard/EarlyUserReward";
+import SubChainEarlyUserReward from "ui/components/dashboard/SubChainEarlyUserReward";
 import VeReward from "ui/components/dashboard/VeReward";
 import MyAuctions from "ui/components/dashboard/MyAuctions";
 import ParticipatedAuctions from "ui/components/dashboard/ParticipatedAuctions";
 import { useLocale } from "ui/hooks/useLocale";
+import { getSupportedChain } from "lib/utils/chain";
+import type { ChainInfo } from "lib/constants/chains";
 
 export default function DashboardPage() {
   const { address } = useAccount();
   const { chain } = useNetwork();
   const { currentUser } = useContext(CurrentUserContext);
   const { t } = useLocale();
+
+  const [chainInfo, setChainInfo] = useState<ChainInfo | undefined>(undefined);
+
+  useEffect(() => {
+    if (!chain) {
+      setChainInfo(undefined);
+    } else {
+      setChainInfo(getSupportedChain(chain.id));
+    }
+  }, [chain]);
 
   if (typeof currentUser === "undefined") {
     return (
@@ -55,7 +68,12 @@ export default function DashboardPage() {
           gap={4}
           mt={{ base: 4, md: 8 }}
         >
-          {!!chain && <EarlyUserReward chainId={chain.id} address={address} />}
+          {!!chainInfo && !chainInfo.belongsTo && (
+            <EarlyUserReward chainId={chainInfo.id} address={address} />
+          )}
+          {!!chainInfo && !!chainInfo.belongsTo && (
+            <SubChainEarlyUserReward chainId={chainInfo.id} address={address} />
+          )}
           <VeReward />
         </Grid>
 

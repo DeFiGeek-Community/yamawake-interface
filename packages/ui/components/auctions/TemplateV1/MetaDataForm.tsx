@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   chakra,
   Button,
@@ -15,6 +16,7 @@ import {
   NumberDecrementStepper,
   HStack,
   Spinner,
+  useInterval,
 } from "@chakra-ui/react";
 import { QuestionIcon } from "@chakra-ui/icons";
 import { FormikProps } from "formik";
@@ -24,15 +26,37 @@ import { SAMPLE_DISCLAIMERS } from "lib/constants";
 import { useLocale } from "../../../hooks/useLocale";
 
 export default function MetaDataForm({
+  chainId,
   formikProps,
   waitFn,
   onSkip,
 }: {
+  chainId: number;
   formikProps: FormikProps<MetaData>;
   waitFn?: ReturnType<typeof useWaitForTransaction>;
   onSkip?: () => void;
 }) {
   const { t } = useLocale();
+
+  // To ensure that the contract is readable from the server-side RPC -->
+  const [owner, setOwner] = useState<string>();
+  const fetchOwner = async () => {
+    const result = await fetch(`/api/metadata/${chainId}/${formikProps.values.id}/owner`);
+    if (result.ok) {
+      const data = await result.json();
+      setOwner(data.owner);
+    }
+  };
+  useInterval(() => {
+    if (owner || !formikProps.values.id) return;
+    fetchOwner();
+  }, 5000);
+  useEffect(() => {
+    if (!formikProps.values.id) return;
+    fetchOwner();
+  }, [!formikProps.values.id]);
+  // <--
+
   return (
     <div>
       <form onSubmit={formikProps.handleSubmit}>
@@ -296,10 +320,12 @@ export default function MetaDataForm({
             colorScheme="blue"
             type="submit"
             isLoading={formikProps.isSubmitting}
-            isDisabled={waitFn && (waitFn.isLoading || waitFn.isIdle)}
-            leftIcon={waitFn && (waitFn.isLoading || waitFn.isIdle) ? <Spinner /> : undefined}
+            isDisabled={!owner || (waitFn && (waitFn.isLoading || waitFn.isIdle))}
+            leftIcon={
+              !owner || (waitFn && (waitFn.isLoading || waitFn.isIdle)) ? <Spinner /> : undefined
+            }
           >
-            {waitFn && (waitFn.isLoading || waitFn.isIdle)
+            {!owner || (waitFn && (waitFn.isLoading || waitFn.isIdle))
               ? t("PLEASE_WAIT_FOR_THE_TRANSACTION_TO_BE_CONFIRMED")
               : t("SAVE_SALE_INFORMATION")}
           </Button>

@@ -6,10 +6,10 @@ import { CoinbaseWalletConnector } from "@wagmi/core/connectors/coinbaseWallet";
 import { InjectedConnector } from "@wagmi/core/connectors/injected";
 import { MetaMaskConnector } from "@wagmi/core/connectors/metaMask";
 import { WalletConnectConnector } from "@wagmi/core/connectors/walletConnect";
-import { getSupportedChains } from "../utils/chain";
+import { CHAIN_INFO } from "../constants/chains";
 
 const { chains, publicClient, webSocketPublicClient } = configureChains<Chain>(
-  getSupportedChains(),
+  Object.values(CHAIN_INFO),
   [
     infuraProvider({ apiKey: process.env.NEXT_PUBLIC_INFURA_API_TOKEN! }),
     alchemyProvider({ apiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY! }),

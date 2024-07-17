@@ -1,0 +1,6 @@
+export enum CCIP_MESSAGE_STATES {
+  UNTOUCHED,
+  IN_PROGRESS,
+  SUCCESS,
+  FAILURE,
+}

@@ -4,7 +4,7 @@ import {
   useContractWrite,
   useWaitForTransaction,
 } from "wagmi";
-import DistributorABI from "lib/constants/abis/Distributor.json";
+import DistributorABI from "lib/constants/abis/DistributorReceiver.json";
 import { CONTRACT_ADDRESSES } from "lib/constants/contracts";
 import { isSupportedChain } from "lib/utils/chain";
 

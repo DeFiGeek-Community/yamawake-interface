@@ -141,4 +141,14 @@ export default {
   SIGN_SAFE_ACCOUNT: "Please sign the message from your Safe account without leaving this page.",
   SWITCH_NETWORK_TO: "Switch to {{chainName}}",
   CONNECTION_CHANGE_DETECTED: "Connection change detected. Please sign-in again.",
+  CCIP_FEE_PAYMENT_TOKEN: "CCIP Fee Payment Token",
+  CCIP_FEE_PAYMENT_TOKEN_HELP:
+    "Send the reward score from {{sourceChainName}} to {{destinationChainName}} using the Cross-Chain Interoperability Protocol (CCIP). The CCIP fee can be paid in ETH, WETH, or LINK.",
+  CLAIM_REWARD_WHILE_TRANSFERING_SCORES_TO_L1: "Claim Reward While Transferring the Score to L1",
+  CLAIM_REWARD_WHILE_TRANSFERING_SCORES_TO_L1_HELP:
+    "If turned OFF, only the reward score will be sent. In this case, the reward can be claimed on {{destinationChainName}}.",
+  FEE: "Fee",
+  TRANSFER_SCORE_TO_L1_WITH_CLAIM: "Transfer the score to L1 and claim reward",
+  TRANSFER_SCORE_TO_L1: "Transfer the score to L1",
+  TRANSACTION: "Transaction",
 };
