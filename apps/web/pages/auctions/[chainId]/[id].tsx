@@ -1,21 +1,21 @@
+import { useContext } from "react";
 import { GetServerSidePropsContext } from "next";
 import { useRouter } from "next/router";
 import { zeroAddress } from "viem";
 import { useAccount } from "wagmi";
 import { useToast } from "@chakra-ui/react";
 import { DBClient } from "lib/dynamodb/metaData";
-import Layout from "ui/components/layouts/layout";
 import MetaTags from "ui/components/layouts/MetaTags";
 import useAuction from "ui/hooks/useAuction";
 import useSWRMetaData from "ui/hooks/useSWRMetaData";
 import { useLocale } from "ui/hooks/useLocale";
-import CustomError from "../../_error";
 import AuctionDetail, { SkeletonAuction } from "ui/components/auctions/AuctionDetail";
 import { getSupportedChain } from "lib/utils/chain";
-import { useContext } from "react";
 import LayoutContext from "ui/contexts/LayoutContext";
+import type { MetaData } from "lib/types/Auction";
+import CustomError from "../../_error";
 
-export default function AuctionPage({ initialMetaData }: { initialMetaData: any }) {
+export default function AuctionPage({ initialMetaData }: { initialMetaData: MetaData | null }) {
   const { address } = useAccount();
   const router = useRouter();
   const { id, chainId } = router.query;
@@ -26,20 +26,17 @@ export default function AuctionPage({ initialMetaData }: { initialMetaData: any 
     data: auctionData,
     mutate: refetch,
     error: apolloError,
+    isLoading,
   } = useAuction(
     id as `0x${string}`,
     address ? (address.toLowerCase() as `0x${string}`) : (zeroAddress as `0x${string}`),
     chain?.id,
   );
-  const {
-    data: metaData,
-    mutate,
-    error: dynamodbError,
-  } = useSWRMetaData(chain?.id, id as string, initialMetaData);
+  const { data: metaData, mutate, error: dynamodbError } = useSWRMetaData(chain?.id, id as string);
   const { setAllowNetworkChange } = useContext(LayoutContext);
   setAllowNetworkChange && setAllowNetworkChange(false);
 
-  if (!chainId) return <SkeletonAuction />;
+  if (!chainId || isLoading) return <SkeletonAuction />;
   if (!chain || !metaData) return <CustomError statusCode={404} />;
 
   if (apolloError || dynamodbError)
