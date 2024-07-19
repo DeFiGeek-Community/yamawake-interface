@@ -1,7 +1,8 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { chakra, Alert, AlertIcon, useColorMode } from "@chakra-ui/react";
 import { useLocale } from "../../hooks/useLocale";
 import { useRequestedChain } from "../../hooks/useRequestedChain";
+import LayoutContext from "../../contexts/LayoutContext";
 import Header from "./Header";
 import type { HeaderProps } from "./Header";
 import Footer from "./Footer";
@@ -22,9 +23,11 @@ export default function Layout({
     if (colorMode === "light") toggleColorMode();
   }, [colorMode]);
 
+  const [allowNetworkChange, setAllowNetworkChange] = useState<boolean>(true);
+
   return (
-    <>
-      <Header {...headerProps} />
+    <LayoutContext.Provider value={{ allowNetworkChange, setAllowNetworkChange }}>
+      <Header title={headerProps.title} allowNetworkChange={allowNetworkChange} />
       {chain && chain?.id !== requestedChain.id && (
         <chakra.div px={{ base: 0, md: 8 }} mt={1} position={"absolute"} w={"full"} zIndex={"10"}>
           <Alert status="warning" mb={4}>
@@ -37,6 +40,6 @@ export default function Layout({
       )}
       <chakra.div bg={"gray.800"}>{children}</chakra.div>
       <Footer />
-    </>
+    </LayoutContext.Provider>
   );
 }

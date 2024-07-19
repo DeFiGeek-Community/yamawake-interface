@@ -13,7 +13,7 @@ import {
   Grid,
 } from "@chakra-ui/react";
 import CurrentUserContext from "ui/contexts/CurrentUserContext";
-import Layout from "ui/components/layouts/layout";
+import LayoutContext from "ui/contexts/LayoutContext";
 import EarlyUserReward from "ui/components/dashboard/EarlyUserReward";
 import SubChainEarlyUserReward from "ui/components/dashboard/SubChainEarlyUserReward";
 import VeReward from "ui/components/dashboard/VeReward";
@@ -30,6 +30,8 @@ export default function DashboardPage() {
   const { t } = useLocale();
 
   const [chainInfo, setChainInfo] = useState<ChainInfo | undefined>(undefined);
+  const { setAllowNetworkChange } = useContext(LayoutContext);
+  setAllowNetworkChange && setAllowNetworkChange(true);
 
   useEffect(() => {
     if (!chain) {
@@ -41,62 +43,54 @@ export default function DashboardPage() {
 
   if (typeof currentUser === "undefined") {
     return (
-      <Layout>
-        <Container maxW="container.lg" py={16} textAlign="center">
-          <Spinner />
-        </Container>
-      </Layout>
+      <Container maxW="container.lg" py={16} textAlign="center">
+        <Spinner />
+      </Container>
     );
   } else if (currentUser === null && typeof address === "undefined") {
     Router.push("/");
     return (
-      <Layout>
-        <Container maxW="container.lg" py={16} textAlign="center">
-          <Spinner />
-        </Container>
-      </Layout>
+      <Container maxW="container.lg" py={16} textAlign="center">
+        <Spinner />
+      </Container>
     );
   }
 
   return (
-    <Layout>
-      <Container maxW="container.xl" py={16}>
-        <Heading size={"lg"}>{t("DASHBOARD")}</Heading>
+    <Container maxW="container.xl" py={16}>
+      <Heading size={"lg"}>{t("DASHBOARD")}</Heading>
 
-        <Grid
-          templateColumns={{ base: "repeat(1, 1fr)", md: "repeat(2, 1fr)" }}
-          gap={4}
-          mt={{ base: 4, md: 8 }}
-        >
-          {!!chainInfo && !chainInfo.belongsTo && (
-            <EarlyUserReward chainId={chainInfo.id} address={address} />
-          )}
-          {!!chainInfo && !!chainInfo.belongsTo && (
-            <SubChainEarlyUserReward chainId={chainInfo.id} address={address} />
-          )}
-          <VeReward />
-        </Grid>
+      <Grid
+        templateColumns={{ base: "repeat(1, 1fr)", md: "repeat(2, 1fr)" }}
+        gap={4}
+        mt={{ base: 4, md: 8 }}
+      >
+        {!!chainInfo && !chainInfo.belongsTo && (
+          <EarlyUserReward chainId={chainInfo.id} address={address} />
+        )}
+        {!!chainInfo && !!chainInfo.belongsTo && (
+          <SubChainEarlyUserReward chainId={chainInfo.id} address={address} />
+        )}
+        <VeReward />
+      </Grid>
 
-        <Tabs mt={{ base: 4, md: 8 }}>
-          <TabList>
-            {currentUser && <Tab>{t("YOUR_SALES")}</Tab>}
-            <Tab>{t("PARTICIPATED_SALES")}</Tab>
-          </TabList>
+      <Tabs mt={{ base: 4, md: 8 }}>
+        <TabList>
+          {currentUser && <Tab>{t("YOUR_SALES")}</Tab>}
+          <Tab>{t("PARTICIPATED_SALES")}</Tab>
+        </TabList>
 
-          <TabPanels>
-            {currentUser && (
-              <TabPanel p={{ base: 0, md: 4 }}>
-                {!!chain && !!address && <MyAuctions chainId={chain.id} address={address} />}
-              </TabPanel>
-            )}
+        <TabPanels>
+          {currentUser && (
             <TabPanel p={{ base: 0, md: 4 }}>
-              {!!chain && !!address && (
-                <ParticipatedAuctions chainId={chain.id} address={address} />
-              )}
+              {!!chain && !!address && <MyAuctions chainId={chain.id} address={address} />}
             </TabPanel>
-          </TabPanels>
-        </Tabs>
-      </Container>
-    </Layout>
+          )}
+          <TabPanel p={{ base: 0, md: 4 }}>
+            {!!chain && !!address && <ParticipatedAuctions chainId={chain.id} address={address} />}
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
+    </Container>
   );
 }

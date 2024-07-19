@@ -13,7 +13,6 @@ import {
   VStack,
   useToast,
   Divider,
-  Link,
   Menu,
   MenuButton,
   MenuList,
@@ -25,6 +24,7 @@ import { useAccount, useEnsAvatar, useEnsName, useDisconnect } from "wagmi";
 import { Chain, switchNetwork, SwitchNetworkArgs } from "@wagmi/core";
 import { getLinkPath } from "lib/utils";
 import { isSupportedChain } from "lib/utils/chain";
+import { CHAIN_INFO } from "lib/constants/chains";
 import { useLocale } from "../../hooks/useLocale";
 import { useRequestedChain } from "../../hooks/useRequestedChain";
 import CurrentUserContext from "../../contexts/CurrentUserContext";
@@ -32,8 +32,6 @@ import SignInButton from "../shared/SignInButton";
 import ProviderLogo from "../shared/ProviderLogo";
 import ConnectButton from "../shared/connectButton";
 import { ChainLogo } from "../shared/ChainLogo";
-import { CHAIN_INFO } from "lib/constants/chains";
-import { useIsMounted } from "../../hooks/useIsMounted";
 
 type NetworkMenuProps = {
   allowNetworkChange: boolean;
@@ -96,9 +94,9 @@ export default function Header({ title = "Yamawake", allowNetworkChange = true }
   const { requestedChain, connectedChain: chain } = useRequestedChain();
   const toast = useToast({ position: "top-right", isClosable: true });
   const { currentUser, mutate } = useContext(CurrentUserContext);
-  const { address, isConnected, connector } = useAccount();
+  const { address, isConnected: isConnectedRaw, connector } = useAccount();
   const { data: ensName } = useEnsName({
-    address: currentUser ? currentUser.address : address,
+    address: address,
     staleTime: 1000 * 60 * 60 * 1,
   });
   const { data: ensAvatar } = useEnsAvatar({
@@ -108,12 +106,13 @@ export default function Header({ title = "Yamawake", allowNetworkChange = true }
   const [addressString, setAddressString] = useState<string>("");
   const { disconnect } = useDisconnect();
   const { t, locale } = useLocale();
-  const isMounted = useIsMounted();
+
+  const [isConnected, setIsConnected] = useState<boolean>(false);
+  useEffect(() => setIsConnected(isConnectedRaw), [isConnectedRaw]);
 
   useEffect(() => {
-    const _address = currentUser ? currentUser.address : address;
-    setAddressString(`${_address?.slice(0, 5)}...${_address?.slice(-4)}`);
-  }, [currentUser, address]);
+    setAddressString(`${address?.slice(0, 5)}...${address?.slice(-4)}`);
+  }, [address]);
 
   const handleSwitchNetwork = async (args: SwitchNetworkArgs) => {
     try {
@@ -126,9 +125,6 @@ export default function Header({ title = "Yamawake", allowNetworkChange = true }
       });
     }
   };
-  // To avoid hydration issues
-  // https://github.com/wagmi-dev/wagmi/issues/542#issuecomment-1144178142
-  if (!isMounted) return null;
 
   const connectedMenu = () => {
     return (
@@ -309,22 +305,21 @@ export default function Header({ title = "Yamawake", allowNetworkChange = true }
       <Container maxW="container.2xl" px={{ base: 2, md: 4 }}>
         <Flex as="header" py="4" justifyContent="space-between" alignItems="center">
           <HStack>
-            <Link
-              href={`/?chainId=${requestedChain.id}`}
-              textDecoration={"none"}
-              _hover={{ textDecoration: "none" }}
+            <Heading
+              as="h1"
+              fontSize="xl"
+              cursor={"pointer"}
+              onClick={() => router.push(`/?chainId=${requestedChain.id}`)}
             >
-              <Heading as="h1" fontSize="xl">
-                <Text
-                  bgGradient="linear(to-l, #7928CA, #FF0080)"
-                  bgClip="text"
-                  fontSize="xl"
-                  fontWeight="extrabold"
-                >
-                  {title ? title : "Yamawake"}
-                </Text>
-              </Heading>
-            </Link>
+              <Text
+                bgGradient="linear(to-l, #7928CA, #FF0080)"
+                bgClip="text"
+                fontSize="xl"
+                fontWeight="extrabold"
+              >
+                {title ? title : "Yamawake"}
+              </Text>
+            </Heading>
           </HStack>
           <HStack spacing={{ base: 2, md: 4 }}>
             {isConnected && (

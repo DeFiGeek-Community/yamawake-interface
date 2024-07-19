@@ -1,7 +1,6 @@
 import { NextPageContext } from "next";
 import Render404 from "ui/components/errors/404";
 import Render500 from "ui/components/errors/500";
-import Layout from "ui/components/layouts/layout";
 
 function CustomError({
   statusCode,
@@ -13,24 +12,12 @@ function CustomError({
   };
 }) {
   if (statusCode === 404) {
-    return (
-      <Layout>
-        <Render404 />
-      </Layout>
-    );
+    return <Render404 />;
   } else if (err) {
-    return (
-      <Layout>
-        <Render500 error={err} />
-      </Layout>
-    );
+    return <Render500 error={err} />;
   } else {
     const error = new Error("Something went wrong...");
-    return (
-      <Layout>
-        <Render500 error={error} />
-      </Layout>
-    );
+    return <Render500 error={error} />;
   }
 }
 

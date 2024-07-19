@@ -6,6 +6,7 @@ import config from "lib/connector";
 import { CurrentUserProvider } from "ui/components/providers/CurrentUserProvider";
 import { RequestedChainProvider } from "ui/components/providers/RequestedChainProvider";
 import "assets/css/styles.css";
+import Layout from "ui/components/layouts/layout";
 
 export default function MyApp({ Component, pageProps }: AppProps) {
   return (
@@ -14,7 +15,9 @@ export default function MyApp({ Component, pageProps }: AppProps) {
         <RequestedChainProvider>
           <CurrentUserProvider>
             <ColorModeScript initialColorMode={"dark"} />
-            <Component {...pageProps} />
+            <Layout>
+              <Component {...pageProps} />
+            </Layout>
           </CurrentUserProvider>
         </RequestedChainProvider>
       </ChakraProvider>

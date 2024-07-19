@@ -1,3 +1,4 @@
+import { useContext } from "react";
 import {
   Container,
   Button,
@@ -13,12 +14,12 @@ import {
   AlertIcon,
 } from "@chakra-ui/react";
 import { AuctionProps } from "lib/types/Auction";
-import Layout from "ui/components/layouts/layout";
 import AuctionCard, { AuctionCardSkeleton } from "ui/components/auctions/AuctionCard";
 import { useSWRAuctions } from "ui/hooks/useAuctions";
 import { useRequestedChain } from "ui/hooks/useRequestedChain";
 import { QueryType } from "lib/graphql/query";
 import { useLocale } from "ui/hooks/useLocale";
+import LayoutContext from "ui/contexts/LayoutContext";
 import MetaTags from "ui/components/layouts/MetaTags";
 import CustomError from "../../_error";
 
@@ -47,10 +48,13 @@ export default function AuctionPage() {
     loadMoreAuctions: loadMoreClosedAuctions,
   } = useSWRAuctions({}, QueryType.CLOSED, requestedChain?.id);
 
+  const { setAllowNetworkChange } = useContext(LayoutContext);
+  setAllowNetworkChange && setAllowNetworkChange(true);
+
   if (falledBack) return <CustomError statusCode={404} />;
 
   return (
-    <Layout>
+    <>
       <MetaTags title={`${t("LIVE_UPCOMING_SALES")} | ${t("APP_NAME")}`} />
       <Container maxW="container.xl" py={16}>
         <Tabs variant="soft-rounded" colorScheme="green">
@@ -173,6 +177,6 @@ export default function AuctionPage() {
           </TabPanels>
         </Tabs>
       </Container>
-    </Layout>
+    </>
   );
 }

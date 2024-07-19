@@ -12,6 +12,8 @@ import { useLocale } from "ui/hooks/useLocale";
 import CustomError from "../../_error";
 import AuctionDetail, { SkeletonAuction } from "ui/components/auctions/AuctionDetail";
 import { getSupportedChain } from "lib/utils/chain";
+import { useContext } from "react";
+import LayoutContext from "ui/contexts/LayoutContext";
 
 export default function AuctionPage({ initialMetaData }: { initialMetaData: any }) {
   const { address } = useAccount();
@@ -34,13 +36,10 @@ export default function AuctionPage({ initialMetaData }: { initialMetaData: any 
     mutate,
     error: dynamodbError,
   } = useSWRMetaData(chain?.id, id as string, initialMetaData);
+  const { setAllowNetworkChange } = useContext(LayoutContext);
+  setAllowNetworkChange && setAllowNetworkChange(false);
 
-  if (!chainId)
-    return (
-      <Layout allowNetworkChange={false}>
-        <SkeletonAuction />
-      </Layout>
-    );
+  if (!chainId) return <SkeletonAuction />;
   if (!chain || !metaData) return <CustomError statusCode={404} />;
 
   if (apolloError || dynamodbError)
@@ -52,7 +51,7 @@ export default function AuctionPage({ initialMetaData }: { initialMetaData: any 
 
   if (!auctionData)
     return (
-      <Layout allowNetworkChange={false}>
+      <>
         <MetaTags
           title={`${metaData?.metaData.title ? metaData.metaData.title : t("SALES")} | ${t(
             "APP_NAME",
@@ -65,13 +64,13 @@ export default function AuctionPage({ initialMetaData }: { initialMetaData: any 
           image={metaData?.metaData.logoURL && metaData.metaData.logoURL}
         />
         <SkeletonAuction />
-      </Layout>
+      </>
     );
 
   if (!auctionData.auction) return <CustomError statusCode={404} />;
 
   return (
-    <Layout allowNetworkChange={false}>
+    <>
       <MetaTags
         title={`${metaData?.metaData.title ? metaData.metaData.title : t("SALES")} | ${t(
           "APP_NAME",
@@ -92,7 +91,7 @@ export default function AuctionPage({ initialMetaData }: { initialMetaData: any 
         contractAddress={id as `0x${string}`}
         address={address}
       />
-    </Layout>
+    </>
   );
 }
 
