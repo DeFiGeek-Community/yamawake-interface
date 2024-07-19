@@ -22,7 +22,8 @@ export const RequestedChainProvider: FC<{ children: ReactNode }> = ({ children }
     if (toChain) {
       setRequestedChain(toChain);
       setFalledback(false);
-    } else {
+    } else if (chain) {
+      // Connected to unknown chain
       setRequestedChain(getDefaultChain());
       setFalledback(true);
     }
