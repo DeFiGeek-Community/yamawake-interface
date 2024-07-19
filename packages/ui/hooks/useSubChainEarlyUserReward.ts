@@ -37,7 +37,7 @@ export default function useSubChainEarlyUserReward({
   fee: ReturnType<typeof useContractRead<typeof RouterABI, "getFee", bigint>>;
 } {
   const getDistinationChainInfo = useMemo(() => {
-    const destinationChainId = CHAIN_INFO[chainId].belongsTo;
+    const destinationChainId = CHAIN_INFO[chainId].sourceId;
     if (!destinationChainId) throw new Error("Destination chain information is incorrect");
 
     const destinationChain = CHAIN_INFO[destinationChainId];

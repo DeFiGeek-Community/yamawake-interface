@@ -65,10 +65,10 @@ export default function DashboardPage() {
         gap={4}
         mt={{ base: 4, md: 8 }}
       >
-        {!!chainInfo && !chainInfo.belongsTo && (
+        {!!chainInfo && !chainInfo.sourceId && (
           <EarlyUserReward chainId={chainInfo.id} address={address} />
         )}
-        {!!chainInfo && !!chainInfo.belongsTo && (
+        {!!chainInfo && !!chainInfo.sourceId && (
           <SubChainEarlyUserReward chainId={chainInfo.id} address={address} />
         )}
         <VeReward />

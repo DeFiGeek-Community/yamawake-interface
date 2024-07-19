@@ -69,7 +69,7 @@ Example CHAIN_INFO settings for local development with CCIP
       },
       },
       contracts: undefined,
-      belongsTo: null,
+      sourceId: null,
       chainSelector: 16015286601757825753n,
    },
    31338: {
@@ -86,7 +86,7 @@ Example CHAIN_INFO settings for local development with CCIP
       },
       },
       contracts: undefined,
-      belongsTo: sepolia.id,
+      sourceId: sepolia.id,
       chainSelector: 3478487238524512106n,
    },
 }

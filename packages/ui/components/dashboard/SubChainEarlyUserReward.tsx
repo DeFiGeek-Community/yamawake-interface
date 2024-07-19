@@ -50,7 +50,7 @@ export default function SubChainEarlyUserReward({
   const { t } = useLocale();
 
   const sourceChain = CHAIN_INFO[chainId];
-  const destinationChainId = sourceChain.belongsTo!;
+  const destinationChainId = sourceChain.sourceId!;
   const destinationChain = CHAIN_INFO[destinationChainId];
   const ccipMessageKey = `ccipMessage${chainId}`;
   const feeTokens: FeeToken[] = [
