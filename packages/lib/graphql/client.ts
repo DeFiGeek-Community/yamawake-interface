@@ -28,19 +28,6 @@ export class GraphQLChainClient extends GraphQLClient {
         ? SUBGRAPH_SECONDARY_ENDPOINTS[requestedChain.id]
         : SUBGRAPH_ENDPOINTS[requestedChain.id];
 
-    console.log("---");
-    console.log(endpoint);
-    console.log(
-      useSecondaryEndpoint,
-      getDefaultChain().id,
-      requestedChain?.id,
-      SUBGRAPH_ENDPOINTS,
-      SUBGRAPH_SECONDARY_ENDPOINTS,
-      SUBGRAPH_SECONDARY_ENDPOINTS[getDefaultChain().id],
-      SUBGRAPH_ENDPOINTS[getDefaultChain().id],
-    );
-    console.log("---");
-
     if (typeof endpoint === "undefined") throw new Error("Subgraph endpoint is not set correctly");
     super(endpoint, requestConfig);
   }
