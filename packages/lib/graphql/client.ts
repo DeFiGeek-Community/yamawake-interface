@@ -33,7 +33,9 @@ export class GraphQLChainClient extends GraphQLClient {
     console.log(
       useSecondaryEndpoint,
       getDefaultChain().id,
-      requestedChain,
+      requestedChain?.id,
+      SUBGRAPH_ENDPOINTS,
+      SUBGRAPH_SECONDARY_ENDPOINTS,
       SUBGRAPH_SECONDARY_ENDPOINTS[getDefaultChain().id],
       SUBGRAPH_ENDPOINTS[getDefaultChain().id],
     );
