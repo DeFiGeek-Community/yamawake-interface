@@ -44,3 +44,7 @@
     border-color: inherit;
     background: inherit; */
 }
+
+.rs-picker-toggle-textbox:not(.rs-picker-toggle-read-only) + .rs-picker-toggle-value {
+    visibility: hidden;
+}
