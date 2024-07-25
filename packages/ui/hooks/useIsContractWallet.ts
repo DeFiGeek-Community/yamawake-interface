@@ -4,8 +4,14 @@ import { Address } from "viem";
 import { usePublicClient } from "wagmi";
 import { isContractWallet } from "lib/utils/safe";
 
-export const useIsContractWallet = (address?: Address) => {
-  const publicClient = usePublicClient();
+export const useIsContractWallet = ({
+  chainId,
+  address,
+}: {
+  chainId: number | undefined;
+  address: Address | undefined;
+}) => {
+  const publicClient = usePublicClient({ chainId });
   const [_isContractWallet, setIsContractWallet] = useState<
     Awaited<ReturnType<typeof isContractWallet>>
   >({});

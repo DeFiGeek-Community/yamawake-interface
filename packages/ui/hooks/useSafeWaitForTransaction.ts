@@ -14,7 +14,7 @@ export const useSafeWaitForTransaction = (
   config: Parameters<typeof useWaitForTransaction>[0],
 ): UseSafeWaitForTransactionReturn => {
   const { address } = useAccount();
-  const { isSafe: isSafeWallet } = useIsContractWallet(address);
+  const { isSafe: isSafeWallet } = useIsContractWallet({ chainId: config?.chainId, address });
   const { chain } = useNetwork();
   const [safeResult, setSafeResult] = useState<Partial<WaitForTransactionArgs>>();
   const waitResponse = useWaitForTransaction({ ...safeResult, enabled: !!safeResult?.hash });
