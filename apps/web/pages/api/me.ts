@@ -16,7 +16,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     case "GET":
       res.send({
         user: req.session.siwe
-          ? { address: req.session.siwe.address, chainId: req.session.siwe.chainId }
+          ? {
+              address: req.session.siwe.address,
+              chainId: req.session.siwe.chainId,
+              safeAccount: req.session.siwe.resources && req.session.siwe.resources[0],
+            }
           : null,
       });
       break;

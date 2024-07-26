@@ -108,32 +108,30 @@ export const isContractWallet = async (
   isContract?: boolean;
   isSafe?: boolean;
 }> => {
-  const bytecode = await publicClient.getBytecode({ address });
-  const safeAccount = getContract({
-    address,
-    abi: SafeABI,
-    publicClient,
-  });
+  let isContract = false;
   let isSafe = false;
   try {
+    const bytecode = await publicClient.getBytecode({ address });
+    isContract = !!bytecode && bytecode.length > 0;
+
+    const safeAccount = getContract({
+      address,
+      abi: SafeABI,
+      publicClient,
+    });
+
     // Reference:
     // https://github.com/safe-global/safe-smart-account/blob/main/contracts/base/OwnerManager.sol
     const threshold = (await safeAccount.read.getThreshold()) as bigint;
-    isSafe = threshold > 0;
+    isSafe = threshold > 0; // && PROXY_BYTECODE === bytecode;
   } catch (error: unknown) {
     console.info(`${address} is not a Safe account`);
   }
 
-  if (!bytecode || bytecode.length == 0) {
-    return {
-      isContract: false,
-      isSafe: false,
-    };
-  } else {
-    return {
-      isContract: true,
-      // isSafe: PROXY_BYTECODE === bytecode,
-      isSafe,
-    };
-  }
+  return {
+    isContract,
+    isSafe,
+  };
 };
+
+export const signedInAsSafeAccount = () => {};

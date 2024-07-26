@@ -7,9 +7,12 @@ export function useSIWE(): {
   loading: boolean;
   address: `0x${string}` | null;
   signIn: (signInParams: SignInParams) => Promise<void>;
+  safeAddress?: `0x${string}`;
+  error?: Error;
 } {
   const [loading, setLoading] = useState<boolean>(false);
   const [address, setAddress] = useState<`0x${string}` | null>(null);
+  const [error, setError] = useState<Error | undefined>();
   const { signMessageAsync } = useSignMessage();
 
   const fetchNonce = async () => {
@@ -18,7 +21,7 @@ export function useSIWE(): {
     return nonce;
   };
 
-  const signIn = async ({ title, targetAddress, chainId }: SignInParams) => {
+  const signIn = async ({ title, targetAddress, chainId, safeAddress }: SignInParams) => {
     setLoading(true);
     try {
       // Create SIWE message with pre-fetched nonce and sign with wallet
@@ -34,6 +37,10 @@ export function useSIWE(): {
         expirationTime: new Date(new Date().getTime() + 60000 * 60).toISOString(), // Requires to verify in 60 min
       });
 
+      if (safeAddress) {
+        message.resources = [safeAddress];
+      }
+
       const signature = await signMessageAsync({
         message: message.prepareMessage(),
       });
@@ -46,16 +53,17 @@ export function useSIWE(): {
         },
         body: JSON.stringify({ message, signature, chainId }),
       });
-      if (!verifyRes.ok) throw new Error("Error verifying message");
+
+      if (!verifyRes.ok) setError(new Error("Error verifying message"));
 
       setLoading(false);
       setAddress(address as `0x${string}`);
     } catch (error) {
       setLoading(false);
       setAddress(null);
-      throw error;
+      setError(error instanceof Error ? error : new Error(String(error)));
     }
   };
 
-  return { loading, address, signIn };
+  return { loading, address, signIn, error };
 }
