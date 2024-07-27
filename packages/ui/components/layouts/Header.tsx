@@ -17,13 +17,13 @@ import {
   MenuButton,
   MenuList,
   MenuItem,
+  Image,
 } from "@chakra-ui/react";
 import { ChevronDownIcon } from "@chakra-ui/icons";
 import { useRouter } from "next/router";
 import { useAccount, useEnsAvatar, useEnsName, useDisconnect } from "wagmi";
 import { Chain, switchNetwork, SwitchNetworkArgs } from "@wagmi/core";
 import { getLinkPath } from "lib/utils";
-import { isSupportedChain } from "lib/utils/chain";
 import { CHAIN_INFO } from "lib/constants/chains";
 import { useLocale } from "../../hooks/useLocale";
 import { useRequestedChain } from "../../hooks/useRequestedChain";
@@ -31,58 +31,10 @@ import CurrentUserContext from "../../contexts/CurrentUserContext";
 import SignInButton from "../shared/SignInButton";
 import ProviderLogo from "../shared/ProviderLogo";
 import ConnectButton from "../shared/connectButton";
+import NetworkMenu from "../shared/NetworkMenu";
 import { ChainLogo } from "../shared/ChainLogo";
-
-type NetworkMenuProps = {
-  allowNetworkChange: boolean;
-  chain: Chain;
-  handleSwitchNetwork: (chain: Chain) => void;
-};
-
-function NetworkMenu({ allowNetworkChange, chain, handleSwitchNetwork }: NetworkMenuProps) {
-  return (
-    <Menu>
-      <MenuButton
-        disabled={!allowNetworkChange}
-        cursor={allowNetworkChange ? "pointer" : "not-allowed"}
-      >
-        <Tag
-          size={"lg"}
-          display={{ base: "none", md: "flex" }}
-          variant="solid"
-          colorScheme={allowNetworkChange ? "teal" : "gray"}
-        >
-          {!isSupportedChain(chain.id) ? (
-            "Unsupported Chain"
-          ) : (
-            <>
-              <ChainLogo chainId={chain.id} mr={1} />
-              {chain.name}
-            </>
-          )}
-          {chain.testnet && (
-            <Tag ml={2} size={"sm"}>
-              Testnet
-            </Tag>
-          )}
-        </Tag>
-      </MenuButton>
-      <MenuList zIndex={101}>
-        {Object.values(CHAIN_INFO).map((chain: Chain & { testnet?: boolean }) => (
-          <MenuItem key={chain.id} onClick={() => handleSwitchNetwork(chain)}>
-            <ChainLogo chainId={chain.id} mr={2} />
-            {chain.name}
-            {chain.testnet && (
-              <Tag ml={1} size={"sm"}>
-                Testnet
-              </Tag>
-            )}
-          </MenuItem>
-        ))}
-      </MenuList>
-    </Menu>
-  );
-}
+import SafeSignInButton from "../shared/SafeSignInButton";
+import safeLogo from "assets/images/safe.png";
 
 export type HeaderProps = {
   title?: string;
@@ -166,7 +118,7 @@ export default function Header({ title = "Yamawake", allowNetworkChange = true }
                     spacing="1px"
                     ml="2"
                   >
-                    <Text fontSize="sm" id="account">
+                    <Text fontSize={currentUser?.safeAccount ? "xs" : "sm"} id="account">
                       {locale === "en" && (
                         <chakra.span display={{ base: "none", md: "inline" }}>
                           {currentUser ? "Signed in as " : ""}
@@ -179,6 +131,20 @@ export default function Header({ title = "Yamawake", allowNetworkChange = true }
                         </chakra.span>
                       )}
                     </Text>
+                    {currentUser?.safeAccount && (
+                      <Flex alignItems={"center"}>
+                        <Image
+                          width={"16px"}
+                          height={"16px"}
+                          alt={"Safe account"}
+                          src={safeLogo.src}
+                        />
+                        <chakra.span fontSize={"sm"} lineHeight={1} ml={2}>
+                          {currentUser.safeAccount.slice(0, 6)}...
+                          {currentUser.safeAccount.slice(-6)}
+                        </chakra.span>
+                      </Flex>
+                    )}
                   </VStack>
                   <ChevronDownIcon />
                 </HStack>
