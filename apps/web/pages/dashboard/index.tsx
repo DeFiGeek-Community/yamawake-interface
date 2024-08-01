@@ -83,11 +83,22 @@ export default function DashboardPage() {
         <TabPanels>
           {currentUser && (
             <TabPanel p={{ base: 0, md: 4 }}>
-              {!!chain && !!address && <MyAuctions chainId={chain.id} address={address} />}
+              {!!chain && !!address && (
+                <MyAuctions
+                  chainId={chain.id}
+                  address={address}
+                  safeAddress={currentUser.safeAccount}
+                />
+              )}
             </TabPanel>
           )}
           <TabPanel p={{ base: 0, md: 4 }}>
-            {!!chain && !!address && <ParticipatedAuctions chainId={chain.id} address={address} />}
+            {!!chain && !!address && (
+              <ParticipatedAuctions
+                chainId={chain.id}
+                address={currentUser?.safeAccount ? currentUser.safeAccount : address}
+              />
+            )}
           </TabPanel>
         </TabPanels>
       </Tabs>

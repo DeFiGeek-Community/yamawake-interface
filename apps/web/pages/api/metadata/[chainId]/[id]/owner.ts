@@ -30,7 +30,12 @@ const getContractOwner = (
     });
     try {
       const owner = (await auctionContract.read.owner()) as string;
-      if (owner !== session.siwe.address) reject("You are not the owner of this contract");
+      if (
+        owner !== session.siwe.address &&
+        session.siwe.resources &&
+        owner !== session.siwe.resources[0]
+      )
+        reject("You are not the owner of this contract");
       resolve(owner);
     } catch (error: unknown) {
       if (error instanceof Error) {

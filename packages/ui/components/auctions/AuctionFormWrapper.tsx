@@ -11,6 +11,7 @@ import useTemplates from "../../hooks/useTemplates";
 export type AuctionFormWrapperParams = {
   chainId: number;
   address: `0x${string}`;
+  safeAddress: `0x${string}` | undefined;
   onSubmitSuccess?: (result: any) => void;
   onSubmitError?: (e: Error) => void;
   onApprovalTxSent?: (result: any) => void;

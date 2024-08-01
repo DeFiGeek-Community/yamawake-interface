@@ -150,4 +150,5 @@ export default {
   TRANSFER_SCORE_TO_L1_WITH_CLAIM: "リワードスコアをL1に送信し、請求する",
   TRANSFER_SCORE_TO_L1: "リワードスコアをL1に送信する",
   TRANSACTION: "トランザクション",
+  OWNER: "オーナー",
 };

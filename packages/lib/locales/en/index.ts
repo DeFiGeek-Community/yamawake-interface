@@ -151,4 +151,5 @@ export default {
   TRANSFER_SCORE_TO_L1_WITH_CLAIM: "Transfer the score to L1 and claim reward",
   TRANSFER_SCORE_TO_L1: "Transfer the score to L1",
   TRANSACTION: "Transaction",
+  OWNER: "Owner",
 };
