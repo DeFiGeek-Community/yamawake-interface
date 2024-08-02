@@ -51,7 +51,7 @@ export default function useApprove({
 
   const writeFn = useSafeContractWrite({
     ...prepareFn.config,
-    safeAddress: safeAddress,
+    safeAddress,
     onSuccess(data) {
       onSuccessWrite && onSuccessWrite(data);
     },
@@ -63,6 +63,7 @@ export default function useApprove({
   const waitFn = useSafeWaitForTransaction({
     chainId,
     hash: writeFn.data?.hash,
+    safeAddress,
     onSuccess(data) {
       onSuccessConfirm && onSuccessConfirm(data);
     },

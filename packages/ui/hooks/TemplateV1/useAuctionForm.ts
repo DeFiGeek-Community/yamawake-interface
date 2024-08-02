@@ -133,7 +133,7 @@ export default function useAuctionForm({
     }
 
     if (
-      balance &&
+      typeof balance === "bigint" &&
       tokenData &&
       Big(balance.toString()).lt(
         Big(formikProps.values.allocatedAmount).mul(Big(10).pow(tokenData.decimals)),
@@ -231,6 +231,12 @@ export default function useAuctionForm({
     owner: safeAddress || address,
     spender: CONTRACT_ADDRESSES[chainId]?.FACTORY,
     safeAddress: safeAddress,
+    amount: BigInt(
+      Big(debouncedAuction.allocatedAmount)
+        .mul(Big(10).pow(tokenData ? tokenData.decimals : 0))
+        .toString(),
+    ),
+
     onSuccessWrite(data) {
       onApprovalTxSent && onApprovalTxSent(data);
     },
