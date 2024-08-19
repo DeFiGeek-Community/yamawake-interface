@@ -152,4 +152,5 @@ export default {
   TRANSFER_SCORE_TO_L1: "Transfer the score to L1",
   TRANSACTION: "Transaction",
   OWNER: "Owner",
+  ADD_TOKEN: "Add {{symbol}} to your wallet",
 };

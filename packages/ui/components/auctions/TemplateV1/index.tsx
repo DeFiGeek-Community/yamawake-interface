@@ -28,7 +28,7 @@ import {
   CardBody,
   StackDivider,
 } from "@chakra-ui/react";
-import { ExternalLinkIcon, QuestionIcon } from "@chakra-ui/icons";
+import { AddIcon, ExternalLinkIcon, QuestionIcon } from "@chakra-ui/icons";
 import { useFormik } from "formik";
 import {
   useWaitForTransaction,
@@ -36,6 +36,7 @@ import {
   useSendTransaction,
   useBalance,
   useNetwork,
+  useWalletClient,
 } from "wagmi";
 import Big, { getBigNumber } from "lib/utils/bignumber";
 import { getSupportedChain, isSupportedChain, getEtherscanLink } from "lib/utils/chain";
@@ -46,7 +47,7 @@ import StatisticsInCircle from "./StatisticsInCircle";
 import PriceChart from "./PriceChart";
 import useRaised from "../../../hooks/TemplateV1/useRaised";
 import useRate from "../../../hooks/useRate";
-import { TemplateV1 } from "lib/types/Auction";
+import { TemplateV1, Token } from "lib/types/Auction";
 import ExternalLinkTag from "../../shared/ExternalLinkTag";
 import ClaimButton from "./ClaimButton";
 import TxSentToast from "../../shared/TxSentToast";
@@ -177,6 +178,26 @@ export default memo(function DetailPage({
   });
 
   const { t } = useLocale();
+
+  const { data: walletClient } = useWalletClient();
+  const addTokenToWallet = async (token: Token) => {
+    if (walletClient) {
+      try {
+        const wasAdded = await walletClient.watchAsset({
+          type: "ERC20",
+          options: {
+            address: token.id,
+            symbol: token.symbol,
+            decimals: parseInt(token.decimals),
+          },
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    } else {
+      console.error("No signer found");
+    }
+  };
 
   return (
     <>
@@ -412,15 +433,21 @@ export default memo(function DetailPage({
                   </Box>
                   {address && ended && (
                     <chakra.div textAlign={"right"} mt={4}>
-                      <ClaimButton
-                        chainId={chainId}
-                        auction={auction}
-                        address={address}
-                        myContribution={raised}
-                        isClaimed={auction.claims.length > 0}
-                        mutateIsClaimed={refetchAuction}
-                        colorScheme={"green"}
-                      />
+                      <Flex justifyContent={"flex-end"}>
+                        <Button mr={2} onClick={() => addTokenToWallet(auction.auctionToken)}>
+                          <AddIcon mr={1} />{" "}
+                          {t("ADD_TOKEN", { symbol: auction.auctionToken.symbol })}
+                        </Button>
+                        <ClaimButton
+                          chainId={chainId}
+                          auction={auction}
+                          address={address}
+                          myContribution={raised}
+                          isClaimed={auction.claims.length > 0}
+                          mutateIsClaimed={refetchAuction}
+                          colorScheme={"green"}
+                        />
+                      </Flex>
                     </chakra.div>
                   )}
                 </CardBody>

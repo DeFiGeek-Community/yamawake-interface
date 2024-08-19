@@ -151,4 +151,5 @@ export default {
   TRANSFER_SCORE_TO_L1: "リワードスコアをL1に送信する",
   TRANSACTION: "トランザクション",
   OWNER: "オーナー",
+  ADD_TOKEN: "{{symbol}}をウォレットに追加",
 };
