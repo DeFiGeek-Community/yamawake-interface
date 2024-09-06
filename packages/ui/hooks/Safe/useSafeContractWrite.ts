@@ -13,22 +13,8 @@ import * as React from "react";
 import type { GetFunctionArgs, SendTransactionParameters } from "viem";
 import { useMutation } from "wagmi";
 import type { PartialBy } from "viem/_types/types/utils";
-import type { UseMutationOptions } from "@tanstack/react-query";
+import type { MutationConfig } from "./types";
 import { writeSafeContract } from "./writeSafeContract";
-
-export type MutationConfig<Data, Error, Variables = void> = {
-  /** Function fires if mutation encounters error */
-  onError?: UseMutationOptions<Data, Error, Variables>["onError"];
-  /**
-   * Function fires before mutation function and is passed same variables mutation function would receive.
-   * Value returned from this function will be passed to both onError and onSettled functions in event of a mutation failure.
-   */
-  onMutate?: UseMutationOptions<Data, Error, Variables>["onMutate"];
-  /** Function fires when mutation is either successfully fetched or encounters error */
-  onSettled?: UseMutationOptions<Data, Error, Variables>["onSettled"];
-  /** Function fires when mutation is successful and will be passed the mutation's result */
-  onSuccess?: UseMutationOptions<Data, Error, Variables>["onSuccess"];
-};
 
 type UseSafeContractWritePreparedArgs<
   TAbi extends Abi | readonly unknown[] = Abi,

@@ -43,6 +43,7 @@ export default function useApprove({
   const prepareFn = usePrepareContractWrite({
     chainId,
     address: targetAddress as `0x${string}`,
+    account: owner,
     abi: erc20ABI,
     functionName: "approve",
     args: approveArgs,

@@ -66,6 +66,7 @@ export default memo(function DetailPage({
   refetchMetaData,
   address,
   contractAddress,
+  safeAddress,
 }: DetailPageParams) {
   const auction = new TemplateV1(auctionProps);
   const toast = useToast({ position: "top-right", isClosable: true });
@@ -125,6 +126,7 @@ export default memo(function DetailPage({
 
   const { config, isError } = usePrepareSendTransaction({
     to: contractAddress,
+    account: safeAddress || address,
     value: formikProps.values.amount ? BigInt(parseEther(formikProps.values.amount)) : undefined,
     enabled: started && !ended && formikProps.values.amount > 0 && connectedChain?.id === chainId,
   });
