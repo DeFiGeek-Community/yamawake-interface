@@ -1,8 +1,7 @@
 // Forked from wagmi
 // https://github.com/wevm/wagmi/blob/1.x/packages/core/src/actions/transactions/sendTransaction.ts
-import type { Abi } from "abitype";
 import {
-  encodeFunctionData,
+  getAddress,
   type Account,
   type Address,
   type Chain,
@@ -123,8 +122,8 @@ export async function sendSafeTransaction({
 
   const transactions = [
     {
-      to,
-      data: data ?? "0x00",
+      to: getAddress(to),
+      data: data ?? "0x",
       value: value?.toString() ?? "0",
       // operation, // Optional
     },

@@ -95,7 +95,7 @@ const mutationFn = ({
  * })
  * const result = useSendTransaction(config)
  */
-export function useSendTransaction<TMode extends "prepared" | undefined = undefined>({
+export function useSafeSendTransaction<TMode extends "prepared" | undefined = undefined>({
   accessList,
   account,
   chainId,
@@ -169,6 +169,7 @@ export function useSendTransaction<TMode extends "prepared" | undefined = undefi
           nonce,
           value,
           to,
+          safeAddress,
         }),
       }),
     [
@@ -206,6 +207,7 @@ export function useSendTransaction<TMode extends "prepared" | undefined = undefi
           nonce,
           value,
           to,
+          safeAddress,
         }),
       }),
     [
@@ -222,6 +224,7 @@ export function useSendTransaction<TMode extends "prepared" | undefined = undefi
       nonce,
       to,
       value,
+      safeAddress,
     ],
   );
 

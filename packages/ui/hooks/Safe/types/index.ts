@@ -1,4 +1,6 @@
 import type { UseMutationOptions } from "@tanstack/react-query";
+import type { UseQueryOptions } from "@tanstack/react-query/src/types";
+import type { QueryFunctionContext } from "@tanstack/react-query";
 
 export type MutationConfig<Data, Error, Variables = void> = {
   /** Function fires if mutation encounters error */
@@ -13,3 +15,23 @@ export type MutationConfig<Data, Error, Variables = void> = {
   /** Function fires when mutation is successful and will be passed the mutation's result */
   onSuccess?: UseMutationOptions<Data, Error, Variables>["onSuccess"];
 };
+
+export type QueryConfig<TData, TError, TSelectData = TData> = Pick<
+  UseQueryOptions<TData, TError, TSelectData>,
+  | "cacheTime"
+  | "enabled"
+  | "isDataEqual"
+  | "staleTime"
+  | "structuralSharing"
+  | "suspense"
+  | "onError"
+  | "onSettled"
+  | "onSuccess"
+> & {
+  /** Scope the cache to a given context. */
+  scopeKey?: string;
+};
+
+export type QueryFunctionArgs<T extends (...args: any) => any> = QueryFunctionContext<
+  ReturnType<T>
+>;

@@ -30,14 +30,7 @@ import {
 } from "@chakra-ui/react";
 import { AddIcon, ExternalLinkIcon, QuestionIcon } from "@chakra-ui/icons";
 import { useFormik } from "formik";
-import {
-  useWaitForTransaction,
-  usePrepareSendTransaction,
-  useSendTransaction,
-  useBalance,
-  useNetwork,
-  useWalletClient,
-} from "wagmi";
+import { useBalance, useNetwork, useWalletClient } from "wagmi";
 import Big, { getBigNumber } from "lib/utils/bignumber";
 import { getSupportedChain, isSupportedChain, getEtherscanLink } from "lib/utils/chain";
 import { getDecimalsForView, tokenAmountFormat, parseEther } from "lib/utils";
@@ -57,6 +50,9 @@ import { useLocale } from "../../../hooks/useLocale";
 import ConnectButton from "../../shared/connectButton";
 import { DetailPageParams } from "../AuctionDetail";
 import { ChainNameTag } from "../../shared/ChainNameTag";
+import { useSafeSendTransaction } from "../../../hooks/Safe/useSafeSendTransaction";
+import { useSafeWaitForTransaction } from "../../../hooks/Safe/useSafeWaitForTransaction";
+import { usePrepareSafeSendTransaction } from "../../../hooks/Safe/usePrepareSafeSendTransaction";
 
 export default memo(function DetailPage({
   chainId,
@@ -124,7 +120,7 @@ export default memo(function DetailPage({
     validate,
   });
 
-  const { config, isError } = usePrepareSendTransaction({
+  const { config, isError } = usePrepareSafeSendTransaction({
     to: contractAddress,
     account: safeAddress || address,
     value: formikProps.values.amount ? BigInt(parseEther(formikProps.values.amount)) : undefined,
@@ -135,8 +131,9 @@ export default memo(function DetailPage({
     data,
     sendTransactionAsync,
     isLoading: isLoadingSendTX,
-  } = useSendTransaction({
+  } = useSafeSendTransaction({
     ...config,
+    safeAddress,
     onError(e: Error) {
       toast({
         description: e.message,
@@ -154,8 +151,9 @@ export default memo(function DetailPage({
     },
   });
 
-  const { isLoading: isLoadingWaitTX } = useWaitForTransaction({
+  const { isLoading: isLoadingWaitTX } = useSafeWaitForTransaction({
     hash: data?.hash,
+    safeAddress,
     confirmations: 2,
     onError(e: Error) {
       toast({

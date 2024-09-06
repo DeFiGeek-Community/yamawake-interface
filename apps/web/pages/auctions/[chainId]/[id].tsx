@@ -12,11 +12,13 @@ import { useLocale } from "ui/hooks/useLocale";
 import AuctionDetail, { SkeletonAuction } from "ui/components/auctions/AuctionDetail";
 import { getSupportedChain } from "lib/utils/chain";
 import LayoutContext from "ui/contexts/LayoutContext";
+import CurrentUserContext from "ui/contexts/CurrentUserContext";
 import type { MetaData } from "lib/types/Auction";
 import CustomError from "../../_error";
 
 export default function AuctionPage({ initialMetaData }: { initialMetaData: MetaData | null }) {
   const { address } = useAccount();
+  const { currentUser } = useContext(CurrentUserContext);
   const router = useRouter();
   const { id, chainId } = router.query;
   const { t } = useLocale();
@@ -87,6 +89,7 @@ export default function AuctionPage({ initialMetaData }: { initialMetaData: Meta
         refetchMetaData={mutate}
         contractAddress={id as `0x${string}`}
         address={address}
+        safeAddress={currentUser?.safeAccount}
       />
     </>
   );
