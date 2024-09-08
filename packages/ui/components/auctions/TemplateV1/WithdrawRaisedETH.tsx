@@ -11,9 +11,17 @@ import { useLocale } from "../../../hooks/useLocale";
 type Props = {
   chainId: number;
   auction: TemplateV1;
+  account: `0x${string}`;
+  safeAddress: `0x${string}` | undefined;
   onSuccessConfirm?: (data: any) => void;
 };
-export default function WithdrawRaisedETH({ chainId, auction, onSuccessConfirm }: Props) {
+export default function WithdrawRaisedETH({
+  chainId,
+  auction,
+  account,
+  safeAddress,
+  onSuccessConfirm,
+}: Props) {
   const toast = useToast({ position: "top-right", isClosable: true });
   const { chain: connectedChain } = useNetwork();
   const { data: balanceData, isLoading: isLoadingBalance } = useBalance({
@@ -25,6 +33,8 @@ export default function WithdrawRaisedETH({ chainId, auction, onSuccessConfirm }
     waitFn: withdrawETHWaitFn,
   } = useWithdrawRaisedETH({
     targetAddress: auction.id as `0x${string}`,
+    account,
+    safeAddress,
     onSuccessWrite: (data) => {
       toast({
         title: "Transaction sent!",

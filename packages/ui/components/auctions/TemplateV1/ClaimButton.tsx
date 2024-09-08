@@ -13,6 +13,7 @@ interface Props {
   chainId: number;
   auction: TemplateV1;
   address: `0x${string}`;
+  safeAddress: `0x${string}` | undefined;
   myContribution: Big;
   isClaimed: boolean;
   mutateIsClaimed: KeyedMutator<any>;
@@ -21,6 +22,7 @@ export default function ClaimButton({
   chainId,
   auction,
   address,
+  safeAddress,
   myContribution,
   isClaimed,
   mutateIsClaimed,
@@ -40,6 +42,7 @@ export default function ClaimButton({
     chainId,
     targetAddress: auction.id as `0x${string}`,
     address,
+    safeAddress,
     onSuccessWrite: (data) => {
       toast({
         title: "Transaction sent!",
