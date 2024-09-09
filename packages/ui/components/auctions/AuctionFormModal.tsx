@@ -17,7 +17,7 @@ import useMetaDataForm from "../../hooks/TemplateV1/useMetaDataForm";
 import { useLocale } from "../../hooks/useLocale";
 import TxSentToast from "../shared/TxSentToast";
 import AuctionFormWrapper from "./AuctionFormWrapper";
-import { useSafeWaitForTransaction } from "../../hooks/Safe/useSafeWaitForTransaction";
+import { useSafeWaitForTransaction } from "../../hooks/Safe";
 import { decodeEventLog, parseAbi } from "viem";
 import { ChainNameTag } from "../shared/ChainNameTag";
 

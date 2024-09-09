@@ -42,9 +42,11 @@ import OnrampABI from "lib/constants/abis/Onramp.json";
 export default function SubChainEarlyUserReward({
   chainId,
   address,
+  safeAddress,
 }: {
   chainId: number;
   address: `0x${string}` | undefined;
+  safeAddress: `0x${string}`;
 }) {
   const toast = useToast({ position: "top-right", isClosable: true });
   const { t } = useLocale();
@@ -65,6 +67,7 @@ export default function SubChainEarlyUserReward({
   const { readScore, sendScore, waitFn, fee } = useSubChainEarlyUserReward({
     chainId,
     address,
+    safeAddress,
     feeToken: feeTokens[feeTokenIndex].address,
     shouldClaim,
     onSuccessWrite: (data: any) => {
@@ -91,6 +94,8 @@ export default function SubChainEarlyUserReward({
 
       for (let i = 0; i < data.logs.length; i++) {
         try {
+          // TODO
+          // Safe対応
           const decodedLog = decodeEventLog({
             abi: OnrampABI,
             data: data.logs[i].data,
@@ -116,9 +121,9 @@ export default function SubChainEarlyUserReward({
   const approvals = useApprove({
     chainId,
     targetAddress: feeTokens[feeTokenIndex].address,
-    owner: address ?? "0x",
+    owner: safeAddress || address,
     spender: CONTRACT_ADDRESSES[chainId].DISTRIBUTOR,
-    enabled: !!address && feeTokens[feeTokenIndex].address !== zeroAddress,
+    enabled: (!!safeAddress || !!address) && feeTokens[feeTokenIndex].address !== zeroAddress,
     amount: fee.data,
     onSuccessWrite(data) {
       toast({

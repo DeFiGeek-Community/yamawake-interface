@@ -7,7 +7,7 @@ import {
 } from "@wagmi/core";
 import { useNetwork, useQuery, useWalletClient } from "wagmi";
 import type { QueryConfig, QueryFunctionArgs } from "./types";
-import { prepareSafeSendTransaction } from "./prepareSafeSendTranssaction";
+import { prepareSafeSendTransaction } from "./prepareSafeSendTransaction";
 
 export type UsePrepareSendTransactionConfig = Partial<PrepareSendTransactionArgs> &
   QueryConfig<PrepareSendTransactionResult, Error>;

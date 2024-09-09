@@ -1,7 +1,6 @@
 import { useNetwork, usePrepareContractWrite } from "wagmi";
 import Template from "lib/constants/abis/TemplateV1.json";
-import { useSafeContractWrite } from "./Safe/useSafeContractWrite";
-import { useSafeWaitForTransaction } from "./Safe/useSafeWaitForTransaction";
+import { useSafeContractWrite, useSafeWaitForTransaction } from "./Safe";
 
 export default function useWithdrawERC20OnSale({
   targetAddress,

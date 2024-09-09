@@ -1,7 +1,6 @@
 import { useNetwork, usePrepareContractWrite } from "wagmi";
 import TemplateV1 from "lib/constants/abis/TemplateV1.json";
-import { useSafeContractWrite } from "../Safe/useSafeContractWrite";
-import { useSafeWaitForTransaction } from "../Safe/useSafeWaitForTransaction";
+import { useSafeContractWrite, useSafeWaitForTransaction } from "../Safe";
 
 export default function useClaim({
   chainId,

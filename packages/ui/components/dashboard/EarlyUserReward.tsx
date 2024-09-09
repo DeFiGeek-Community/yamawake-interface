@@ -21,15 +21,18 @@ import TxSentToast from "../shared/TxSentToast";
 export default function EarlyUserReward({
   chainId,
   address,
+  safeAddress,
 }: {
   chainId: number;
   address: `0x${string}` | undefined;
+  safeAddress: `0x${string}` | undefined;
 }) {
   const toast = useToast({ position: "top-right", isClosable: true });
   const { t } = useLocale();
   const { readFn, writeFn, waitFn } = useEarlyUserReward({
     chainId,
     address,
+    safeAddress,
     onSuccessWrite: (data: any) => {
       toast({
         title: "Transaction sent!",

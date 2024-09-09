@@ -1,16 +1,13 @@
-import {
-  useContractRead,
-  usePrepareContractWrite,
-  useContractWrite,
-  useWaitForTransaction,
-} from "wagmi";
+import { useContractRead, usePrepareContractWrite } from "wagmi";
 import DistributorABI from "lib/constants/abis/DistributorReceiver.json";
 import { CONTRACT_ADDRESSES } from "lib/constants/contracts";
 import { isSupportedChain } from "lib/utils/chain";
+import { useSafeContractWrite, useSafeWaitForTransaction } from "./Safe";
 
 export default function useEarlyUserReward({
   chainId,
   address,
+  safeAddress,
   onSuccessWrite,
   onErrorWrite,
   onSuccessConfirm,
@@ -18,23 +15,25 @@ export default function useEarlyUserReward({
 }: {
   chainId: number;
   address: `0x${string}` | undefined;
+  safeAddress: `0x${string}` | undefined;
   onSuccessWrite?: (data: any) => void;
   onErrorWrite?: (error: Error) => void;
   onSuccessConfirm?: (data: any) => void;
   onErrorConfirm?: (error: Error) => void;
 }): {
   readFn: ReturnType<typeof useContractRead<typeof DistributorABI, "scores", bigint>>;
-  writeFn: ReturnType<typeof useContractWrite>;
-  waitFn: ReturnType<typeof useWaitForTransaction>;
+  writeFn: ReturnType<typeof useSafeContractWrite>;
+  waitFn: ReturnType<typeof useSafeWaitForTransaction>;
 } {
   const config = {
     address: CONTRACT_ADDRESSES[chainId]?.DISTRIBUTOR,
     abi: DistributorABI,
+    account: safeAddress || address,
   };
   const readFn = useContractRead<typeof DistributorABI, "scores", bigint>({
     ...config,
     functionName: "scores",
-    args: [address],
+    args: [safeAddress || address],
     watch: true,
     enabled: isSupportedChain(chainId) && !!address,
   });
@@ -42,12 +41,13 @@ export default function useEarlyUserReward({
   const { config: claimConfig } = usePrepareContractWrite({
     ...config,
     functionName: "claim",
-    args: [address],
+    args: [safeAddress || address],
     enabled: isSupportedChain(chainId) && !!address && !!readFn.data,
   });
 
-  const writeFn = useContractWrite({
+  const writeFn = useSafeContractWrite({
     ...claimConfig,
+    safeAddress,
     onSuccess(data) {
       onSuccessWrite && onSuccessWrite(data);
     },
@@ -56,8 +56,9 @@ export default function useEarlyUserReward({
     },
   });
 
-  const waitFn = useWaitForTransaction({
+  const waitFn = useSafeWaitForTransaction({
     hash: writeFn.data?.hash,
+    safeAddress,
     onSuccess(data) {
       onSuccessConfirm && onSuccessConfirm(data);
     },

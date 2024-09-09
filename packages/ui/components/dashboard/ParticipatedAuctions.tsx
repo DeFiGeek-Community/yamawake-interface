@@ -9,9 +9,11 @@ import { useSWRAuctions } from "../../hooks/useAuctions";
 export default function ParticipatedAuctions({
   chainId,
   address,
+  safeAddress,
 }: {
   chainId: number;
   address: `0x${string}`;
+  safeAddress: `0x${string}`;
 }) {
   const {
     auctions: participatedAuctions,
@@ -21,7 +23,7 @@ export default function ParticipatedAuctions({
     isValidating: isValidatingParticipatedAuctions,
     isLast: isLastParticipatedAuction,
   } = useSWRAuctions(
-    { id: String(address).toLowerCase() as `0x${string}` },
+    { id: String(safeAddress || address).toLowerCase() as `0x${string}` },
     QueryType.PARTICIPATED_SALE_QUERY,
     chainId,
   );

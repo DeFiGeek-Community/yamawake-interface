@@ -1,7 +1,6 @@
 import { useNetwork, usePrepareContractWrite } from "wagmi";
 import Template from "lib/constants/abis/TemplateV1.json";
-import { useSafeWaitForTransaction } from "./Safe/useSafeWaitForTransaction";
-import { useSafeContractWrite } from "./Safe/useSafeContractWrite";
+import { useSafeWaitForTransaction, useSafeContractWrite } from "./Safe";
 
 export default function useWithdrawRaisedETH({
   targetAddress,

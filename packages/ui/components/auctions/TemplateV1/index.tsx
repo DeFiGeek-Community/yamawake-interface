@@ -50,9 +50,11 @@ import { useLocale } from "../../../hooks/useLocale";
 import ConnectButton from "../../shared/connectButton";
 import { DetailPageParams } from "../AuctionDetail";
 import { ChainNameTag } from "../../shared/ChainNameTag";
-import { useSafeSendTransaction } from "../../../hooks/Safe/useSafeSendTransaction";
-import { useSafeWaitForTransaction } from "../../../hooks/Safe/useSafeWaitForTransaction";
-import { usePrepareSafeSendTransaction } from "../../../hooks/Safe/usePrepareSafeSendTransaction";
+import {
+  useSafeSendTransaction,
+  useSafeWaitForTransaction,
+  usePrepareSafeSendTransaction,
+} from "../../../hooks/Safe";
 
 export default memo(function DetailPage({
   chainId,
@@ -72,12 +74,12 @@ export default memo(function DetailPage({
     isLoading: isLoadingRaisedAmount,
     isError: isErrorFetchRaised,
     refetch: refetchRaised,
-  } = useRaised({ auction, chainId, address });
+  } = useRaised({ auction, chainId, address: safeAddress || address });
   const {
     data: balanceData,
     isLoading: isLoadingBalance,
     refetch: refetchBalance,
-  } = useBalance({ chainId, address, enabled: !!address });
+  } = useBalance({ chainId, address, enabled: !!safeAddress || !!address });
   const raisedTokenSymbol = "ETH";
   const raisedTokenDecimal = 18;
   const fiatSymbol = "usd";
@@ -442,6 +444,7 @@ export default memo(function DetailPage({
                           chainId={chainId}
                           auction={auction}
                           address={address}
+                          safeAddress={safeAddress}
                           myContribution={raised}
                           isClaimed={auction.claims.length > 0}
                           mutateIsClaimed={refetchAuction}
@@ -480,6 +483,8 @@ export default memo(function DetailPage({
                     <WithdrawERC20
                       chainId={chainId}
                       auction={auction}
+                      account={address}
+                      safeAddress={safeAddress}
                       onSuccessConfirm={refetchAuction}
                     />
                   </chakra.div>
@@ -488,6 +493,8 @@ export default memo(function DetailPage({
                     <WithdrawRaisedETH
                       chainId={chainId}
                       auction={auction}
+                      account={address}
+                      safeAddress={safeAddress}
                       onSuccessConfirm={refetchAuction}
                     />
                   </chakra.div>

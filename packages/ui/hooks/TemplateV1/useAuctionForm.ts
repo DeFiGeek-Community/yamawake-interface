@@ -18,7 +18,7 @@ import FactoryABI from "lib/constants/abis/Factory.json";
 import { TEMPLATE_V1_NAME } from "lib/constants/templates";
 import { CONTRACT_ADDRESSES } from "lib/constants/contracts";
 import { creatingAuctionAtom, waitingCreationTxAtom } from "lib/store";
-import { useSafeContractWrite } from "../Safe/useSafeContractWrite";
+import { useSafeContractWrite } from "../Safe";
 
 const now = new Date().getTime();
 export default function useAuctionForm({
