@@ -80,13 +80,14 @@ export default function AuctionForm({
   } = useAuctionForm({
     chainId,
     address,
+    safeAddress,
     onSubmitSuccess: (result) => {
       onSubmitSuccess
         ? onSubmitSuccess(result)
         : toast({
-            title: t("TRANSACTION_SENT"),
+            title: safeAddress ? t("SAFE_TRANSACTION_PROPOSED") : t("TRANSACTION_SENT"),
             status: "success",
-            duration: 5000,
+            duration: 10000,
             render: (props) => <TxSentToast txid={result.hash} {...props} />,
           });
     },
@@ -103,9 +104,9 @@ export default function AuctionForm({
       onApprovalTxSent
         ? onApprovalTxSent(result)
         : toast({
-            title: t("TRANSACTION_SENT"),
+            title: safeAddress ? t("SAFE_TRANSACTION_PROPOSED") : t("TRANSACTION_SENT"),
             status: "success",
-            duration: 5000,
+            duration: 10000,
             render: (props) => <TxSentToast txid={result.hash} {...props} />,
           });
     },
@@ -118,7 +119,6 @@ export default function AuctionForm({
             duration: 5000,
           });
     },
-    safeAddress,
   });
 
   const handleCopy = async () => {

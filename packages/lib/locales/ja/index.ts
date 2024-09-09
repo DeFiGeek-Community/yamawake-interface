@@ -152,4 +152,5 @@ export default {
   TRANSACTION: "トランザクション",
   OWNER: "オーナー",
   ADD_TOKEN: "{{symbol}}をウォレットに追加",
+  SAFE_TRANSACTION_PROPOSED: "Safeアカウントでトランザクションを提案しました",
 };

@@ -164,9 +164,9 @@ export default function AuctionFormModal({
                   setStep(2);
                   onDeploy && onDeploy();
                   toast({
-                    title: t("TRANSACTION_SENT"),
+                    title: safeAddress ? t("SAFE_TRANSACTION_PROPOSED") : t("TRANSACTION_SENT"),
                     status: "success",
-                    duration: 5000,
+                    duration: 10000,
                     render: (props) => <TxSentToast txid={result.hash} {...props} />,
                   });
                 }}

@@ -23,6 +23,7 @@ export default function WithdrawRaisedETH({
   onSuccessConfirm,
 }: Props) {
   const toast = useToast({ position: "top-right", isClosable: true });
+  const { t } = useLocale();
   const { chain: connectedChain } = useNetwork();
   const { data: balanceData, isLoading: isLoadingBalance } = useBalance({
     address: auction.id as `0x${string}`,
@@ -37,9 +38,9 @@ export default function WithdrawRaisedETH({
     safeAddress,
     onSuccessWrite: (data) => {
       toast({
-        title: "Transaction sent!",
+        title: safeAddress ? t("SAFE_TRANSACTION_PROPOSED") : t("TRANSACTION_SENT"),
         status: "success",
-        duration: 5000,
+        duration: 10000,
         render: (props) => <TxSentToast txid={data?.hash} {...props} />,
       });
     },
@@ -52,7 +53,7 @@ export default function WithdrawRaisedETH({
     },
     onSuccessConfirm: (data) => {
       toast({
-        description: `Transaction confirmed!`,
+        description: t("TRANSACTION_CONFIRMED"),
         status: "success",
         duration: 5000,
       });
@@ -64,7 +65,6 @@ export default function WithdrawRaisedETH({
       balanceData.value !== BigInt(0) &&
       chainId === connectedChain?.id,
   });
-  const { t } = useLocale();
 
   return (
     <Box>

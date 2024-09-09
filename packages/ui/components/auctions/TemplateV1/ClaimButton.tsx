@@ -33,6 +33,8 @@ export default function ClaimButton({
   // Local state to show that it is waiting for updateed subgraph data after the claim tx is confirmed
   const [waitForSubgraphUpdate, setWaitForSubgraphUpdate] = useState<boolean>(false);
   const { chain: connectedChain } = useNetwork();
+  const toast = useToast({ position: "top-right", isClosable: true });
+  const { t } = useLocale();
 
   const {
     prepareFn: claimPrepareFn,
@@ -45,15 +47,15 @@ export default function ClaimButton({
     safeAddress,
     onSuccessWrite: (data) => {
       toast({
-        title: "Transaction sent!",
+        title: safeAddress ? t("SAFE_TRANSACTION_PROPOSED") : t("TRANSACTION_SENT"),
         status: "success",
-        duration: 5000,
+        duration: 10000,
         render: (props) => <TxSentToast txid={data?.hash} {...props} />,
       });
     },
     onSuccessConfirm: (data) => {
       toast({
-        title: `Transaction confirmed!`,
+        title: t("TRANSACTION_CONFIRMED"),
         status: "success",
         duration: 5000,
       });
@@ -73,8 +75,6 @@ export default function ClaimButton({
     auction.totalRaised[0].amount,
     auction.allocatedAmount,
   );
-  const toast = useToast({ position: "top-right", isClosable: true });
-  const { t } = useLocale();
 
   return (
     <Button

@@ -23,6 +23,7 @@ export default function WithdrawERC20({
   onSuccessConfirm,
 }: Props) {
   const toast = useToast({ position: "top-right", isClosable: true });
+  const { t } = useLocale();
   const { chain: connectedChain } = useNetwork();
   const { data: balance } = useContractRead({
     address: auction.auctionToken.id as `0x${string}`,
@@ -42,9 +43,9 @@ export default function WithdrawERC20({
     safeAddress,
     onSuccessWrite: (data: any) => {
       toast({
-        title: "Transaction sent!",
+        title: safeAddress ? t("SAFE_TRANSACTION_PROPOSED") : t("TRANSACTION_SENT"),
         status: "success",
-        duration: 5000,
+        duration: 10000,
         render: (props) => <TxSentToast txid={data?.hash} {...props} />,
       });
     },
@@ -57,7 +58,7 @@ export default function WithdrawERC20({
     },
     onSuccessConfirm: (data: any) => {
       toast({
-        description: `Transaction confirmed!`,
+        description: t("TRANSACTION_CONFIRMED"),
         status: "success",
         duration: 5000,
       });
@@ -69,7 +70,6 @@ export default function WithdrawERC20({
       balance !== 0n &&
       chainId === connectedChain?.id,
   });
-  const { t } = useLocale();
 
   return (
     <Box>

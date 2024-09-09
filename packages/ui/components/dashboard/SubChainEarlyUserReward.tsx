@@ -72,9 +72,9 @@ export default function SubChainEarlyUserReward({
     shouldClaim,
     onSuccessWrite: (data: any) => {
       toast({
-        title: "Transaction sent!",
+        title: safeAddress ? t("SAFE_TRANSACTION_PROPOSED") : t("TRANSACTION_SENT"),
         status: "success",
-        duration: 5000,
+        duration: 10000,
         render: (props) => <TxSentToast txid={data?.hash} {...props} />,
       });
     },
@@ -87,7 +87,7 @@ export default function SubChainEarlyUserReward({
     },
     onSuccessConfirm: (data: any) => {
       toast({
-        description: `Transaction confirmed!`,
+        description: t("TRANSACTION_CONFIRMED"),
         status: "success",
         duration: 5000,
       });
@@ -127,9 +127,9 @@ export default function SubChainEarlyUserReward({
     amount: fee.data,
     onSuccessWrite(data) {
       toast({
-        title: t("TRANSACTION_SENT"),
+        title: safeAddress ? t("SAFE_TRANSACTION_PROPOSED") : t("TRANSACTION_SENT"),
         status: "success",
-        duration: 5000,
+        duration: 10000,
         render: (props) => <TxSentToast txid={data.hash} {...props} />,
       });
     },

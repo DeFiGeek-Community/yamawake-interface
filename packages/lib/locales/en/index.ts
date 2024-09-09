@@ -153,4 +153,5 @@ export default {
   TRANSACTION: "Transaction",
   OWNER: "Owner",
   ADD_TOKEN: "Add {{symbol}} to your wallet",
+  SAFE_TRANSACTION_PROPOSED: "Transaction has been proposed via Safe account",
 };
