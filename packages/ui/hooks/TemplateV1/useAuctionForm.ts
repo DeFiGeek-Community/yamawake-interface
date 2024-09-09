@@ -212,7 +212,6 @@ export default function useAuctionForm({
   const writeFn = useSafeContractWrite({
     ...prepareFn.config,
     safeAddress: safeAddress,
-    // account: undefined,
     onSuccess(data) {
       // Save tx id to Atom to watch status from the form component
       setWaitingTx(data.hash);

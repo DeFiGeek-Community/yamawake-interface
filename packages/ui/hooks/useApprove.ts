@@ -1,7 +1,6 @@
 import { usePrepareContractWrite, useWaitForTransaction, useContractRead, erc20ABI } from "wagmi";
 import { useState } from "react";
-import { useSafeContractWrite } from "./Safe/useSafeContractWrite";
-import { useSafeWaitForTransaction } from "./Safe/useSafeWaitForTransaction";
+import { useSafeContractWrite, useSafeWaitForTransaction } from "./Safe";
 
 export default function useApprove({
   chainId,

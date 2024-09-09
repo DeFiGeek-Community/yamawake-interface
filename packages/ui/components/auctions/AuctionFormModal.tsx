@@ -55,7 +55,7 @@ export default function AuctionFormModal({
   const waitFn = useSafeWaitForTransaction({
     hash: tx as `0x${string}`,
     enabled: !!tx,
-    safeAddress: safeAddress,
+    safeAddress,
     onSuccess(data) {
       toast({
         title: t("TRANSACTION_CONFIRMED"),
