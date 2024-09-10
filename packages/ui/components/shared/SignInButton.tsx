@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useAccount, useNetwork, usePublicClient } from "wagmi";
 import { switchNetwork } from "@wagmi/core";
 import { Button, ButtonProps, useDisclosure, useToast } from "@chakra-ui/react";
@@ -27,8 +28,17 @@ export default function SignInButton({
   const { chain } = useNetwork();
   const { t } = useLocale();
   const toast = useToast({ position: "top-right", isClosable: true });
-  const { loading, signIn } = useSIWE();
+  const { loading, signIn, error } = useSIWE();
   const title = buttonProps.title ? buttonProps.title : t("SIGN_IN_WITH_ETHEREUM");
+
+  useEffect(() => {
+    if (error)
+      toast({
+        title: error.message,
+        status: "error",
+        duration: 5000,
+      });
+  }, [error]);
 
   const processSignIn = async (params: SignInParams) => {
     try {
@@ -44,7 +54,6 @@ export default function SignInButton({
       <Button
         {...buttonProps}
         variant={"solid"}
-        colorScheme={"green"}
         isLoading={loading}
         onClick={
           !connectedAddress || !chain?.id
@@ -53,15 +62,23 @@ export default function SignInButton({
               }
             : async () => {
                 let chainId = chain.id;
-                if (!isSupportedChain(chain.id) && switchNetwork) {
-                  chainId = getDefaultChain().id;
-                  await switchNetwork({ chainId });
+                try {
+                  if (!isSupportedChain(chain.id) && switchNetwork) {
+                    chainId = getDefaultChain().id;
+                    await switchNetwork({ chainId });
+                  }
+                  await processSignIn({
+                    title: title,
+                    targetAddress: connectedAddress as `0x${string}`,
+                    chainId,
+                  });
+                } catch (e: any) {
+                  toast({
+                    title: e.message,
+                    status: "error",
+                    duration: 5000,
+                  });
                 }
-                await processSignIn({
-                  title: title,
-                  targetAddress: connectedAddress as `0x${string}`,
-                  chainId,
-                });
               }
         }
       >
