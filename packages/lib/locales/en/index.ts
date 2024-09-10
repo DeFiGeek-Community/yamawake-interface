@@ -1,6 +1,7 @@
 export default {
   SALES: "Auctions",
-  SIGN_IN_WITH_ETHEREUM: "Sign in with Ethereum",
+  SIGN_IN_WITH_ETHEREUM: "Sign in as Ethereum address",
+  SIGN_IN_WITH_ETHEREUM_AS_SAFE: "Sign in as Safe account",
   CONNECT_WALLET: "Connect wallet",
   DASHBOARD: "Dashboard",
   SIGNED_IN_AS: "Signed in as {{address}}",
@@ -154,4 +155,7 @@ export default {
   OWNER: "Owner",
   ADD_TOKEN: "Add {{symbol}} to your wallet",
   SAFE_TRANSACTION_PROPOSED: "Transaction has been proposed via Safe account",
+  NEXT: "Next",
+  SAFE_ADDRESS: "Safe Account Address",
+  SAFE_ADDRESS_HELP: "Input Safe account multisig address",
 };
