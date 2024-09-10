@@ -26,6 +26,7 @@ import { CheckCircleIcon, QuestionIcon } from "@chakra-ui/icons";
 
 type SafeAddressModalProps = {
   isOpen: boolean;
+  isSigningIn: boolean;
   onClose: () => void;
   onProceed: (safeAddress: `0x${string}`) => void;
 };
@@ -33,7 +34,12 @@ type SafeAddressModalProps = {
 type SafeAddressForm = { networkId: number | undefined; safeAddress: `0x${string}` | undefined };
 type SafeAddressFormError = { safeAddress?: string };
 
-export function SafeAddressModal({ isOpen, onClose, onProceed }: SafeAddressModalProps) {
+export function SafeAddressModal({
+  isOpen,
+  isSigningIn,
+  onClose,
+  onProceed,
+}: SafeAddressModalProps) {
   const { requestedChain, connectedChain: chain } = useRequestedChain();
   const [selectedChain, setSelectedChain] = useState<Chain>(requestedChain);
   const { t, locale } = useLocale();
@@ -146,7 +152,7 @@ export function SafeAddressModal({ isOpen, onClose, onProceed }: SafeAddressModa
                 w={"full"}
                 variant="solid"
                 colorScheme="green"
-                isLoading={isChecking}
+                isLoading={isChecking || isSigningIn}
                 isDisabled={!formikProps.isValid}
                 onClick={() => onProceed(formikProps.values.safeAddress!)}
               >

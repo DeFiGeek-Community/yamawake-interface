@@ -89,8 +89,10 @@ export default function SafeSignInButton({
       >
         {text ? text : t("SIGN_IN_WITH_ETHEREUM_AS_SAFE")}
       </Button>
+
       <SafeAddressModal
         isOpen={safeModalDisclosure.isOpen}
+        isSigningIn={loading}
         onClose={safeModalDisclosure.onClose}
         onProceed={
           !!isConnected && !!chain
