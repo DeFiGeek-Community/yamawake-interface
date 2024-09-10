@@ -134,8 +134,8 @@ export default function Header({ title = "Yamawake", allowNetworkChange = true }
                     {currentUser?.safeAccount && (
                       <Flex alignItems={"center"}>
                         <Image
-                          width={"16px"}
-                          height={"16px"}
+                          width={"12px"}
+                          height={"12px"}
                           alt={"Safe account"}
                           src={safeLogo.src}
                         />
@@ -231,7 +231,7 @@ export default function Header({ title = "Yamawake", allowNetworkChange = true }
                       </Text>
                       <Divider />
                     </Flex>
-                    <chakra.div px={3} py={1}>
+                    <VStack px={3} py={1} spacing={3}>
                       <SignInButton
                         id="sign-in-with-ethereum-connection"
                         size={{ base: "xs", md: "sm" }}
@@ -248,7 +248,24 @@ export default function Header({ title = "Yamawake", allowNetworkChange = true }
                           });
                         }}
                       />
-                    </chakra.div>
+
+                      <SafeSignInButton
+                        id="safe-sign-in-with-ethereum-connection"
+                        size={{ base: "xs", md: "sm" }}
+                        w="full"
+                        onSignInSuccess={async () => {
+                          mutate && (await mutate());
+                          router.push("/dashboard");
+                        }}
+                        onSignInError={(error: Error) => {
+                          toast({
+                            description: error.message,
+                            status: "error",
+                            duration: 5000,
+                          });
+                        }}
+                      />
+                    </VStack>
                   </>
                 )}
               </MenuList>
@@ -359,7 +376,7 @@ export default function Header({ title = "Yamawake", allowNetworkChange = true }
                       </Text>
                       <Divider />
                     </Flex>
-                    <chakra.div px={3} py={1}>
+                    <VStack px={3} py={1} spacing={3}>
                       <SignInButton
                         id="sign-in-with-ethereum-header-no-connection"
                         size={{ base: "xs", md: "sm" }}
@@ -376,7 +393,23 @@ export default function Header({ title = "Yamawake", allowNetworkChange = true }
                           });
                         }}
                       />
-                    </chakra.div>
+                      <SafeSignInButton
+                        id="safe-sign-in-with-ethereum-header-no-connection"
+                        size={{ base: "xs", md: "sm" }}
+                        w="full"
+                        onSignInSuccess={async () => {
+                          mutate && (await mutate());
+                          router.push("/dashboard");
+                        }}
+                        onSignInError={(error: Error) => {
+                          toast({
+                            description: error.message,
+                            status: "error",
+                            duration: 5000,
+                          });
+                        }}
+                      />
+                    </VStack>
                   </MenuList>
                 </HStack>
               </Menu>
