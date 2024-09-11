@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import { useAccount, useNetwork, usePublicClient } from "wagmi";
-import { switchNetwork } from "@wagmi/core";
+import { useAccount, useNetwork } from "wagmi";
+import { getPublicClient, switchNetwork } from "@wagmi/core";
 import { Button, ButtonProps, useDisclosure, useToast } from "@chakra-ui/react";
 import { SignInParams } from "lib/types";
 import { getDefaultChain, getSupportedChain, isSupportedChain } from "lib/utils/chain";
@@ -23,8 +23,6 @@ export default function SignInButton({
   const { address: connectedAddress, isConnected } = useAccount({
     onConnect: async () => {},
   });
-  const publicClient = usePublicClient();
-
   const { chain } = useNetwork();
   const { t } = useLocale();
   const toast = useToast({ position: "top-right", isClosable: true });
@@ -96,6 +94,10 @@ export default function SignInButton({
             chainId: number;
           }) => {
             try {
+              // Wallet connectでのSafe accountログインを想定
+              const publicClient = getPublicClient({
+                chainId,
+              });
               const { isSafe: isSafeWallet } = await isContractWallet(publicClient, address);
               if (isSafeWallet) {
                 toast({
