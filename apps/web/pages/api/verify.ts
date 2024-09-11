@@ -1,7 +1,7 @@
 import { withIronSessionApiRoute } from "iron-session/next";
 import { NextApiRequest, NextApiResponse } from "next";
 import { SiweMessage } from "siwe";
-import { ethers } from "ethers";
+import { ethers, Network } from "ethers";
 import { getSupportedChain } from "lib/utils/chain";
 import { IronSessionOptions } from "iron-session";
 import { getContract, isAddress, PublicClient } from "viem";
@@ -35,6 +35,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
           ["foundry", "hardhat", "localhost"].includes(chainName)
             ? `http://localhost:8545`
             : chain.rpcUrls.public.http[0],
+          Network.from(chain.id),
+          { staticNetwork: true },
         );
 
         const fields = await siweMessage.verify({ signature }, { provider });
