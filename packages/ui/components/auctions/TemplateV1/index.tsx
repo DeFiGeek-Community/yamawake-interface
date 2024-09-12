@@ -79,7 +79,7 @@ export default memo(function DetailPage({
     data: balanceData,
     isLoading: isLoadingBalance,
     refetch: refetchBalance,
-  } = useBalance({ chainId, address, enabled: !!safeAddress || !!address });
+  } = useBalance({ chainId, address: safeAddress || address, enabled: !!safeAddress || !!address });
   const raisedTokenSymbol = "ETH";
   const raisedTokenDecimal = 18;
   const fiatSymbol = "usd";
