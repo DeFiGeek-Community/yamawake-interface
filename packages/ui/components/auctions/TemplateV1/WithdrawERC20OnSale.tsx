@@ -105,7 +105,11 @@ export default function WithdrawERC20({
             balance === 0n ||
             !withdrawERC20WriteFn.write
           }
-          isLoading={withdrawERC20WriteFn.isLoading || withdrawERC20WaitFn.isLoading}
+          isLoading={
+            withdrawERC20WriteFn.isLoading ||
+            withdrawERC20WaitFn.isLoading ||
+            (withdrawERC20WriteFn.isSuccess && withdrawERC20WaitFn.isIdle)
+          }
           onClick={withdrawERC20WriteFn.write}
         >
           {t("WITHDRAW_TOKEN")}

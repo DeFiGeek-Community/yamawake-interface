@@ -90,7 +90,11 @@ export default function WithdrawRaisedETH({
             balanceData.value === BigInt(0) ||
             !withdrawETHWriteFn.write
           }
-          isLoading={withdrawETHWriteFn.isLoading || withdrawETHWaitFn.isLoading}
+          isLoading={
+            withdrawETHWriteFn.isLoading ||
+            withdrawETHWaitFn.isLoading ||
+            (withdrawETHWriteFn.isSuccess && withdrawETHWaitFn.isIdle)
+          }
           onClick={withdrawETHWriteFn.write}
         >
           {t("WITHDRAW_THE_TOTAL_RAISED")}

@@ -90,7 +90,8 @@ export default function EarlyUserReward({
             readFn.isLoading ||
             typeof readFn.data === "undefined" ||
             writeFn?.isLoading ||
-            waitFn?.isLoading
+            waitFn?.isLoading ||
+            (writeFn?.isSuccess && waitFn.isIdle)
           }
           isDisabled={(typeof readFn.data === "bigint" && readFn.data === 0n) || !writeFn.write}
           onClick={() => {

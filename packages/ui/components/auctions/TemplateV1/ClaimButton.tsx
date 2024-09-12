@@ -86,7 +86,12 @@ export default function ClaimButton({
         claimSucceeded ||
         !claimWriteFn.write
       }
-      isLoading={claimWriteFn?.isLoading || claimWaitFn?.isLoading || waitForSubgraphUpdate}
+      isLoading={
+        claimWriteFn?.isLoading ||
+        claimWaitFn?.isLoading ||
+        waitForSubgraphUpdate ||
+        (claimWriteFn.isSuccess && claimWaitFn.isIdle)
+      }
       onClick={() => {
         claimWriteFn.write!();
       }}
