@@ -192,7 +192,7 @@ export default memo(function DetailPage({
   const addTokenToWallet = async (token: Token) => {
     if (walletClient) {
       try {
-        const wasAdded = await walletClient.watchAsset({
+        await walletClient.watchAsset({
           type: "ERC20",
           options: {
             address: token.id,
