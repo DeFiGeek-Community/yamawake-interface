@@ -47,7 +47,7 @@ export default function PersonalStatistics({
   );
   const sumOfContributionAmount = etherAmountFormat(add(myContribution, inputValueInBig));
   const fixedContributionAmount = etherAmountFormat(myContribution);
-  const inputtingValueInFormat = tokenAmountFormat(inputValueInBig, raisedTokenDecimal, 2);
+  const inputtingValueInFormat = tokenAmountFormat(inputValueInBig, raisedTokenDecimal, 3);
   const { t } = useLocale();
 
   // if(isLoading) {

@@ -133,6 +133,8 @@ export default memo(function DetailPage({
     data,
     sendTransactionAsync,
     isLoading: isLoadingSendTX,
+    isSuccess: isSuccessSendTX,
+    status: statusSendTX,
   } = useSafeSendTransaction({
     ...config,
     safeAddress,
@@ -145,7 +147,7 @@ export default memo(function DetailPage({
     },
     onSuccess(data) {
       toast({
-        title: "Transaction sent!",
+        title: t("TRANSACTION_SENT"),
         status: "success",
         duration: 5000,
         render: (props) => <TxSentToast txid={data?.hash} {...props} />,
@@ -153,7 +155,12 @@ export default memo(function DetailPage({
     },
   });
 
-  const { isLoading: isLoadingWaitTX } = useSafeWaitForTransaction({
+  const {
+    isLoading: isLoadingWaitTX,
+    isSuccess: isSuccessWaitTX,
+    isIdle: isIdleWaitTX,
+    status: statusWaitTX,
+  } = useSafeWaitForTransaction({
     hash: data?.hash,
     safeAddress,
     confirmations: 2,
@@ -166,7 +173,7 @@ export default memo(function DetailPage({
     },
     onSuccess(data) {
       toast({
-        description: `Transaction confirmed!`,
+        description: t("TRANSACTION_CONFIRMED"),
         status: "success",
         duration: 5000,
       });
@@ -386,7 +393,11 @@ export default memo(function DetailPage({
                             <chakra.div px={2}>{raisedTokenSymbol}</chakra.div>
                             {address ? (
                               <Button
-                                isLoading={isLoadingWaitTX || isLoadingSendTX}
+                                isLoading={
+                                  isLoadingWaitTX ||
+                                  isLoadingSendTX ||
+                                  (isSuccessSendTX && isIdleWaitTX)
+                                }
                                 isDisabled={
                                   connectedChain?.id !== chainId ||
                                   !isSupportedChain(chainId) ||
