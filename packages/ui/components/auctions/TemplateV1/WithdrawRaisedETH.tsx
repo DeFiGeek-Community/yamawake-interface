@@ -41,7 +41,7 @@ export default function WithdrawRaisedETH({
         title: safeAddress ? t("SAFE_TRANSACTION_PROPOSED") : t("TRANSACTION_SENT"),
         status: "success",
         duration: 10000,
-        render: (props) => <TxSentToast txid={data?.hash} {...props} />,
+        render: safeAddress ? undefined : (props) => <TxSentToast txid={data?.hash} {...props} />,
       });
     },
     onErrorWrite: (e: Error) => {

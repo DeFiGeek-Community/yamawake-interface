@@ -150,7 +150,7 @@ export default memo(function DetailPage({
         title: safeAddress ? t("SAFE_TRANSACTION_PROPOSED") : t("TRANSACTION_SENT"),
         status: "success",
         duration: 5000,
-        render: (props) => <TxSentToast txid={data?.hash} {...props} />,
+        render: safeAddress ? undefined : (props) => <TxSentToast txid={data?.hash} {...props} />,
       });
     },
   });
