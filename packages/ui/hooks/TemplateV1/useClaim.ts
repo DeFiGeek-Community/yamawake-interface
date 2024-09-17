@@ -9,6 +9,7 @@ export default function useClaim({
   safeAddress,
   onSuccessWrite,
   onSuccessConfirm,
+  onErrorWrite,
   claimed,
 }: {
   chainId: number;
@@ -17,6 +18,7 @@ export default function useClaim({
   safeAddress: `0x${string}` | undefined;
   onSuccessWrite?: (data: any) => void;
   onSuccessConfirm?: (data: any) => void;
+  onErrorWrite?: (e: any) => void;
   claimed: boolean;
 }): {
   prepareFn: any;
@@ -42,6 +44,9 @@ export default function useClaim({
     safeAddress,
     onSuccess(data) {
       onSuccessWrite && onSuccessWrite(data);
+    },
+    onError(e) {
+      onErrorWrite && onErrorWrite(e);
     },
   });
 

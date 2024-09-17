@@ -67,6 +67,13 @@ export default function ClaimButton({
         setWaitForSubgraphUpdate(false);
       }, 5000);
     },
+    onErrorWrite: (e) => {
+      toast({
+        title: e.message || e.toString(),
+        status: "error",
+        duration: 5000,
+      });
+    },
     claimed: isClaimed,
   });
   const expectedAmount = getExpectedAmount(
