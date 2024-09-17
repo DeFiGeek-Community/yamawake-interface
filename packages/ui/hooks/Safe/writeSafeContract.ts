@@ -2,6 +2,7 @@
 // https://github.com/wevm/wagmi/blob/1.x/packages/core/src/actions/contracts/writeContract.ts
 import type { Abi } from "abitype";
 import {
+  getAddress,
   encodeFunctionData,
   type Account,
   type Chain,
@@ -112,7 +113,7 @@ export async function writeSafeContract<
   });
   const transactions = [
     {
-      to: request.address as string,
+      to: getAddress(request.address) as string,
       data: data,
       value: request.value?.toString() ?? "0",
       // operation, // Optional
