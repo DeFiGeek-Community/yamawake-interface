@@ -66,10 +66,18 @@ export default function DashboardPage() {
         mt={{ base: 4, md: 8 }}
       >
         {!!chainInfo && !chainInfo.sourceId && (
-          <EarlyUserReward chainId={chainInfo.id} address={address} />
+          <EarlyUserReward
+            chainId={chainInfo.id}
+            address={address}
+            safeAddress={currentUser?.safeAccount}
+          />
         )}
         {!!chainInfo && !!chainInfo.sourceId && (
-          <SubChainEarlyUserReward chainId={chainInfo.id} address={address} />
+          <SubChainEarlyUserReward
+            chainId={chainInfo.id}
+            address={address}
+            safeAddress={currentUser?.safeAccount}
+          />
         )}
         <VeReward />
       </Grid>
