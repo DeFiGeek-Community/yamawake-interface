@@ -31,7 +31,7 @@ export default function AuctionPage({ initialMetaData }: { initialMetaData: Meta
     isLoading,
   } = useAuction(
     id as `0x${string}`,
-    address ? (address.toLowerCase() as `0x${string}`) : (zeroAddress as `0x${string}`),
+    (currentUser?.safeAccount || address || zeroAddress).toLowerCase() as `0x${string}`,
     chain?.id,
   );
   const { data: metaData, mutate, error: dynamodbError } = useSWRMetaData(chain?.id, id as string);

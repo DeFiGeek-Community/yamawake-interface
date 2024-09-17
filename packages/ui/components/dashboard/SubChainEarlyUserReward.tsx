@@ -46,7 +46,7 @@ export default function SubChainEarlyUserReward({
 }: {
   chainId: number;
   address: `0x${string}` | undefined;
-  safeAddress: `0x${string}`;
+  safeAddress: `0x${string}` | undefined;
 }) {
   const toast = useToast({ position: "top-right", isClosable: true });
   const { t } = useLocale();
@@ -121,7 +121,7 @@ export default function SubChainEarlyUserReward({
   const approvals = useApprove({
     chainId,
     targetAddress: feeTokens[feeTokenIndex].address,
-    owner: safeAddress || address,
+    owner: safeAddress || address || "0x",
     spender: CONTRACT_ADDRESSES[chainId].DISTRIBUTOR,
     enabled: (!!safeAddress || !!address) && feeTokens[feeTokenIndex].address !== zeroAddress,
     amount: fee.data,

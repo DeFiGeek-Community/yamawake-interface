@@ -480,7 +480,8 @@ export default memo(function DetailPage({
           )}
         </Flex>
 
-        {address && auction.owner.toLowerCase() === address.toLowerCase() && (
+        {((safeAddress && auction.owner.toLowerCase() === safeAddress.toLowerCase()) ||
+          (address && auction.owner.toLowerCase() === address.toLowerCase())) && (
           <>
             <Divider mt={8} />
             <Card mt={8}>
