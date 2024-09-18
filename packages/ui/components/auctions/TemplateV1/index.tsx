@@ -497,7 +497,7 @@ export default memo(function DetailPage({
                       auction={auction}
                       account={address}
                       safeAddress={safeAddress}
-                      onSuccessConfirm={refetchAuction}
+                      onSuccessConfirm={() => refetchAuction()}
                     />
                   </chakra.div>
 
@@ -507,7 +507,7 @@ export default memo(function DetailPage({
                       auction={auction}
                       account={address}
                       safeAddress={safeAddress}
-                      onSuccessConfirm={refetchAuction}
+                      onSuccessConfirm={() => refetchAuction()}
                     />
                   </chakra.div>
                 </Stack>

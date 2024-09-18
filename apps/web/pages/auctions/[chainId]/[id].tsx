@@ -29,6 +29,7 @@ export default function AuctionPage({ initialMetaData }: { initialMetaData: Meta
     mutate: refetch,
     error: apolloError,
     isLoading,
+    isValidating,
   } = useAuction(
     id as `0x${string}`,
     (currentUser?.safeAccount || address || zeroAddress).toLowerCase() as `0x${string}`,
@@ -48,7 +49,7 @@ export default function AuctionPage({ initialMetaData }: { initialMetaData: Meta
       duration: 5000,
     });
 
-  if (!auctionData)
+  if ((!auctionData || !auctionData.auction) && (isLoading || isValidating))
     return (
       <>
         <MetaTags
