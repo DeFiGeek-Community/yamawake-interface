@@ -11,7 +11,7 @@ import { useLocale } from "../../../hooks/useLocale";
 type Props = {
   chainId: number;
   auction: TemplateV1;
-  account: `0x${string}`;
+  account: `0x${string}` | undefined;
   safeAddress: `0x${string}` | undefined;
   onSuccessConfirm?: (data: any) => void;
 };
@@ -34,7 +34,7 @@ export default function WithdrawRaisedETH({
     waitFn: withdrawETHWaitFn,
   } = useWithdrawRaisedETH({
     targetAddress: auction.id as `0x${string}`,
-    account,
+    account: account || "0x",
     safeAddress,
     onSuccessWrite: (data) => {
       toast({

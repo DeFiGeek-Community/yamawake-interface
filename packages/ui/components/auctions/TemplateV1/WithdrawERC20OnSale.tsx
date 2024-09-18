@@ -11,7 +11,7 @@ import { useLocale } from "../../../hooks/useLocale";
 type Props = {
   chainId: number;
   auction: TemplateV1;
-  account: `0x${string}`;
+  account: `0x${string}` | undefined;
   safeAddress: `0x${string}` | undefined;
   onSuccessConfirm?: (data: any) => void;
 };
@@ -27,7 +27,7 @@ export default function WithdrawERC20({
   const { chain: connectedChain } = useNetwork();
   const { data: balance } = useContractRead({
     address: auction.auctionToken.id as `0x${string}`,
-    account: safeAddress || account,
+    account: safeAddress || account || "0x",
     abi: erc20ABI,
     functionName: "balanceOf",
     args: [auction.id as `0x${string}`],
@@ -39,7 +39,7 @@ export default function WithdrawERC20({
     waitFn: withdrawERC20WaitFn,
   } = useWithdrawERC20OnSale({
     targetAddress: auction.id as `0x${string}`,
-    account,
+    account: account || "0x",
     safeAddress,
     onSuccessWrite: (data: any) => {
       toast({
