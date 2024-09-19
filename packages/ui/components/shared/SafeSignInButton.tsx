@@ -1,15 +1,17 @@
-import { useEffect } from "react";
-import { useAccount, useNetwork } from "wagmi";
-import { getPublicClient, switchNetwork } from "@wagmi/core";
-import { Button, ButtonProps, useDisclosure, useToast } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
+import { useAccount, useNetwork, usePublicClient } from "wagmi";
+import { switchNetwork } from "@wagmi/core";
+import { Image, Button, ButtonProps, useDisclosure, useToast } from "@chakra-ui/react";
 import { SignInParams } from "lib/types";
-import { getDefaultChain, getSupportedChain, isSupportedChain } from "lib/utils/chain";
+import { getDefaultChain, isSupportedChain } from "lib/utils/chain";
 import { useSIWE } from "../../hooks/Auth/useSIWE";
 import { useLocale } from "../../hooks/useLocale";
 import { isContractWallet } from "lib/utils/safe";
 import ProvidersList from "./ProvidersList";
+import { SafeAddressModal } from "./SafeAddressModal";
+import safeLogo from "assets/images/safe.png";
 
-export default function SignInButton({
+export default function SafeSignInButton({
   onSignInSuccess,
   onSignInError,
   text,
@@ -19,14 +21,17 @@ export default function SignInButton({
   onSignInError: (error: Error) => void;
   text?: string;
 } & ButtonProps) {
+  const safeModalDisclosure = useDisclosure();
   const providersListDisclosure = useDisclosure();
   const { address: connectedAddress, isConnected } = useAccount({
     onConnect: async () => {},
   });
+  const publicClient = usePublicClient();
   const { chain } = useNetwork();
   const { t } = useLocale();
   const toast = useToast({ position: "top-right", isClosable: true });
   const { loading, signIn, error } = useSIWE();
+  const [safeAddress, setSafeAddress] = useState<`0x${string}` | undefined>();
   const title = buttonProps.title ? buttonProps.title : t("SIGN_IN_WITH_ETHEREUM");
 
   useEffect(() => {
@@ -47,29 +52,31 @@ export default function SignInButton({
     }
   };
 
+  const switchToSupportedNetwork = async (chainId: number): Promise<number> => {
+    let _chainId = chainId;
+    if (!isSupportedChain(chainId) && switchNetwork) {
+      _chainId = getDefaultChain().id;
+      await switchNetwork({ chainId: _chainId });
+    }
+    return _chainId;
+  };
+
   return (
     <>
       <Button
         {...buttonProps}
+        leftIcon={<Image width={"12px"} height={"12px"} alt={"Safe account"} src={safeLogo.src} />}
         variant={"solid"}
         isLoading={loading}
         onClick={
           !connectedAddress || !chain?.id
             ? () => {
-                providersListDisclosure.onOpen();
+                safeModalDisclosure.onOpen();
               }
             : async () => {
-                let chainId = chain.id;
                 try {
-                  if (!isSupportedChain(chain.id) && switchNetwork) {
-                    chainId = getDefaultChain().id;
-                    await switchNetwork({ chainId });
-                  }
-                  await processSignIn({
-                    title: title,
-                    targetAddress: connectedAddress as `0x${string}`,
-                    chainId,
-                  });
+                  const chainId = await switchToSupportedNetwork(chain.id);
+                  safeModalDisclosure.onOpen();
                 } catch (e: any) {
                   toast({
                     title: e.message,
@@ -80,8 +87,30 @@ export default function SignInButton({
               }
         }
       >
-        {text ? text : t("SIGN_IN_WITH_ETHEREUM")}
+        {text ? text : t("SIGN_IN_WITH_ETHEREUM_AS_SAFE")}
       </Button>
+
+      <SafeAddressModal
+        isOpen={safeModalDisclosure.isOpen}
+        isSigningIn={loading}
+        onClose={safeModalDisclosure.onClose}
+        onProceed={
+          !!isConnected && !!chain
+            ? async (safeAddress) => {
+                const chainId = await switchToSupportedNetwork(chain.id);
+                await processSignIn({
+                  title: title,
+                  targetAddress: connectedAddress as `0x${string}`,
+                  chainId,
+                  safeAddress,
+                });
+              }
+            : async (_safeAddress) => {
+                setSafeAddress(_safeAddress);
+                providersListDisclosure.onOpen();
+              }
+        }
+      />
       {!isConnected && (
         <ProvidersList
           isOpen={providersListDisclosure.isOpen}
@@ -94,11 +123,8 @@ export default function SignInButton({
             chainId: number;
           }) => {
             try {
-              // Wallet connectでのSafe accountログインを想定
-              const publicClient = getPublicClient({
-                chainId,
-              });
               const { isSafe: isSafeWallet } = await isContractWallet(publicClient, address);
+              console.log("IsSafe: ", isSafeWallet, address);
               if (isSafeWallet) {
                 toast({
                   title: t("SIGN_SAFE_ACCOUNT"),
@@ -113,6 +139,7 @@ export default function SignInButton({
               title: title,
               targetAddress: address,
               chainId,
+              safeAddress,
             });
             providersListDisclosure.onClose();
           }}

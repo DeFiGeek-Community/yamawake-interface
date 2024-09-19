@@ -10,9 +10,11 @@ import { useSWRAuctions } from "../../hooks/useAuctions";
 export default function MyAuctions({
   chainId,
   address,
+  safeAddress,
 }: {
   chainId: number;
   address: `0x${string}`;
+  safeAddress: `0x${string}` | undefined;
 }) {
   const auctionFormModalDisclosure = useDisclosure();
   const {
@@ -23,7 +25,7 @@ export default function MyAuctions({
     isValidating: isValidatingMyAuctions,
     isLast: isLastMyAuction,
   } = useSWRAuctions(
-    { id: String(address).toLowerCase() as `0x${string}` },
+    { id: String(safeAddress || address).toLowerCase() as `0x${string}` },
     QueryType.MY_SALE_QUERY,
     chainId,
   );
@@ -40,6 +42,7 @@ export default function MyAuctions({
       <AuctionFormModal
         chainId={chainId}
         address={address}
+        safeAddress={safeAddress}
         isOpen={auctionFormModalDisclosure.isOpen}
         onClose={auctionFormModalDisclosure.onClose}
         onDeployConfirmed={mutateMyAuctions}

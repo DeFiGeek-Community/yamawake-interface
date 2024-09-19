@@ -42,9 +42,11 @@ import OnrampABI from "lib/constants/abis/Onramp.json";
 export default function SubChainEarlyUserReward({
   chainId,
   address,
+  safeAddress,
 }: {
   chainId: number;
   address: `0x${string}` | undefined;
+  safeAddress: `0x${string}` | undefined;
 }) {
   const toast = useToast({ position: "top-right", isClosable: true });
   const { t } = useLocale();
@@ -65,14 +67,15 @@ export default function SubChainEarlyUserReward({
   const { readScore, sendScore, waitFn, fee } = useSubChainEarlyUserReward({
     chainId,
     address,
+    safeAddress,
     feeToken: feeTokens[feeTokenIndex].address,
     shouldClaim,
     onSuccessWrite: (data: any) => {
       toast({
-        title: "Transaction sent!",
+        title: safeAddress ? t("SAFE_TRANSACTION_PROPOSED") : t("TRANSACTION_SENT"),
         status: "success",
-        duration: 5000,
-        render: (props) => <TxSentToast txid={data?.hash} {...props} />,
+        duration: 10000,
+        render: safeAddress ? undefined : (props) => <TxSentToast txid={data?.hash} {...props} />,
       });
     },
     onErrorWrite: (e: Error) => {
@@ -84,13 +87,15 @@ export default function SubChainEarlyUserReward({
     },
     onSuccessConfirm: (data: any) => {
       toast({
-        description: `Transaction confirmed!`,
+        description: t("TRANSACTION_CONFIRMED"),
         status: "success",
         duration: 5000,
       });
 
       for (let i = 0; i < data.logs.length; i++) {
         try {
+          // TODO
+          // Safe対応
           const decodedLog = decodeEventLog({
             abi: OnrampABI,
             data: data.logs[i].data,
@@ -116,16 +121,16 @@ export default function SubChainEarlyUserReward({
   const approvals = useApprove({
     chainId,
     targetAddress: feeTokens[feeTokenIndex].address,
-    owner: address ?? "0x",
+    owner: safeAddress || address || "0x",
     spender: CONTRACT_ADDRESSES[chainId].DISTRIBUTOR,
-    enabled: !!address && feeTokens[feeTokenIndex].address !== zeroAddress,
+    enabled: (!!safeAddress || !!address) && feeTokens[feeTokenIndex].address !== zeroAddress,
     amount: fee.data,
     onSuccessWrite(data) {
       toast({
-        title: t("TRANSACTION_SENT"),
+        title: safeAddress ? t("SAFE_TRANSACTION_PROPOSED") : t("TRANSACTION_SENT"),
         status: "success",
-        duration: 5000,
-        render: (props) => <TxSentToast txid={data.hash} {...props} />,
+        duration: 10000,
+        render: safeAddress ? undefined : (props) => <TxSentToast txid={data.hash} {...props} />,
       });
     },
     onSuccessConfirm(data) {

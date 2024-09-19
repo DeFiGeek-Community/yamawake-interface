@@ -11,10 +11,19 @@ import { useLocale } from "../../../hooks/useLocale";
 type Props = {
   chainId: number;
   auction: TemplateV1;
+  account: `0x${string}` | undefined;
+  safeAddress: `0x${string}` | undefined;
   onSuccessConfirm?: (data: any) => void;
 };
-export default function WithdrawRaisedETH({ chainId, auction, onSuccessConfirm }: Props) {
+export default function WithdrawRaisedETH({
+  chainId,
+  auction,
+  account,
+  safeAddress,
+  onSuccessConfirm,
+}: Props) {
   const toast = useToast({ position: "top-right", isClosable: true });
+  const { t } = useLocale();
   const { chain: connectedChain } = useNetwork();
   const { data: balanceData, isLoading: isLoadingBalance } = useBalance({
     address: auction.id as `0x${string}`,
@@ -25,12 +34,14 @@ export default function WithdrawRaisedETH({ chainId, auction, onSuccessConfirm }
     waitFn: withdrawETHWaitFn,
   } = useWithdrawRaisedETH({
     targetAddress: auction.id as `0x${string}`,
+    account: account || "0x",
+    safeAddress,
     onSuccessWrite: (data) => {
       toast({
-        title: "Transaction sent!",
+        title: safeAddress ? t("SAFE_TRANSACTION_PROPOSED") : t("TRANSACTION_SENT"),
         status: "success",
-        duration: 5000,
-        render: (props) => <TxSentToast txid={data?.hash} {...props} />,
+        duration: 10000,
+        render: safeAddress ? undefined : (props) => <TxSentToast txid={data?.hash} {...props} />,
       });
     },
     onErrorWrite: (e: Error) => {
@@ -42,7 +53,7 @@ export default function WithdrawRaisedETH({ chainId, auction, onSuccessConfirm }
     },
     onSuccessConfirm: (data) => {
       toast({
-        description: `Transaction confirmed!`,
+        description: t("TRANSACTION_CONFIRMED"),
         status: "success",
         duration: 5000,
       });
@@ -54,7 +65,6 @@ export default function WithdrawRaisedETH({ chainId, auction, onSuccessConfirm }
       balanceData.value !== BigInt(0) &&
       chainId === connectedChain?.id,
   });
-  const { t } = useLocale();
 
   return (
     <Box>
@@ -80,7 +90,11 @@ export default function WithdrawRaisedETH({ chainId, auction, onSuccessConfirm }
             balanceData.value === BigInt(0) ||
             !withdrawETHWriteFn.write
           }
-          isLoading={withdrawETHWriteFn.isLoading || withdrawETHWaitFn.isLoading}
+          isLoading={
+            withdrawETHWriteFn.isLoading ||
+            withdrawETHWaitFn.isLoading ||
+            (withdrawETHWriteFn.isSuccess && withdrawETHWaitFn.isIdle)
+          }
           onClick={withdrawETHWriteFn.write}
         >
           {t("WITHDRAW_THE_TOTAL_RAISED")}

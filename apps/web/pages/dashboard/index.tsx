@@ -66,10 +66,18 @@ export default function DashboardPage() {
         mt={{ base: 4, md: 8 }}
       >
         {!!chainInfo && !chainInfo.sourceId && (
-          <EarlyUserReward chainId={chainInfo.id} address={address} />
+          <EarlyUserReward
+            chainId={chainInfo.id}
+            address={address}
+            safeAddress={currentUser?.safeAccount}
+          />
         )}
         {!!chainInfo && !!chainInfo.sourceId && (
-          <SubChainEarlyUserReward chainId={chainInfo.id} address={address} />
+          <SubChainEarlyUserReward
+            chainId={chainInfo.id}
+            address={address}
+            safeAddress={currentUser?.safeAccount}
+          />
         )}
         <VeReward />
       </Grid>
@@ -83,11 +91,22 @@ export default function DashboardPage() {
         <TabPanels>
           {currentUser && (
             <TabPanel p={{ base: 0, md: 4 }}>
-              {!!chain && !!address && <MyAuctions chainId={chain.id} address={address} />}
+              {!!chain && !!address && (
+                <MyAuctions
+                  chainId={chain.id}
+                  address={address}
+                  safeAddress={currentUser.safeAccount}
+                />
+              )}
             </TabPanel>
           )}
           <TabPanel p={{ base: 0, md: 4 }}>
-            {!!chain && !!address && <ParticipatedAuctions chainId={chain.id} address={address} />}
+            {!!chain && !!address && (
+              <ParticipatedAuctions
+                chainId={chain.id}
+                address={currentUser?.safeAccount ? currentUser.safeAccount : address}
+              />
+            )}
           </TabPanel>
         </TabPanels>
       </Tabs>

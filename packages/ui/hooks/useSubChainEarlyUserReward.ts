@@ -1,9 +1,4 @@
-import {
-  useContractRead,
-  usePrepareContractWrite,
-  useContractWrite,
-  useWaitForTransaction,
-} from "wagmi";
+import { useContractRead, usePrepareContractWrite } from "wagmi";
 import DistributorABI from "lib/constants/abis/DistributorSender.json";
 import RouterABI from "lib/constants/abis/Router.json";
 import { CONTRACT_ADDRESSES } from "lib/constants/contracts";
@@ -11,10 +6,12 @@ import { isSupportedChain } from "lib/utils/chain";
 import { CHAIN_INFO } from "lib/constants/chains";
 import { useMemo } from "react";
 import { parseAbiParameters, encodeAbiParameters, zeroAddress } from "viem";
+import { useSafeContractWrite, useSafeWaitForTransaction } from "./Safe";
 
 export default function useSubChainEarlyUserReward({
   chainId,
   address,
+  safeAddress,
   feeToken,
   shouldClaim,
   onSuccessWrite,
@@ -24,6 +21,7 @@ export default function useSubChainEarlyUserReward({
 }: {
   chainId: number;
   address: `0x${string}` | undefined;
+  safeAddress: `0x${string}` | undefined;
   feeToken: `0x${string}`;
   shouldClaim: boolean;
   onSuccessWrite?: (data: any) => void;
@@ -32,8 +30,8 @@ export default function useSubChainEarlyUserReward({
   onErrorConfirm?: (error: Error) => void;
 }): {
   readScore: ReturnType<typeof useContractRead<typeof DistributorABI, "scores", bigint>>;
-  sendScore: ReturnType<typeof useContractWrite>;
-  waitFn: ReturnType<typeof useWaitForTransaction>;
+  sendScore: ReturnType<typeof useSafeContractWrite>;
+  waitFn: ReturnType<typeof useSafeWaitForTransaction>;
   fee: ReturnType<typeof useContractRead<typeof RouterABI, "getFee", bigint>>;
 } {
   const getDistinationChainInfo = useMemo(() => {
@@ -59,11 +57,13 @@ export default function useSubChainEarlyUserReward({
   const config = {
     address: CONTRACT_ADDRESSES[chainId]?.DISTRIBUTOR,
     abi: DistributorABI,
+    account: safeAddress || address,
   };
   const readScore = useContractRead<typeof DistributorABI, "scores", bigint>({
     ...config,
+    address,
     functionName: "scores",
-    args: [address],
+    args: [safeAddress || address],
     watch: true,
     enabled: isSupportedChain(chainId) && !!address,
   });
@@ -76,7 +76,7 @@ export default function useSubChainEarlyUserReward({
   const message = {
     receiver: encodeAbiParameters(parseAbiParameters("bytes"), [destinationChainDistributor]),
     data: encodeAbiParameters(parseAbiParameters("address, uint256, bool"), [
-      address ?? zeroAddress,
+      (safeAddress || address) ?? zeroAddress,
       readScore.data ?? 0n,
       shouldClaim,
     ]),
@@ -89,7 +89,7 @@ export default function useSubChainEarlyUserReward({
     ...routerConfig,
     functionName: "getFee",
     args: [chainSelector, message],
-    enabled: isSupportedChain(chainId) && !!address && !!readScore.data,
+    enabled: isSupportedChain(chainId) && (!!safeAddress || !!address) && !!readScore.data,
   });
 
   const { config: sendScoreConfig } = usePrepareContractWrite({
@@ -97,14 +97,21 @@ export default function useSubChainEarlyUserReward({
     functionName: feeToken === zeroAddress ? "sendScorePayNative" : "sendScorePayToken",
     args:
       feeToken === zeroAddress
-        ? [chainSelector, destinationChainDistributor, address, shouldClaim]
-        : [chainSelector, destinationChainDistributor, address, shouldClaim, feeToken],
-    enabled: isSupportedChain(chainId) && !!address && !!readScore.data,
+        ? [chainSelector, destinationChainDistributor, safeAddress || address, shouldClaim]
+        : [
+            chainSelector,
+            destinationChainDistributor,
+            safeAddress || address,
+            shouldClaim,
+            feeToken,
+          ],
+    enabled: isSupportedChain(chainId) && (!!safeAddress || !!address) && !!readScore.data,
     value: feeToken === zeroAddress ? fee.data : 0n,
   });
 
-  const sendScore = useContractWrite({
+  const sendScore = useSafeContractWrite({
     ...sendScoreConfig,
+    safeAddress,
     onSuccess(data) {
       onSuccessWrite && onSuccessWrite(data);
     },
@@ -113,8 +120,9 @@ export default function useSubChainEarlyUserReward({
     },
   });
 
-  const waitFn = useWaitForTransaction({
+  const waitFn = useSafeWaitForTransaction({
     hash: sendScore.data?.hash,
+    safeAddress,
     onSuccess(data) {
       onSuccessConfirm && onSuccessConfirm(data);
     },

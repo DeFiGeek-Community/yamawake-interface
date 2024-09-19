@@ -1,6 +1,7 @@
 export default {
   SALES: "オークション",
-  SIGN_IN_WITH_ETHEREUM: "Ethereumでログイン",
+  SIGN_IN_WITH_ETHEREUM: "Ethereumアドレスでログイン",
+  SIGN_IN_WITH_ETHEREUM_AS_SAFE: "Safeアカウントとしてログイン",
   CONNECT_WALLET: "ウォレットの接続",
   DASHBOARD: "ダッシュボード",
   SIGNED_IN_AS: "{{address}}でログイン中",
@@ -150,4 +151,10 @@ export default {
   TRANSFER_SCORE_TO_L1_WITH_CLAIM: "リワードスコアをL1に送信し、請求する",
   TRANSFER_SCORE_TO_L1: "リワードスコアをL1に送信する",
   TRANSACTION: "トランザクション",
+  OWNER: "オーナー",
+  ADD_TOKEN: "{{symbol}}をウォレットに追加",
+  SAFE_TRANSACTION_PROPOSED: "Safeアカウントでトランザクションを提案しました",
+  NEXT: "次へ",
+  SAFE_ADDRESS: "Safeアカウントアドレス",
+  SAFE_ADDRESS_HELP: "Safeアカウントのマルチシグアドレスを入力してください",
 };

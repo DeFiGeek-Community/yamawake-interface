@@ -13,6 +13,7 @@ interface Props {
   chainId: number;
   auction: TemplateV1;
   address: `0x${string}`;
+  safeAddress: `0x${string}` | undefined;
   myContribution: Big;
   isClaimed: boolean;
   mutateIsClaimed: KeyedMutator<any>;
@@ -21,6 +22,7 @@ export default function ClaimButton({
   chainId,
   auction,
   address,
+  safeAddress,
   myContribution,
   isClaimed,
   mutateIsClaimed,
@@ -31,6 +33,8 @@ export default function ClaimButton({
   // Local state to show that it is waiting for updateed subgraph data after the claim tx is confirmed
   const [waitForSubgraphUpdate, setWaitForSubgraphUpdate] = useState<boolean>(false);
   const { chain: connectedChain } = useNetwork();
+  const toast = useToast({ position: "top-right", isClosable: true });
+  const { t } = useLocale();
 
   const {
     prepareFn: claimPrepareFn,
@@ -40,17 +44,18 @@ export default function ClaimButton({
     chainId,
     targetAddress: auction.id as `0x${string}`,
     address,
+    safeAddress,
     onSuccessWrite: (data) => {
       toast({
-        title: "Transaction sent!",
+        title: safeAddress ? t("SAFE_TRANSACTION_PROPOSED") : t("TRANSACTION_SENT"),
         status: "success",
-        duration: 5000,
-        render: (props) => <TxSentToast txid={data?.hash} {...props} />,
+        duration: 10000,
+        render: safeAddress ? undefined : (props) => <TxSentToast txid={data?.hash} {...props} />,
       });
     },
     onSuccessConfirm: (data) => {
       toast({
-        title: `Transaction confirmed!`,
+        title: t("TRANSACTION_CONFIRMED"),
         status: "success",
         duration: 5000,
       });
@@ -62,6 +67,13 @@ export default function ClaimButton({
         setWaitForSubgraphUpdate(false);
       }, 5000);
     },
+    onErrorWrite: (e) => {
+      toast({
+        title: e.message || e.toString(),
+        status: "error",
+        duration: 5000,
+      });
+    },
     claimed: isClaimed,
   });
   const expectedAmount = getExpectedAmount(
@@ -70,8 +82,6 @@ export default function ClaimButton({
     auction.totalRaised[0].amount,
     auction.allocatedAmount,
   );
-  const toast = useToast({ position: "top-right", isClosable: true });
-  const { t } = useLocale();
 
   return (
     <Button
@@ -83,7 +93,12 @@ export default function ClaimButton({
         claimSucceeded ||
         !claimWriteFn.write
       }
-      isLoading={claimWriteFn?.isLoading || claimWaitFn?.isLoading || waitForSubgraphUpdate}
+      isLoading={
+        claimWriteFn?.isLoading ||
+        claimWaitFn?.isLoading ||
+        waitForSubgraphUpdate ||
+        (claimWriteFn.isSuccess && claimWaitFn.isIdle)
+      }
       onClick={() => {
         claimWriteFn.write!();
       }}

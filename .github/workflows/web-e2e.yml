@@ -116,33 +116,33 @@ jobs:
           echo IRON_SESSION_PASSWORD=complex_password_at_least_32_characters_long >> yamawake-interface/.env
           echo IRON_SESSION_COOKIE_NAME=test_session >> yamawake-interface/.env
 
-      # TODO: Use foundry instead of cloning Yamawake
-      - name: Run e2e test
-        # run: |
-        #   Xvfb :0 -screen 0 1024x768x24 -listen tcp -ac +extension RANDR &
-        #   fluxbox &
-        #   /root/.foundry/bin/anvil --fork-url ${{ secrets.FORK_URL }} &
-        #   cd yamawake-interface/apps/web
-        #   npx env-cmd -f ../../.env pnpm test:build
-        run: |
-          Xvfb :0 -screen 0 1024x768x24 -listen tcp -ac +extension RANDR &
-          fluxbox &
-          cd yamawake
-          npx hardhat node --fork ${{ secrets.FORK_URL }} --no-deploy &
-          cd ../yamawake-interface/apps/web
-          npx env-cmd -f ../../.env pnpm test:build
-        env:
-          DISPLAY: :0.0
-          CI: true
+      # # TODO: Use foundry instead of cloning Yamawake
+      # - name: Run e2e test
+      #   # run: |
+      #   #   Xvfb :0 -screen 0 1024x768x24 -listen tcp -ac +extension RANDR &
+      #   #   fluxbox &
+      #   #   /root/.foundry/bin/anvil --fork-url ${{ secrets.FORK_URL }} &
+      #   #   cd yamawake-interface/apps/web
+      #   #   npx env-cmd -f ../../.env pnpm test:build
+      #   run: |
+      #     Xvfb :0 -screen 0 1024x768x24 -listen tcp -ac +extension RANDR &
+      #     fluxbox &
+      #     cd yamawake
+      #     npx hardhat node --fork ${{ secrets.FORK_URL }} --no-deploy &
+      #     cd ../yamawake-interface/apps/web
+      #     npx env-cmd -f ../../.env pnpm test:build
+      #   env:
+      #     DISPLAY: :0.0
+      #     CI: true
 
-      - uses: actions/upload-artifact@v3
-        if: failure()
-        with:
-          name: cypress videos
-          path: ./yamawake-interface/apps/web/tests/e2e/videos
+      # - uses: actions/upload-artifact@v3
+      #   if: failure()
+      #   with:
+      #     name: cypress videos
+      #     path: ./yamawake-interface/apps/web/tests/e2e/videos
 
-      - uses: actions/upload-artifact@v3
-        if: failure()
-        with:
-          name: cypress screenshots
-          path: ./yamawake-interface/apps/web/tests/e2e/screenshots
+      # - uses: actions/upload-artifact@v3
+      #   if: failure()
+      #   with:
+      #     name: cypress screenshots
+      #     path: ./yamawake-interface/apps/web/tests/e2e/screenshots

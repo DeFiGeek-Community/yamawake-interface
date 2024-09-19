@@ -17,13 +17,14 @@ import useMetaDataForm from "../../hooks/TemplateV1/useMetaDataForm";
 import { useLocale } from "../../hooks/useLocale";
 import TxSentToast from "../shared/TxSentToast";
 import AuctionFormWrapper from "./AuctionFormWrapper";
-import { useSafeWaitForTransaction } from "../../hooks/useSafeWaitForTransaction";
+import { useSafeWaitForTransaction } from "../../hooks/Safe";
 import { decodeEventLog, parseAbi } from "viem";
 import { ChainNameTag } from "../shared/ChainNameTag";
 
 type AuctionFormModalProps = {
   chainId: number;
   address: `0x${string}`;
+  safeAddress: `0x${string}` | undefined;
   isOpen: boolean;
   onClose: () => void;
   onDeploy?: () => void;
@@ -35,6 +36,7 @@ type AuctionFormModalProps = {
 export default function AuctionFormModal({
   chainId,
   address,
+  safeAddress,
   isOpen,
   onClose,
   onDeploy,
@@ -53,6 +55,7 @@ export default function AuctionFormModal({
   const waitFn = useSafeWaitForTransaction({
     hash: tx as `0x${string}`,
     enabled: !!tx,
+    safeAddress,
     onSuccess(data) {
       toast({
         title: t("TRANSACTION_CONFIRMED"),
@@ -155,15 +158,18 @@ export default function AuctionFormModal({
               <AuctionFormWrapper
                 chainId={chainId}
                 address={address}
+                safeAddress={safeAddress}
                 onSubmitSuccess={(result) => {
                   setTx(result.hash);
                   setStep(2);
                   onDeploy && onDeploy();
                   toast({
-                    title: t("TRANSACTION_SENT"),
+                    title: safeAddress ? t("SAFE_TRANSACTION_PROPOSED") : t("TRANSACTION_SENT"),
                     status: "success",
-                    duration: 5000,
-                    render: (props) => <TxSentToast txid={result.hash} {...props} />,
+                    duration: 10000,
+                    render: safeAddress
+                      ? undefined
+                      : (props) => <TxSentToast txid={result.hash} {...props} />,
                   });
                 }}
               />

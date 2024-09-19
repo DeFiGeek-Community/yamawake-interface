@@ -42,10 +42,13 @@ import type { AuctionForm } from "lib/types/Auction";
 import { useLocale } from "../../../hooks/useLocale";
 import useAuctionForm from "../../../hooks/TemplateV1/useAuctionForm";
 import TxSentToast from "../../shared/TxSentToast";
+import "rsuite/dist/rsuite-no-reset.min.css";
+import "assets/css/rsuite-override.css";
 
 export default function AuctionForm({
   chainId,
   address,
+  safeAddress,
   onSubmitSuccess,
   onSubmitError,
   onApprovalTxSent,
@@ -53,6 +56,7 @@ export default function AuctionForm({
 }: {
   chainId: number;
   address: `0x${string}`;
+  safeAddress: `0x${string}` | undefined;
   onSubmitSuccess?: (result: any) => void;
   onSubmitError?: (e: Error) => void;
   onApprovalTxSent?: (result: any) => void;
@@ -76,14 +80,17 @@ export default function AuctionForm({
   } = useAuctionForm({
     chainId,
     address,
+    safeAddress,
     onSubmitSuccess: (result) => {
       onSubmitSuccess
         ? onSubmitSuccess(result)
         : toast({
-            title: t("TRANSACTION_SENT"),
+            title: safeAddress ? t("SAFE_TRANSACTION_PROPOSED") : t("TRANSACTION_SENT"),
             status: "success",
-            duration: 5000,
-            render: (props) => <TxSentToast txid={result.hash} {...props} />,
+            duration: 10000,
+            render: safeAddress
+              ? undefined
+              : (props) => <TxSentToast txid={result.hash} {...props} />,
           });
     },
     onSubmitError: (e: any) => {
@@ -99,10 +106,12 @@ export default function AuctionForm({
       onApprovalTxSent
         ? onApprovalTxSent(result)
         : toast({
-            title: t("TRANSACTION_SENT"),
+            title: safeAddress ? t("SAFE_TRANSACTION_PROPOSED") : t("TRANSACTION_SENT"),
             status: "success",
-            duration: 5000,
-            render: (props) => <TxSentToast txid={result.hash} {...props} />,
+            duration: 10000,
+            render: safeAddress
+              ? undefined
+              : (props) => <TxSentToast txid={result.hash} {...props} />,
           });
     },
     onApprovalTxConfirmed: (result: any) => {
@@ -370,6 +379,23 @@ export default function AuctionForm({
                         <chakra.p>{t("TEMPLATE")}</chakra.p>
                         <chakra.p fontWeight={"bold"} aria-label="Auction Template">
                           {ethers.decodeBytes32String(debouncedAuction.templateName)}
+                        </chakra.p>
+                      </div>
+
+                      <div>
+                        <chakra.p>{t("OWNER")}</chakra.p>
+                        <chakra.p fontWeight={"bold"} aria-label="Auction Template">
+                          <Link
+                            href={getEtherscanLink(
+                              getSupportedChain(chainId),
+                              debouncedAuction.owner as `0x${string}`,
+                              "address",
+                            )}
+                            target={"_blank"}
+                          >
+                            {debouncedAuction.owner}
+                            <ExternalLinkIcon ml={1} />
+                          </Link>
                         </chakra.p>
                       </div>
 

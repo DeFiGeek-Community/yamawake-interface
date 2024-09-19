@@ -1,12 +1,6 @@
-import {
-  useNetwork,
-  usePrepareContractWrite,
-  useContractWrite,
-  useWaitForTransaction,
-  useContractRead,
-  erc20ABI,
-} from "wagmi";
+import { usePrepareContractWrite, useWaitForTransaction, useContractRead, erc20ABI } from "wagmi";
 import { useState } from "react";
+import { useSafeContractWrite, useSafeWaitForTransaction } from "./Safe";
 
 export default function useApprove({
   chainId,
@@ -15,6 +9,7 @@ export default function useApprove({
   spender,
   enabled,
   amount,
+  safeAddress,
   onSuccessWrite,
   onErrorWrite,
   onSuccessConfirm,
@@ -26,6 +21,7 @@ export default function useApprove({
   spender: `0x${string}`;
   enabled: boolean;
   amount?: bigint;
+  safeAddress?: `0x${string}`;
   onSuccessWrite?: (data: any) => void;
   onErrorWrite?: (e: Error) => void;
   onSuccessConfirm?: (data: any) => void;
@@ -46,14 +42,16 @@ export default function useApprove({
   const prepareFn = usePrepareContractWrite({
     chainId,
     address: targetAddress as `0x${string}`,
+    account: owner,
     abi: erc20ABI,
     functionName: "approve",
     args: approveArgs,
     enabled: isReady,
   });
 
-  const writeFn = useContractWrite({
+  const writeFn = useSafeContractWrite({
     ...prepareFn.config,
+    safeAddress,
     onSuccess(data) {
       onSuccessWrite && onSuccessWrite(data);
     },
@@ -62,9 +60,10 @@ export default function useApprove({
     },
   });
 
-  const waitFn = useWaitForTransaction({
+  const waitFn = useSafeWaitForTransaction({
     chainId,
     hash: writeFn.data?.hash,
+    safeAddress,
     onSuccess(data) {
       onSuccessConfirm && onSuccessConfirm(data);
     },

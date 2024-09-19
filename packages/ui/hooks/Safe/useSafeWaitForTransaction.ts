@@ -1,5 +1,5 @@
 // Forked from https://github.com/moleculeprotocol/test-wagmi-safe-privy
-import { useIsContractWallet } from "./useIsContractWallet";
+import { useIsContractWallet } from "../useIsContractWallet";
 import { resolveSafeTx } from "lib/utils/safe";
 import { useEffect, useState } from "react";
 import { useAccount, useNetwork, useWaitForTransaction } from "wagmi";
@@ -11,10 +11,13 @@ type UseSafeWaitForTransactionReturn = ReturnType<typeof useWaitForTransaction> 
   resolvingPromise?: Promise<void | `0x${string}` | undefined>;
 };
 export const useSafeWaitForTransaction = (
-  config: Parameters<typeof useWaitForTransaction>[0],
+  config: Parameters<typeof useWaitForTransaction>[0] & { safeAddress?: `0x${string}` },
 ): UseSafeWaitForTransactionReturn => {
   const { address } = useAccount();
-  const { isSafe: isSafeWallet } = useIsContractWallet(address);
+  const { isSafe: isSafeWallet } = useIsContractWallet({
+    chainId: config?.chainId,
+    address: config.safeAddress || address,
+  });
   const { chain } = useNetwork();
   const [safeResult, setSafeResult] = useState<Partial<WaitForTransactionArgs>>();
   const waitResponse = useWaitForTransaction({ ...safeResult, enabled: !!safeResult?.hash });

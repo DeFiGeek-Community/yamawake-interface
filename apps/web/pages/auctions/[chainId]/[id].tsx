@@ -12,11 +12,27 @@ import { useLocale } from "ui/hooks/useLocale";
 import AuctionDetail, { SkeletonAuction } from "ui/components/auctions/AuctionDetail";
 import { getSupportedChain } from "lib/utils/chain";
 import LayoutContext from "ui/contexts/LayoutContext";
+import CurrentUserContext from "ui/contexts/CurrentUserContext";
 import type { MetaData } from "lib/types/Auction";
 import CustomError from "../../_error";
 
+function AuctionMetaTags({ metaData }: { metaData: { metaData: MetaData } | undefined }) {
+  const { t } = useLocale();
+  return (
+    <MetaTags
+      title={`${metaData?.metaData.title || t("SALES")} | ${t("APP_NAME")}`}
+      description={
+        metaData?.metaData.description ||
+        t("AN_INCLUSIVE_AND_TRANSPARENT_TOKEN_LAUNCHPAD").replace(/\n/g, "")
+      }
+      image={metaData?.metaData.logoURL}
+    />
+  );
+}
+
 export default function AuctionPage({ initialMetaData }: { initialMetaData: MetaData | null }) {
   const { address } = useAccount();
+  const { currentUser } = useContext(CurrentUserContext);
   const router = useRouter();
   const { id, chainId } = router.query;
   const { t } = useLocale();
@@ -27,16 +43,27 @@ export default function AuctionPage({ initialMetaData }: { initialMetaData: Meta
     mutate: refetch,
     error: apolloError,
     isLoading,
+    isValidating,
   } = useAuction(
     id as `0x${string}`,
-    address ? (address.toLowerCase() as `0x${string}`) : (zeroAddress as `0x${string}`),
+    (currentUser?.safeAccount || address || zeroAddress).toLowerCase() as `0x${string}`,
     chain?.id,
   );
-  const { data: metaData, mutate, error: dynamodbError } = useSWRMetaData(chain?.id, id as string);
+  const {
+    data: metaData,
+    mutate,
+    error: dynamodbError,
+  } = useSWRMetaData(chain?.id, id as string, initialMetaData);
   const { setAllowNetworkChange } = useContext(LayoutContext);
   setAllowNetworkChange && setAllowNetworkChange(false);
 
-  if (!chainId || isLoading) return <SkeletonAuction />;
+  if (!chainId || isLoading)
+    return (
+      <>
+        <AuctionMetaTags metaData={metaData} />
+        <SkeletonAuction />
+      </>
+    );
   if (!chain || !metaData) return <CustomError statusCode={404} />;
 
   if (apolloError || dynamodbError)
@@ -46,20 +73,10 @@ export default function AuctionPage({ initialMetaData }: { initialMetaData: Meta
       duration: 5000,
     });
 
-  if (!auctionData)
+  if ((!auctionData || !auctionData.auction) && (isLoading || isValidating))
     return (
       <>
-        <MetaTags
-          title={`${metaData?.metaData.title ? metaData.metaData.title : t("SALES")} | ${t(
-            "APP_NAME",
-          )}`}
-          description={
-            metaData?.metaData.description
-              ? metaData.metaData.description
-              : t("AN_INCLUSIVE_AND_TRANSPARENT_TOKEN_LAUNCHPAD").replace(/\n/g, "")
-          }
-          image={metaData?.metaData.logoURL && metaData.metaData.logoURL}
-        />
+        <AuctionMetaTags metaData={metaData} />
         <SkeletonAuction />
       </>
     );
@@ -68,17 +85,7 @@ export default function AuctionPage({ initialMetaData }: { initialMetaData: Meta
 
   return (
     <>
-      <MetaTags
-        title={`${metaData?.metaData.title ? metaData.metaData.title : t("SALES")} | ${t(
-          "APP_NAME",
-        )}`}
-        description={
-          metaData?.metaData.description
-            ? metaData.metaData.description
-            : t("AN_INCLUSIVE_AND_TRANSPARENT_TOKEN_LAUNCHPAD").replace(/\n/g, "")
-        }
-        image={metaData?.metaData.logoURL && metaData.metaData.logoURL}
-      />
+      <AuctionMetaTags metaData={metaData} />
       <AuctionDetail
         chainId={chain.id}
         auctionProps={auctionData.auction}
@@ -87,6 +94,7 @@ export default function AuctionPage({ initialMetaData }: { initialMetaData: Meta
         refetchMetaData={mutate}
         contractAddress={id as `0x${string}`}
         address={address}
+        safeAddress={currentUser?.safeAccount}
       />
     </>
   );
