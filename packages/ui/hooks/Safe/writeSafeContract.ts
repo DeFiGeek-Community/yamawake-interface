@@ -109,7 +109,11 @@ export async function writeSafeContract<
   const data = encodeFunctionData({
     abi: request.abi as Abi,
     functionName: request.functionName.toString(),
-    args: request.args ? [...request.args] : [],
+    args: request.args
+      ? Array.isArray(request.args)
+        ? [...request.args]
+        : Object.values(request.args)
+      : [],
   });
   const transactions = [
     {
