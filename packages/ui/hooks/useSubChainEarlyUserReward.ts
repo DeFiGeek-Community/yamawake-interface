@@ -61,7 +61,7 @@ export default function useSubChainEarlyUserReward({
   };
   const readScore = useContractRead<typeof DistributorABI, "scores", bigint>({
     ...config,
-    address,
+    account: safeAddress || address,
     functionName: "scores",
     args: [safeAddress || address],
     watch: true,
