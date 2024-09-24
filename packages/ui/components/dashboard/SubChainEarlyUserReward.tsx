@@ -273,7 +273,7 @@ export default function SubChainEarlyUserReward({
           </Flex>
           {ccipMessageId && status && (
             <Box mt={2}>
-              <Heading fontSize={"sm"}>{t("TRANSACTION")}</Heading>
+              <Heading fontSize={"sm"}>{t("PAST_TRANSACTION")}</Heading>
               <HStack justifyContent={"space-between"} mt={2}>
                 <chakra.p color={"gray.400"}>
                   <Link href={`https://ccip.chain.link/msg/${ccipMessageId}`} target="_blank">

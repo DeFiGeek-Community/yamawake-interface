@@ -151,7 +151,7 @@ export default {
   FEE: "Fee",
   TRANSFER_SCORE_TO_L1_WITH_CLAIM: "Transfer the score to L1 and claim reward",
   TRANSFER_SCORE_TO_L1: "Transfer the score to L1",
-  TRANSACTION: "Transaction",
+  PAST_TRANSACTION: "Past Transactions",
   OWNER: "Owner",
   ADD_TOKEN: "Add {{symbol}} to your wallet",
   SAFE_TRANSACTION_PROPOSED: "Transaction has been proposed via Safe account",

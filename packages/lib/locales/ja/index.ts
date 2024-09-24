@@ -150,7 +150,7 @@ export default {
   FEE: "手数料",
   TRANSFER_SCORE_TO_L1_WITH_CLAIM: "リワードスコアをL1に送信し、請求する",
   TRANSFER_SCORE_TO_L1: "リワードスコアをL1に送信する",
-  TRANSACTION: "トランザクション",
+  PAST_TRANSACTION: "過去のトランザクション",
   OWNER: "オーナー",
   ADD_TOKEN: "{{symbol}}をウォレットに追加",
   SAFE_TRANSACTION_PROPOSED: "Safeアカウントでトランザクションを提案しました",
