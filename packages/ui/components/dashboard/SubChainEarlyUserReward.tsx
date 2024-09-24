@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { decodeEventLog, zeroAddress } from "viem";
+import { decodeEventLog, isAddress, zeroAddress } from "viem";
 import {
   Button,
   useToast,
@@ -18,6 +18,10 @@ import {
   Select,
   Switch,
   Link,
+  Input,
+  VStack,
+  FormErrorMessage,
+  FormControl,
 } from "@chakra-ui/react";
 import {
   CheckCircleIcon,
@@ -63,11 +67,23 @@ export default function SubChainEarlyUserReward({
   const [feeTokenIndex, setFeeTokenIndex] = useState<number>(0);
   const [shouldClaim, setShouldClaim] = useState<boolean>(true);
   const [ccipMessageId, setCcipMessageId] = useState<string | null>(null);
+  const [destinationAddress, setDestinationAddress] = useState<`0x${string}` | undefined>(
+    undefined,
+  );
 
-  const { readScore, sendScore, waitFn, fee } = useSubChainEarlyUserReward({
+  const {
+    readScore,
+    sendScore,
+    waitFn,
+    fee,
+    isChekingContractWallet,
+    isContract,
+    isInvalidDestination,
+  } = useSubChainEarlyUserReward({
     chainId,
     address,
     safeAddress,
+    destinationAddress,
     feeToken: feeTokens[feeTokenIndex].address,
     shouldClaim,
     onSuccessWrite: (data: any) => {
@@ -240,6 +256,36 @@ export default function SubChainEarlyUserReward({
               </chakra.span>
             </chakra.p>
           </HStack>
+          {isContract && (
+            <HStack justifyContent={"space-between"} alignItems={"baseline"} mt={2}>
+              <chakra.p color={"gray.400"} whiteSpace={"nowrap"}>
+                {t("DESTINATION_ADDRESS_ON_L1")}
+                <Tooltip hasArrow label={t("DESTINATION_ADDRESS_ON_L1_HELP")}>
+                  <QuestionIcon fontSize={"md"} mb={1} ml={1} />
+                </Tooltip>
+              </chakra.p>
+              <FormControl
+                isInvalid={
+                  !!isInvalidDestination && !!destinationAddress && !isChekingContractWallet
+                }
+              >
+                <VStack w={"full"} alignItems={"end"} spacing={0}>
+                  <Input
+                    id="destinationAddress"
+                    name="destinationAddress"
+                    onChange={async (event: React.ChangeEvent<any>) => {
+                      setDestinationAddress(event.target.value);
+                    }}
+                    value={destinationAddress}
+                    maxW={"24rem"}
+                    fontSize={"sm"}
+                    placeholder="e.g. 0x78cE186ccCd42d632aBBeA31D247a619389cb76c"
+                  />
+                  <FormErrorMessage>{t("ERROR_ADDRESS_FORMAT")}</FormErrorMessage>
+                </VStack>
+              </FormControl>
+            </HStack>
+          )}
           <Flex justifyContent={"flex-end"} mt={2}>
             {feeTokenIndex > 0 && !!fee.data && approvals.allowance < fee.data ? (
               <Button
@@ -258,9 +304,12 @@ export default function SubChainEarlyUserReward({
                   typeof readScore.data === "undefined" ||
                   sendScore?.isLoading ||
                   waitFn?.isLoading ||
-                  fee.isLoading
+                  fee.isLoading ||
+                  isChekingContractWallet
                 }
-                isDisabled={!readScore.data || !sendScore.write || !fee.data}
+                isDisabled={
+                  !readScore.data || !sendScore.write || !fee.data || !!isInvalidDestination
+                }
                 onClick={() => {
                   sendScore.write?.();
                 }}

@@ -158,4 +158,7 @@ export default {
   NEXT: "Next",
   SAFE_ADDRESS: "Safe Account Address",
   SAFE_ADDRESS_HELP: "Input Safe account multisig address",
+  DESTINATION_ADDRESS_ON_L1: "Receiving address",
+  DESTINATION_ADDRESS_ON_L1_HELP: "Receiving address is required when using a contract wallet.",
+  ERROR_ADDRESS_FORMAT: "Invalid address format",
 };

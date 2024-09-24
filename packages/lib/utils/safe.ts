@@ -105,8 +105,8 @@ export const isContractWallet = async (
   publicClient: PublicClient,
   address: Address,
 ): Promise<{
-  isContract?: boolean;
-  isSafe?: boolean;
+  isContract: boolean;
+  isSafe: boolean;
 }> => {
   let isContract = false;
   let isSafe = false;
