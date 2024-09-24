@@ -12,6 +12,7 @@ import {
   mainnet,
   optimism,
   polygon,
+  baseSepolia,
 } from "viem/chains";
 import SafeABI from "../constants/abis/Safe.json";
 
@@ -58,6 +59,7 @@ const apiNetworkName = (chainId: number): string => {
           [optimism.id]: "optimism",
           [polygon.id]: "polygon",
           [base.id]: "base",
+          [baseSepolia.id]: "base-sepolia",
           [arbitrum.id]: "arbitrum",
           [goerli.id]: "goerli",
           [sepolia.id]: "sepolia",
