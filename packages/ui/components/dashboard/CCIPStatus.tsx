@@ -6,10 +6,15 @@ import { CCIP_MESSAGE_STATES } from "lib/constants/ccip";
 import useCCIPStatus from "../../hooks/useCCIPStatus";
 import { useLocale } from "../../hooks/useLocale";
 
-export default function CCIPStatus({ chainId }: { chainId: number }) {
+export default function CCIPStatus({
+  chainId,
+  ccipMessageKey,
+}: {
+  chainId: number;
+  ccipMessageKey: string;
+}) {
   const sourceChain = CHAIN_INFO[chainId];
   const destinationChainId = sourceChain.sourceId!;
-  const ccipMessageKey = `ccipMessage${chainId}`;
   const [ccipMessageId, setCcipMessageId] = useState<string | null>(null);
   const { t } = useLocale();
   const status = useCCIPStatus({

@@ -50,7 +50,7 @@ export default function SubChainEarlyUserReward({
   const sourceChain = CHAIN_INFO[chainId];
   const destinationChainId = sourceChain.sourceId!;
   const destinationChain = CHAIN_INFO[destinationChainId];
-  const ccipMessageKey = `ccipMessage${chainId}`;
+  const ccipMessageKey = `ccipMessage-${chainId}-${safeAddress || address}`;
   const feeTokens: FeeToken[] = [
     { symbol: "ETH", address: zeroAddress },
     { symbol: "WETH", address: CONTRACT_ADDRESSES[chainId].WETH },
@@ -300,7 +300,7 @@ export default function SubChainEarlyUserReward({
               </Button>
             )}
           </Flex>
-          <CCIPStatus chainId={chainId} />
+          <CCIPStatus chainId={chainId} ccipMessageKey={ccipMessageKey} />
         </Box>
       </CardFooter>
     </Card>
