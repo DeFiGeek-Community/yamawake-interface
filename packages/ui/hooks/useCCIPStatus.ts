@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createPublicClient, fallback, parseAbiItem } from "viem";
 import { useContractRead } from "wagmi";
 import { CHAIN_INFO } from "lib/constants/chains";
@@ -25,22 +25,22 @@ export default function useCCIPStatus({
     transport: fallback(destinationRpcEndpoints),
   });
 
-  const sourceRouterAddress = CONTRACT_ADDRESSES[sourceChainId].ROUTER;
+  // const sourceRouterAddress = CONTRACT_ADDRESSES[sourceChainId].ROUTER;
   const sourceChainSelector = CHAIN_INFO[sourceChainId].chainSelector;
   const destinationRouterAddress = CONTRACT_ADDRESSES[destinationChainId].ROUTER;
-  const destinationChainSelector = CHAIN_INFO[destinationChainId].chainSelector;
+  // const destinationChainSelector = CHAIN_INFO[destinationChainId].chainSelector;
 
-  const sourceRouterContract = {
-    address: sourceRouterAddress,
-    abi: RouterABI,
-    chainId: sourceChainId,
-  };
+  // const sourceRouterContract = {
+  //   address: sourceRouterAddress,
+  //   abi: RouterABI,
+  //   chainId: sourceChainId,
+  // };
 
-  const isChainSupported = useContractRead({
-    ...sourceRouterContract,
-    functionName: "isChainSupported",
-    args: [destinationChainSelector],
-  });
+  // const isChainSupported = useContractRead({
+  //   ...sourceRouterContract,
+  //   functionName: "isChainSupported",
+  //   args: [destinationChainSelector],
+  // });
 
   const destinationRouterContract = {
     address: destinationRouterAddress,
@@ -54,9 +54,24 @@ export default function useCCIPStatus({
     watch: status !== "SUCCESS",
   });
 
-  const matchingOffRamps = offRamps.data?.filter(
-    (offRamp: any) => offRamp.sourceChainSelector === sourceChainSelector,
-  );
+  const [matchingOffRamps, setMatchingOffRamps] = useState<any[] | undefined>(undefined);
+
+  useEffect(() => {
+    if (offRamps.data) {
+      setMatchingOffRamps(
+        offRamps.data.filter((offRamp: any) => offRamp.sourceChainSelector === sourceChainSelector),
+      );
+    }
+  }, [offRamps.data]);
+
+  useEffect(() => {
+    if (matchingOffRamps) {
+      console.log("test: Execute!!");
+      for (const matchingOffRamp of matchingOffRamps) {
+        getLogs(matchingOffRamp);
+      }
+    }
+  }, [matchingOffRamps]);
 
   const getLogs = async (matchingOffRamp: any) => {
     const offRampContract = {
@@ -86,12 +101,6 @@ export default function useCCIPStatus({
       );
     }
   };
-
-  if (matchingOffRamps) {
-    for (const matchingOffRamp of matchingOffRamps) {
-      getLogs(matchingOffRamp);
-    }
-  }
 
   return status;
 }
