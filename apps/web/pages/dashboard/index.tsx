@@ -31,8 +31,8 @@ export default function DashboardPage() {
 
   const [chainInfo, setChainInfo] = useState<ChainInfo | undefined>(undefined);
   const { setAllowNetworkChange } = useContext(LayoutContext);
-  setAllowNetworkChange && setAllowNetworkChange(true);
 
+  useEffect(() => setAllowNetworkChange && setAllowNetworkChange(true), []);
   useEffect(() => {
     if (!chain) {
       setChainInfo(undefined);

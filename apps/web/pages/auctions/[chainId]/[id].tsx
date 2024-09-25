@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { GetServerSidePropsContext } from "next";
 import { useRouter } from "next/router";
 import { zeroAddress } from "viem";
@@ -55,7 +55,7 @@ export default function AuctionPage({ initialMetaData }: { initialMetaData: Meta
     error: dynamodbError,
   } = useSWRMetaData(chain?.id, id as string, initialMetaData);
   const { setAllowNetworkChange } = useContext(LayoutContext);
-  setAllowNetworkChange && setAllowNetworkChange(false);
+  useEffect(() => setAllowNetworkChange && setAllowNetworkChange(false), []);
 
   if (!chainId || isLoading)
     return (
