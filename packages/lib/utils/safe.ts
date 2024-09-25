@@ -45,7 +45,6 @@ const PROXY_BYTECODE =
 // Consider comparing this with the resolt of "getBytecode"
 
 //https://docs.safe.global/safe-core-api/available-services
-// TODO add base-sepolia and arbitrum sepolia
 const apiNetworkName = (chainId: number): string => {
   switch (chainId) {
     case gnosis.id:

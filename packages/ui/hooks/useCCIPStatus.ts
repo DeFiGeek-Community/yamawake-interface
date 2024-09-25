@@ -66,7 +66,6 @@ export default function useCCIPStatus({
 
   useEffect(() => {
     if (matchingOffRamps) {
-      console.log("test: Execute!!");
       for (const matchingOffRamp of matchingOffRamps) {
         getLogs(matchingOffRamp);
       }
