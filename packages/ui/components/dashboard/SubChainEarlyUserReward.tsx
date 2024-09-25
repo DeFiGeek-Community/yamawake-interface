@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { decodeEventLog, isAddress, zeroAddress } from "viem";
+import { useState } from "react";
+import { decodeEventLog, zeroAddress } from "viem";
 import {
   Button,
   useToast,
@@ -17,31 +17,23 @@ import {
   Flex,
   Select,
   Switch,
-  Link,
   Input,
   VStack,
   FormErrorMessage,
   FormControl,
 } from "@chakra-ui/react";
-import {
-  CheckCircleIcon,
-  ExternalLinkIcon,
-  QuestionIcon,
-  TimeIcon,
-  WarningIcon,
-} from "@chakra-ui/icons";
+import { QuestionIcon } from "@chakra-ui/icons";
 import { formatEtherInBig } from "lib/utils";
 import { CONTRACT_ADDRESSES } from "lib/constants/contracts";
 import { CHAIN_INFO } from "lib/constants/chains";
-import { CCIP_MESSAGE_STATES } from "lib/constants/ccip";
 import type { DecodedLog, CCIPSendRequestedEventArgs, FeeToken } from "lib/types/ccip";
 import { useLocale } from "../../hooks/useLocale";
 import useSubChainEarlyUserReward from "../../hooks/useSubChainEarlyUserReward";
 import TxSentToast from "../shared/TxSentToast";
 import useApprove from "../../hooks/useApprove";
-import useCCIPStatus from "../../hooks/useCCIPStatus";
 
 import OnrampABI from "lib/constants/abis/Onramp.json";
+import CCIPStatus from "./CCIPStatus";
 
 export default function SubChainEarlyUserReward({
   chainId,
@@ -66,7 +58,6 @@ export default function SubChainEarlyUserReward({
   ];
   const [feeTokenIndex, setFeeTokenIndex] = useState<number>(0);
   const [shouldClaim, setShouldClaim] = useState<boolean>(true);
-  const [ccipMessageId, setCcipMessageId] = useState<string | null>(null);
   const [destinationAddress, setDestinationAddress] = useState<`0x${string}` | undefined>(
     undefined,
   );
@@ -156,17 +147,6 @@ export default function SubChainEarlyUserReward({
         duration: 5000,
       });
     },
-  });
-
-  useEffect(() => {
-    const messageId = localStorage.getItem(ccipMessageKey);
-    setCcipMessageId(messageId);
-  }, [chainId]);
-
-  const status = useCCIPStatus({
-    sourceChainId: chainId,
-    destinationChainId: destinationChainId,
-    messageId: ccipMessageId,
   });
 
   return (
@@ -320,34 +300,7 @@ export default function SubChainEarlyUserReward({
               </Button>
             )}
           </Flex>
-          {ccipMessageId && status && (
-            <Box mt={2}>
-              <Heading fontSize={"sm"}>{t("PAST_TRANSACTION")}</Heading>
-              <HStack justifyContent={"space-between"} mt={2}>
-                <chakra.p color={"gray.400"}>
-                  <Link href={`https://ccip.chain.link/msg/${ccipMessageId}`} target="_blank">
-                    {`${ccipMessageId.slice(0, 14)}...${ccipMessageId.slice(-14)}`}
-                    <ExternalLinkIcon ml={2} />
-                  </Link>
-                </chakra.p>
-                <Flex alignItems={"center"}>
-                  {CCIP_MESSAGE_STATES[status] === CCIP_MESSAGE_STATES.UNTOUCHED && (
-                    <TimeIcon fontSize={"lg"} />
-                  )}
-                  {CCIP_MESSAGE_STATES[status] === CCIP_MESSAGE_STATES.IN_PROGRESS && (
-                    <Spinner fontSize={"lg"} />
-                  )}
-                  {CCIP_MESSAGE_STATES[status] === CCIP_MESSAGE_STATES.SUCCESS && (
-                    <CheckCircleIcon fontSize={"lg"} color={"green.300"} />
-                  )}
-                  {CCIP_MESSAGE_STATES[status] === CCIP_MESSAGE_STATES.FAILURE && (
-                    <WarningIcon fontSize={"lg"} color={"red.300"} />
-                  )}
-                  <chakra.span ml={2}>{status}</chakra.span>
-                </Flex>
-              </HStack>
-            </Box>
-          )}
+          <CCIPStatus chainId={chainId} />
         </Box>
       </CardFooter>
     </Card>
