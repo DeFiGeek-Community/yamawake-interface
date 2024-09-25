@@ -16,6 +16,7 @@ export default function useSubChainEarlyUserReward({
   destinationAddress,
   feeToken,
   shouldClaim,
+  watch = true,
   onSuccessWrite,
   onErrorWrite,
   onSuccessConfirm,
@@ -27,6 +28,7 @@ export default function useSubChainEarlyUserReward({
   destinationAddress: `0x${string}` | undefined;
   feeToken: `0x${string}`;
   shouldClaim: boolean;
+  watch?: boolean;
   onSuccessWrite?: (data: any) => void;
   onErrorWrite?: (error: Error) => void;
   onSuccessConfirm?: (data: any) => void;
@@ -89,7 +91,7 @@ export default function useSubChainEarlyUserReward({
     account: safeAddress || address,
     functionName: "scores",
     args: [safeAddress || address],
-    watch: true,
+    watch,
     enabled: isSupportedChain(chainId) && !!address && !isInvalidDestination,
   });
 

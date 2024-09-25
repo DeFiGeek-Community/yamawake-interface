@@ -10,6 +10,7 @@ export default function useApprove({
   enabled,
   amount,
   safeAddress,
+  watch = true,
   onSuccessWrite,
   onErrorWrite,
   onSuccessConfirm,
@@ -22,6 +23,7 @@ export default function useApprove({
   enabled: boolean;
   amount?: bigint;
   safeAddress?: `0x${string}`;
+  watch?: boolean;
   onSuccessWrite?: (data: any) => void;
   onErrorWrite?: (e: Error) => void;
   onSuccessConfirm?: (data: any) => void;
@@ -81,7 +83,7 @@ export default function useApprove({
     onSuccess(data) {
       setAllowance(data);
     },
-    watch: true,
+    watch,
   });
 
   return {
