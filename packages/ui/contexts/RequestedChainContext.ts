@@ -1,15 +1,10 @@
 import { createContext } from "react";
 import { Chain } from "viem/chains";
-import { ChainConfig, ChainConstants, ChainFormatters } from "viem/_types/types/chain";
+import { useNetwork } from "wagmi";
 import { getDefaultChain } from "lib/utils/chain";
 
 export type RequestedChainContextType = {
-  connectedChain:
-    | (ChainConstants &
-        ChainConfig<ChainFormatters | undefined> & {
-          unsupported?: boolean | undefined;
-        })
-    | undefined; // Connected chain
+  connectedChain: ReturnType<typeof useNetwork>["chain"]; // Connected chain
   requestedChain: Chain; // requested chain object derived from chainId in URL
   falledBack: boolean; // falled back to the default chain or not
 };
