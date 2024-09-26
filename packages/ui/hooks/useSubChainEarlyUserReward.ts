@@ -1,4 +1,5 @@
-import { useContractRead, usePrepareContractWrite } from "wagmi";
+import type { UseQueryResult } from "@tanstack/react-query";
+import { erc20ABI, useBalance, useContractRead, usePrepareContractWrite } from "wagmi";
 import DistributorABI from "lib/constants/abis/DistributorSender.json";
 import RouterABI from "lib/constants/abis/Router.json";
 import { CONTRACT_ADDRESSES } from "lib/constants/contracts";
@@ -38,6 +39,9 @@ export default function useSubChainEarlyUserReward({
   sendScore: ReturnType<typeof useSafeContractWrite>;
   waitFn: ReturnType<typeof useSafeWaitForTransaction>;
   fee: ReturnType<typeof useContractRead<typeof RouterABI, "getFee", bigint>>;
+  ethBalance: ReturnType<typeof useBalance>;
+  tokenBalance: UseQueryResult<bigint, Error>;
+  notEnoughBalance: boolean;
   isChekingContractWallet: boolean;
   isContract: boolean;
   isInvalidDestination: boolean;
@@ -56,6 +60,7 @@ export default function useSubChainEarlyUserReward({
     setIsInvalidDestination(isInvalid);
     setDestinationAddress(dest);
   }, [address, safeAddress, destinationAddress]);
+
   const getDistinationChainInfo = useMemo(() => {
     const destinationChainId = CHAIN_INFO[chainId].sourceId;
     if (!destinationChainId) throw new Error("Destination chain information is incorrect");
@@ -156,11 +161,43 @@ export default function useSubChainEarlyUserReward({
     },
   });
 
+  const ethBalance = useBalance({
+    chainId,
+    address: safeAddress || address,
+    enabled: !!safeAddress || !!address,
+  });
+
+  const tokenBalance = useContractRead({
+    address: feeToken,
+    abi: erc20ABI,
+    functionName: "balanceOf",
+    args: [safeAddress || address || "0x"],
+    watch: true,
+    enabled: (!!safeAddress || !!address) && feeToken !== zeroAddress,
+  });
+
+  const [notEnoughBalance, setNotEnoughBalance] = useState<boolean>(false);
+  useEffect(() => {
+    setNotEnoughBalance(
+      (feeToken !== zeroAddress &&
+        typeof fee.data === "bigint" &&
+        typeof tokenBalance.data === "bigint" &&
+        fee.data > tokenBalance.data) ||
+        (feeToken === zeroAddress &&
+          typeof fee.data === "bigint" &&
+          typeof ethBalance.data?.value === "bigint" &&
+          fee.data > ethBalance.data.value),
+    );
+  }, [feeToken, fee.data, tokenBalance.data, ethBalance.data]);
+
   return {
     readScore,
     sendScore,
     waitFn,
     fee,
+    ethBalance,
+    tokenBalance,
+    notEnoughBalance,
     isChekingContractWallet,
     isContract,
     isInvalidDestination,
