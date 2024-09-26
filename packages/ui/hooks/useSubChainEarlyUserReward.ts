@@ -1,4 +1,3 @@
-import type { UseQueryResult } from "@tanstack/react-query";
 import { erc20ABI, useBalance, useContractRead, usePrepareContractWrite } from "wagmi";
 import DistributorABI from "lib/constants/abis/DistributorSender.json";
 import RouterABI from "lib/constants/abis/Router.json";
@@ -40,7 +39,7 @@ export default function useSubChainEarlyUserReward({
   waitFn: ReturnType<typeof useSafeWaitForTransaction>;
   fee: ReturnType<typeof useContractRead<typeof RouterABI, "getFee", bigint>>;
   ethBalance: ReturnType<typeof useBalance>;
-  tokenBalance: UseQueryResult<bigint, Error>;
+  tokenBalance: ReturnType<typeof useContractRead<typeof erc20ABI, "balanceOf", bigint>>;
   notEnoughBalance: boolean;
   isChekingContractWallet: boolean;
   isContract: boolean;
@@ -48,18 +47,7 @@ export default function useSubChainEarlyUserReward({
 } {
   const [_destinationAddress, setDestinationAddress] = useState<`0x${string}`>(zeroAddress);
   const [isInvalidDestination, setIsInvalidDestination] = useState<boolean>(false);
-  useEffect(() => {
-    let isInvalid = false;
-    let dest: `0x${string}` = zeroAddress;
-    if (safeAddress) {
-      isInvalid = !destinationAddress || !isAddress(destinationAddress);
-      if (!isInvalid) dest = destinationAddress!;
-    } else {
-      dest = address ?? zeroAddress;
-    }
-    setIsInvalidDestination(isInvalid);
-    setDestinationAddress(dest);
-  }, [address, safeAddress, destinationAddress]);
+  const [notEnoughBalance, setNotEnoughBalance] = useState<boolean>(false);
 
   const getDistinationChainInfo = useMemo(() => {
     const destinationChainId = CHAIN_INFO[chainId].sourceId;
@@ -135,7 +123,8 @@ export default function useSubChainEarlyUserReward({
       isSupportedChain(chainId) &&
       (!!safeAddress || !!address) &&
       !isInvalidDestination &&
-      !!readScore.data,
+      !!readScore.data &&
+      !notEnoughBalance,
     value: feeToken === zeroAddress ? fee.data : 0n,
   });
 
@@ -167,7 +156,7 @@ export default function useSubChainEarlyUserReward({
     enabled: !!safeAddress || !!address,
   });
 
-  const tokenBalance = useContractRead({
+  const tokenBalance = useContractRead<typeof erc20ABI, "balanceOf", bigint>({
     address: feeToken,
     abi: erc20ABI,
     functionName: "balanceOf",
@@ -176,7 +165,19 @@ export default function useSubChainEarlyUserReward({
     enabled: (!!safeAddress || !!address) && feeToken !== zeroAddress,
   });
 
-  const [notEnoughBalance, setNotEnoughBalance] = useState<boolean>(false);
+  useEffect(() => {
+    let isInvalid = false;
+    let dest: `0x${string}` = zeroAddress;
+    if (safeAddress) {
+      isInvalid = !destinationAddress || !isAddress(destinationAddress);
+      if (!isInvalid) dest = destinationAddress!;
+    } else {
+      dest = address ?? zeroAddress;
+    }
+    setIsInvalidDestination(isInvalid);
+    setDestinationAddress(dest);
+  }, [address, safeAddress, destinationAddress]);
+
   useEffect(() => {
     setNotEnoughBalance(
       (feeToken !== zeroAddress &&
