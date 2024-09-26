@@ -15,7 +15,7 @@ export default function CCIPStatus({
   const sourceChain = CHAIN_INFO[chainId];
   const destinationChainId = sourceChain.sourceId!;
   const { t } = useLocale();
-  const status = useCCIPStatus({
+  const { status, isError } = useCCIPStatus({
     sourceChainId: chainId,
     destinationChainId: destinationChainId,
     messageId: ccipMessageId,

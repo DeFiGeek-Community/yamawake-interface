@@ -16,8 +16,9 @@ export default function useCCIPStatus({
   sourceChainId: number;
   destinationChainId: number;
   messageId: string | null;
-}): keyof typeof CCIP_MESSAGE_STATES | null {
+}): { status: keyof typeof CCIP_MESSAGE_STATES | null; isError: boolean } {
   const [status, setStatus] = useState<keyof typeof CCIP_MESSAGE_STATES | null>(null);
+  const [isError, setIsError] = useState<boolean>(false);
   const destinationChain = CHAIN_INFO[destinationChainId];
   const destinationRpcEndpoints = getRPCEndpoints(destinationChainId);
   const destinationClient = createPublicClient({
@@ -65,9 +66,13 @@ export default function useCCIPStatus({
   }, [offRamps.data]);
 
   useEffect(() => {
+    setIsError(false);
     if (matchingOffRamps) {
       for (const matchingOffRamp of matchingOffRamps) {
-        getLogs(matchingOffRamp);
+        getLogs(matchingOffRamp).catch((e: any) => {
+          console.error(e.message);
+          setIsError(true);
+        });
       }
     }
   }, [matchingOffRamps]);
@@ -98,8 +103,12 @@ export default function useCCIPStatus({
       console.log(
         `Status of message ${messageId} on offRamp ${matchingOffRamp.offRamp} is ${CCIP_MESSAGE_STATES[state]}\n`,
       );
+    } else {
+      setStatus(
+        CCIP_MESSAGE_STATES[CCIP_MESSAGE_STATES.UNTOUCHED] as keyof typeof CCIP_MESSAGE_STATES,
+      );
     }
   };
 
-  return status;
+  return { status, isError };
 }
