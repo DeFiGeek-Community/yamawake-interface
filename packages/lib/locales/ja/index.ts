@@ -160,4 +160,5 @@ export default {
   DESTINATION_ADDRESS_ON_L1: "受取アドレス",
   DESTINATION_ADDRESS_ON_L1_HELP: "コントラクトウォレットでは受取アドレスの入力が必須です。",
   ERROR_ADDRESS_FORMAT: "アドレスの形式が正しくありません",
+  ERROR_NOT_ENOUGH_BALANCE_TO_PAY_FEE: "手数料を支払うための残高が足りません",
 };

@@ -161,4 +161,5 @@ export default {
   DESTINATION_ADDRESS_ON_L1: "Receiving address",
   DESTINATION_ADDRESS_ON_L1_HELP: "Receiving address is required when using a contract wallet.",
   ERROR_ADDRESS_FORMAT: "Invalid address format",
+  ERROR_NOT_ENOUGH_BALANCE_TO_PAY_FEE: "Not enough balance to pay fee",
 };
