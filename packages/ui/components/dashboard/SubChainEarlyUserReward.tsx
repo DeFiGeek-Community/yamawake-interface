@@ -133,6 +133,7 @@ export default function SubChainEarlyUserReward({
     owner: safeAddress || address || "0x",
     spender: CONTRACT_ADDRESSES[chainId].DISTRIBUTOR,
     enabled: (!!safeAddress || !!address) && feeTokens[feeTokenIndex].address !== zeroAddress,
+    safeAddress: safeAddress,
     amount: fee.data,
     onSuccessWrite(data) {
       toast({
