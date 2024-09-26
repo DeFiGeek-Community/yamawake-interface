@@ -31,7 +31,6 @@ import { useLocale } from "../../hooks/useLocale";
 import useSubChainEarlyUserReward from "../../hooks/useSubChainEarlyUserReward";
 import TxSentToast from "../shared/TxSentToast";
 import useApprove from "../../hooks/useApprove";
-
 import OnrampABI from "lib/constants/abis/Onramp.json";
 import CCIPStatus from "./CCIPStatus";
 
@@ -67,6 +66,9 @@ export default function SubChainEarlyUserReward({
     sendScore,
     waitFn,
     fee,
+    ethBalance,
+    tokenBalance,
+    notEnoughBalance,
     isChekingContractWallet,
     isContract,
     isInvalidDestination,
@@ -226,15 +228,29 @@ export default function SubChainEarlyUserReward({
               onChange={(ev) => setShouldClaim(ev.target.checked)}
             ></Switch>
           </HStack>
-          <HStack justifyContent={"space-between"} mt={2}>
+          <HStack justifyContent={"space-between"} alignItems={"baseline"} mt={2}>
             <chakra.p color={"gray.400"}>{t("FEE")}</chakra.p>
-            <chakra.p fontSize={"2xl"}>
-              {fee.data ? formatEtherInBig(fee.data.toString()).toFixed(3) : "-"}
-              <chakra.span color={"gray.400"} fontSize={"lg"} ml={1}>
-                {feeTokens[feeTokenIndex].symbol}
-                <chakra.span fontSize={"xs"}> + TX Fee</chakra.span>
-              </chakra.span>
-            </chakra.p>
+            <chakra.div>
+              <chakra.p textAlign={"right"} fontSize={"2xl"}>
+                {fee.data ? formatEtherInBig(fee.data.toString()).toFixed(3) : "-"}
+                <chakra.span color={"gray.400"} fontSize={"lg"} ml={1}>
+                  {feeTokens[feeTokenIndex].symbol}
+                  <chakra.span fontSize={"xs"}> + TX Fee</chakra.span>
+                </chakra.span>
+              </chakra.p>
+              <chakra.p color={"gray.400"} fontSize={"sm"} textAlign="right">
+                {t("BALANCE")}:{" "}
+                {feeTokenIndex === 0 && !!ethBalance.data && (
+                  <>{Number(ethBalance.data.formatted).toFixed(3)} ETH</>
+                )}
+                {feeTokenIndex > 0 && typeof tokenBalance.data === "bigint" && (
+                  <>
+                    {formatEtherInBig(tokenBalance.data.toString()).toFixed(3)}{" "}
+                    {feeTokens[feeTokenIndex].symbol}
+                  </>
+                )}
+              </chakra.p>
+            </chakra.div>
           </HStack>
           {isContract && (
             <HStack justifyContent={"space-between"} alignItems={"baseline"} mt={2}>
@@ -278,26 +294,37 @@ export default function SubChainEarlyUserReward({
                 {t("APPROVE_TOKEN")}
               </Button>
             ) : (
-              <Button
-                isLoading={
-                  readScore.isLoading ||
-                  typeof readScore.data === "undefined" ||
-                  sendScore?.isLoading ||
-                  waitFn?.isLoading ||
-                  fee.isLoading ||
-                  isChekingContractWallet
-                }
-                isDisabled={
-                  !readScore.data || !sendScore.write || !fee.data || !!isInvalidDestination
-                }
-                onClick={() => {
-                  sendScore.write?.();
-                }}
-                variant={"solid"}
-                colorScheme="green"
-              >
-                {shouldClaim ? t("TRANSFER_SCORE_TO_L1_WITH_CLAIM") : t("TRANSFER_SCORE_TO_L1")}
-              </Button>
+              <Box>
+                <Button
+                  isLoading={
+                    readScore.isLoading ||
+                    typeof readScore.data === "undefined" ||
+                    sendScore?.isLoading ||
+                    waitFn?.isLoading ||
+                    fee.isLoading ||
+                    isChekingContractWallet
+                  }
+                  isDisabled={
+                    !readScore.data ||
+                    !sendScore.write ||
+                    !fee.data ||
+                    !!isInvalidDestination ||
+                    notEnoughBalance
+                  }
+                  onClick={() => {
+                    sendScore.write?.();
+                  }}
+                  variant={"solid"}
+                  colorScheme="green"
+                >
+                  {shouldClaim ? t("TRANSFER_SCORE_TO_L1_WITH_CLAIM") : t("TRANSFER_SCORE_TO_L1")}
+                </Button>
+                {notEnoughBalance && (
+                  <chakra.p textAlign={"right"} fontSize={"sm"} color={"red.300"}>
+                    {t("ERROR_NOT_ENOUGH_BALANCE_TO_PAY_FEE")}
+                  </chakra.p>
+                )}
+              </Box>
             )}
           </Flex>
           <CCIPStatus chainId={chainId} ccipMessageKey={ccipMessageKey} />
