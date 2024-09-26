@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { Heading, Box, HStack, Link, Flex, Spinner, chakra } from "@chakra-ui/react";
 import { CheckCircleIcon, ExternalLinkIcon, TimeIcon, WarningIcon } from "@chakra-ui/icons";
 import { CHAIN_INFO } from "lib/constants/chains";
@@ -8,25 +7,19 @@ import { useLocale } from "../../hooks/useLocale";
 
 export default function CCIPStatus({
   chainId,
-  ccipMessageKey,
+  ccipMessageId,
 }: {
   chainId: number;
-  ccipMessageKey: string;
+  ccipMessageId: string | null;
 }) {
   const sourceChain = CHAIN_INFO[chainId];
   const destinationChainId = sourceChain.sourceId!;
-  const [ccipMessageId, setCcipMessageId] = useState<string | null>(null);
   const { t } = useLocale();
   const status = useCCIPStatus({
     sourceChainId: chainId,
     destinationChainId: destinationChainId,
     messageId: ccipMessageId,
   });
-
-  useEffect(() => {
-    const messageId = localStorage.getItem(ccipMessageKey);
-    setCcipMessageId(messageId);
-  }, [ccipMessageKey]);
 
   return ccipMessageId && status ? (
     <Box mt={2}>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { decodeEventLog, zeroAddress } from "viem";
 import {
   Button,
@@ -50,6 +50,7 @@ export default function SubChainEarlyUserReward({
   const destinationChainId = sourceChain.sourceId!;
   const destinationChain = CHAIN_INFO[destinationChainId];
   const ccipMessageKey = `ccipMessage-${chainId}-${safeAddress || address}`;
+  const [ccipMessageId, setCcipMessageId] = useState<string | null>(null);
   const feeTokens: FeeToken[] = [
     { symbol: "ETH", address: zeroAddress },
     { symbol: "WETH", address: CONTRACT_ADDRESSES[chainId].WETH },
@@ -60,6 +61,11 @@ export default function SubChainEarlyUserReward({
   const [destinationAddress, setDestinationAddress] = useState<`0x${string}` | undefined>(
     undefined,
   );
+
+  useEffect(() => {
+    const messageId = localStorage.getItem(ccipMessageKey);
+    setCcipMessageId(messageId);
+  }, [ccipMessageKey]);
 
   const {
     readScore,
@@ -118,6 +124,7 @@ export default function SubChainEarlyUserReward({
             }
             // Set messageId to local storage
             localStorage.setItem(ccipMessageKey, messageId);
+            setCcipMessageId(messageId);
           }
           break;
         } catch (e) {
@@ -328,7 +335,7 @@ export default function SubChainEarlyUserReward({
               </Box>
             )}
           </Flex>
-          <CCIPStatus chainId={chainId} ccipMessageKey={ccipMessageKey} />
+          <CCIPStatus chainId={chainId} ccipMessageId={ccipMessageId} />
         </Box>
       </CardFooter>
     </Card>
