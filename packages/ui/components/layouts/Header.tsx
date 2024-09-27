@@ -19,7 +19,7 @@ import {
   MenuItem,
   Image,
 } from "@chakra-ui/react";
-import { ChevronDownIcon } from "@chakra-ui/icons";
+import { ChevronDownIcon, CopyIcon } from "@chakra-ui/icons";
 import { useRouter } from "next/router";
 import { useAccount, useEnsAvatar, useEnsName, useDisconnect } from "wagmi";
 import { Chain, switchNetwork, SwitchNetworkArgs } from "@wagmi/core";
@@ -65,6 +65,15 @@ export default function Header({ title = "Yamawake", allowNetworkChange = true }
   useEffect(() => {
     setAddressString(`${address?.slice(0, 5)}...${address?.slice(-4)}`);
   }, [address]);
+
+  const handleCopy = async (text: string) => {
+    await navigator.clipboard.writeText(`${text}`);
+    toast({
+      description: "Copied!",
+      status: "success",
+      duration: 2000,
+    });
+  };
 
   const handleSwitchNetwork = async (args: SwitchNetworkArgs) => {
     try {
@@ -189,6 +198,34 @@ export default function Header({ title = "Yamawake", allowNetworkChange = true }
                     </Tag>
                   )}
                 </HStack>
+                <HStack px={3} mb={2}>
+                  <Flex alignItems={"center"}>
+                    {currentUser?.safeAccount && (
+                      <Image
+                        mr={2}
+                        width={"16px"}
+                        height={"16px"}
+                        alt={"Safe account"}
+                        src={safeLogo.src}
+                      />
+                    )}
+                    <chakra.span fontSize={"md"} lineHeight={1}>
+                      {address && currentUser?.safeAccount
+                        ? `${currentUser.safeAccount.slice(0, 6)}...${currentUser.safeAccount.slice(
+                            -6,
+                          )}`
+                        : `${address?.slice(0, 6)}...${address?.slice(-6)}`}
+                    </chakra.span>
+                    <Button
+                      ml={1}
+                      onClick={() => handleCopy(currentUser?.safeAccount ?? address!)}
+                      size={"xs"}
+                    >
+                      <CopyIcon />
+                    </Button>
+                  </Flex>
+                </HStack>
+                <Divider />
                 <MenuItem
                   display={{ base: "block", md: "none" }}
                   onClick={() => router.push("/dashboard")}
