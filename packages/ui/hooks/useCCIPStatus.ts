@@ -17,7 +17,7 @@ export default function useCCIPStatus({
   destinationChainId: number;
   messageId: string | null;
 }): { status: keyof typeof CCIP_MESSAGE_STATES | null; isError: boolean } {
-  const [status, setStatus] = useState<keyof typeof CCIP_MESSAGE_STATES | null>(null);
+  const [status, setStatus] = useState<keyof typeof CCIP_MESSAGE_STATES | null>("IN_PROGRESS");
   const [isError, setIsError] = useState<boolean>(false);
   const destinationChain = CHAIN_INFO[destinationChainId];
   const destinationRpcEndpoints = getRPCEndpoints(destinationChainId);
@@ -105,7 +105,7 @@ export default function useCCIPStatus({
       );
     } else {
       setStatus(
-        CCIP_MESSAGE_STATES[CCIP_MESSAGE_STATES.UNTOUCHED] as keyof typeof CCIP_MESSAGE_STATES,
+        CCIP_MESSAGE_STATES[CCIP_MESSAGE_STATES.IN_PROGRESS] as keyof typeof CCIP_MESSAGE_STATES,
       );
     }
   };

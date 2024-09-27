@@ -109,8 +109,6 @@ export default function SubChainEarlyUserReward({
 
       for (let i = 0; i < data.logs.length; i++) {
         try {
-          // TODO
-          // Safe対応
           const decodedLog = decodeEventLog({
             abi: OnrampABI,
             data: data.logs[i].data,
@@ -310,7 +308,8 @@ export default function SubChainEarlyUserReward({
                     sendScore?.isLoading ||
                     waitFn?.isLoading ||
                     fee.isLoading ||
-                    isChekingContractWallet
+                    isChekingContractWallet ||
+                    (sendScore?.isSuccess && waitFn.isIdle)
                   }
                   isDisabled={
                     !readScore.data ||
