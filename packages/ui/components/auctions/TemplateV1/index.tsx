@@ -424,7 +424,7 @@ export default memo(function DetailPage({
                       </form>
                       <chakra.p mt={2} color={"gray.400"} fontSize={"sm"} textAlign="right">
                         {t("BALANCE")}:{" "}
-                        {balanceData ? Number(balanceData.formatted).toFixed(2) : "-"} ETH
+                        {balanceData ? Number(balanceData.formatted).toFixed(3) : "-"} ETH
                       </chakra.p>
                     </Box>
                   )}

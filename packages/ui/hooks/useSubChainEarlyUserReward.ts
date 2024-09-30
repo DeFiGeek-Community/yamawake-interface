@@ -1,19 +1,22 @@
-import { useContractRead, usePrepareContractWrite } from "wagmi";
+import { erc20ABI, useBalance, useContractRead, usePrepareContractWrite } from "wagmi";
 import DistributorABI from "lib/constants/abis/DistributorSender.json";
 import RouterABI from "lib/constants/abis/Router.json";
 import { CONTRACT_ADDRESSES } from "lib/constants/contracts";
 import { isSupportedChain } from "lib/utils/chain";
 import { CHAIN_INFO } from "lib/constants/chains";
-import { useMemo } from "react";
-import { parseAbiParameters, encodeAbiParameters, zeroAddress } from "viem";
+import { useEffect, useMemo, useState } from "react";
+import { parseAbiParameters, encodeAbiParameters, zeroAddress, isAddress } from "viem";
 import { useSafeContractWrite, useSafeWaitForTransaction } from "./Safe";
+import { useIsContractWallet } from "./useIsContractWallet";
 
 export default function useSubChainEarlyUserReward({
   chainId,
   address,
   safeAddress,
+  destinationAddress,
   feeToken,
   shouldClaim,
+  watch = true,
   onSuccessWrite,
   onErrorWrite,
   onSuccessConfirm,
@@ -22,8 +25,10 @@ export default function useSubChainEarlyUserReward({
   chainId: number;
   address: `0x${string}` | undefined;
   safeAddress: `0x${string}` | undefined;
+  destinationAddress: `0x${string}` | undefined;
   feeToken: `0x${string}`;
   shouldClaim: boolean;
+  watch?: boolean;
   onSuccessWrite?: (data: any) => void;
   onErrorWrite?: (error: Error) => void;
   onSuccessConfirm?: (data: any) => void;
@@ -33,7 +38,17 @@ export default function useSubChainEarlyUserReward({
   sendScore: ReturnType<typeof useSafeContractWrite>;
   waitFn: ReturnType<typeof useSafeWaitForTransaction>;
   fee: ReturnType<typeof useContractRead<typeof RouterABI, "getFee", bigint>>;
+  ethBalance: ReturnType<typeof useBalance>;
+  tokenBalance: ReturnType<typeof useContractRead<typeof erc20ABI, "balanceOf", bigint>>;
+  notEnoughBalance: boolean;
+  isChekingContractWallet: boolean;
+  isContract: boolean;
+  isInvalidDestination: boolean;
 } {
+  const [_destinationAddress, setDestinationAddress] = useState<`0x${string}`>(zeroAddress);
+  const [isInvalidDestination, setIsInvalidDestination] = useState<boolean>(false);
+  const [notEnoughBalance, setNotEnoughBalance] = useState<boolean>(false);
+
   const getDistinationChainInfo = useMemo(() => {
     const destinationChainId = CHAIN_INFO[chainId].sourceId;
     if (!destinationChainId) throw new Error("Destination chain information is incorrect");
@@ -54,6 +69,11 @@ export default function useSubChainEarlyUserReward({
 
   const { chainSelector, destinationChainDistributor } = getDistinationChainInfo;
 
+  const { isChecking: isChekingContractWallet, isContract } = useIsContractWallet({
+    chainId: chainId,
+    address: safeAddress || address,
+  });
+
   const config = {
     address: CONTRACT_ADDRESSES[chainId]?.DISTRIBUTOR,
     abi: DistributorABI,
@@ -61,11 +81,11 @@ export default function useSubChainEarlyUserReward({
   };
   const readScore = useContractRead<typeof DistributorABI, "scores", bigint>({
     ...config,
-    address,
+    account: safeAddress || address,
     functionName: "scores",
     args: [safeAddress || address],
-    watch: true,
-    enabled: isSupportedChain(chainId) && !!address,
+    watch,
+    enabled: isSupportedChain(chainId) && !!address && !isInvalidDestination,
   });
 
   const routerConfig = {
@@ -76,7 +96,7 @@ export default function useSubChainEarlyUserReward({
   const message = {
     receiver: encodeAbiParameters(parseAbiParameters("bytes"), [destinationChainDistributor]),
     data: encodeAbiParameters(parseAbiParameters("address, uint256, bool"), [
-      (safeAddress || address) ?? zeroAddress,
+      _destinationAddress,
       readScore.data ?? 0n,
       shouldClaim,
     ]),
@@ -97,15 +117,14 @@ export default function useSubChainEarlyUserReward({
     functionName: feeToken === zeroAddress ? "sendScorePayNative" : "sendScorePayToken",
     args:
       feeToken === zeroAddress
-        ? [chainSelector, destinationChainDistributor, safeAddress || address, shouldClaim]
-        : [
-            chainSelector,
-            destinationChainDistributor,
-            safeAddress || address,
-            shouldClaim,
-            feeToken,
-          ],
-    enabled: isSupportedChain(chainId) && (!!safeAddress || !!address) && !!readScore.data,
+        ? [chainSelector, destinationChainDistributor, _destinationAddress, shouldClaim]
+        : [chainSelector, destinationChainDistributor, _destinationAddress, shouldClaim, feeToken],
+    enabled:
+      isSupportedChain(chainId) &&
+      (!!safeAddress || !!address) &&
+      !isInvalidDestination &&
+      !!readScore.data &&
+      !notEnoughBalance,
     value: feeToken === zeroAddress ? fee.data : 0n,
   });
 
@@ -131,10 +150,57 @@ export default function useSubChainEarlyUserReward({
     },
   });
 
+  const ethBalance = useBalance({
+    chainId,
+    address: safeAddress || address,
+    enabled: !!safeAddress || !!address,
+  });
+
+  const tokenBalance = useContractRead<typeof erc20ABI, "balanceOf", bigint>({
+    address: feeToken,
+    abi: erc20ABI,
+    functionName: "balanceOf",
+    args: [safeAddress || address || "0x"],
+    watch: true,
+    enabled: (!!safeAddress || !!address) && feeToken !== zeroAddress,
+  });
+
+  useEffect(() => {
+    let isInvalid = false;
+    let dest: `0x${string}` = zeroAddress;
+    if (safeAddress) {
+      isInvalid = !destinationAddress || !isAddress(destinationAddress);
+      if (!isInvalid) dest = destinationAddress!;
+    } else {
+      dest = address ?? zeroAddress;
+    }
+    setIsInvalidDestination(isInvalid);
+    setDestinationAddress(dest);
+  }, [address, safeAddress, destinationAddress]);
+
+  useEffect(() => {
+    setNotEnoughBalance(
+      (feeToken !== zeroAddress &&
+        typeof fee.data === "bigint" &&
+        typeof tokenBalance.data === "bigint" &&
+        fee.data > tokenBalance.data) ||
+        (feeToken === zeroAddress &&
+          typeof fee.data === "bigint" &&
+          typeof ethBalance.data?.value === "bigint" &&
+          fee.data > ethBalance.data.value),
+    );
+  }, [feeToken, fee.data, tokenBalance.data, ethBalance.data]);
+
   return {
     readScore,
     sendScore,
     waitFn,
     fee,
+    ethBalance,
+    tokenBalance,
+    notEnoughBalance,
+    isChekingContractWallet,
+    isContract,
+    isInvalidDestination,
   };
 }

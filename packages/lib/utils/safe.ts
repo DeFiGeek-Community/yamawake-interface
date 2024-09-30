@@ -12,6 +12,7 @@ import {
   mainnet,
   optimism,
   polygon,
+  baseSepolia,
 } from "viem/chains";
 import SafeABI from "../constants/abis/Safe.json";
 
@@ -44,7 +45,6 @@ const PROXY_BYTECODE =
 // Consider comparing this with the resolt of "getBytecode"
 
 //https://docs.safe.global/safe-core-api/available-services
-// TODO add base-sepolia and arbitrum sepolia
 const apiNetworkName = (chainId: number): string => {
   switch (chainId) {
     case gnosis.id:
@@ -58,6 +58,7 @@ const apiNetworkName = (chainId: number): string => {
           [optimism.id]: "optimism",
           [polygon.id]: "polygon",
           [base.id]: "base",
+          [baseSepolia.id]: "base-sepolia",
           [arbitrum.id]: "arbitrum",
           [goerli.id]: "goerli",
           [sepolia.id]: "sepolia",
@@ -105,8 +106,8 @@ export const isContractWallet = async (
   publicClient: PublicClient,
   address: Address,
 ): Promise<{
-  isContract?: boolean;
-  isSafe?: boolean;
+  isContract: boolean;
+  isSafe: boolean;
 }> => {
   let isContract = false;
   let isSafe = false;

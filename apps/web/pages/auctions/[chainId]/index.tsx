@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import {
   Container,
   Button,
@@ -49,7 +49,7 @@ export default function AuctionPage() {
   } = useSWRAuctions({}, QueryType.CLOSED, requestedChain?.id);
 
   const { setAllowNetworkChange } = useContext(LayoutContext);
-  setAllowNetworkChange && setAllowNetworkChange(true);
+  useEffect(() => setAllowNetworkChange && setAllowNetworkChange(true), []);
 
   if (falledBack) return <CustomError statusCode={404} />;
 

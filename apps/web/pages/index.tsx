@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import Router from "next/router";
 import { HStack, Container, Alert, AlertIcon, Heading, Text, Flex, Button } from "@chakra-ui/react";
 import CurrentUserContext from "ui/contexts/CurrentUserContext";
@@ -17,7 +17,7 @@ export default function Web() {
   const { setAllowNetworkChange } = useContext(LayoutContext);
   const { requestedChain } = useRequestedChain();
   const { t } = useLocale();
-  setAllowNetworkChange && setAllowNetworkChange(true);
+  useEffect(() => setAllowNetworkChange && setAllowNetworkChange(true), []);
 
   const {
     auctions: activeAuctions,

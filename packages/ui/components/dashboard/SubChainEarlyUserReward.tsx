@@ -17,27 +17,22 @@ import {
   Flex,
   Select,
   Switch,
-  Link,
+  Input,
+  VStack,
+  FormErrorMessage,
+  FormControl,
 } from "@chakra-ui/react";
-import {
-  CheckCircleIcon,
-  ExternalLinkIcon,
-  QuestionIcon,
-  TimeIcon,
-  WarningIcon,
-} from "@chakra-ui/icons";
+import { QuestionIcon } from "@chakra-ui/icons";
 import { formatEtherInBig } from "lib/utils";
 import { CONTRACT_ADDRESSES } from "lib/constants/contracts";
 import { CHAIN_INFO } from "lib/constants/chains";
-import { CCIP_MESSAGE_STATES } from "lib/constants/ccip";
 import type { DecodedLog, CCIPSendRequestedEventArgs, FeeToken } from "lib/types/ccip";
 import { useLocale } from "../../hooks/useLocale";
 import useSubChainEarlyUserReward from "../../hooks/useSubChainEarlyUserReward";
 import TxSentToast from "../shared/TxSentToast";
 import useApprove from "../../hooks/useApprove";
-import useCCIPStatus from "../../hooks/useCCIPStatus";
-
 import OnrampABI from "lib/constants/abis/Onramp.json";
+import CCIPStatus from "./CCIPStatus";
 
 export default function SubChainEarlyUserReward({
   chainId,
@@ -54,7 +49,8 @@ export default function SubChainEarlyUserReward({
   const sourceChain = CHAIN_INFO[chainId];
   const destinationChainId = sourceChain.sourceId!;
   const destinationChain = CHAIN_INFO[destinationChainId];
-  const ccipMessageKey = `ccipMessage${chainId}`;
+  const ccipMessageKey = `ccipMessage-${chainId}-${safeAddress || address}`;
+  const [ccipMessageId, setCcipMessageId] = useState<string | null>(null);
   const feeTokens: FeeToken[] = [
     { symbol: "ETH", address: zeroAddress },
     { symbol: "WETH", address: CONTRACT_ADDRESSES[chainId].WETH },
@@ -62,12 +58,31 @@ export default function SubChainEarlyUserReward({
   ];
   const [feeTokenIndex, setFeeTokenIndex] = useState<number>(0);
   const [shouldClaim, setShouldClaim] = useState<boolean>(true);
-  const [ccipMessageId, setCcipMessageId] = useState<string | null>(null);
+  const [destinationAddress, setDestinationAddress] = useState<`0x${string}` | undefined>(
+    undefined,
+  );
 
-  const { readScore, sendScore, waitFn, fee } = useSubChainEarlyUserReward({
+  useEffect(() => {
+    const messageId = localStorage.getItem(ccipMessageKey);
+    setCcipMessageId(messageId);
+  }, [ccipMessageKey]);
+
+  const {
+    readScore,
+    sendScore,
+    waitFn,
+    fee,
+    ethBalance,
+    tokenBalance,
+    notEnoughBalance,
+    isChekingContractWallet,
+    isContract,
+    isInvalidDestination,
+  } = useSubChainEarlyUserReward({
     chainId,
     address,
     safeAddress,
+    destinationAddress,
     feeToken: feeTokens[feeTokenIndex].address,
     shouldClaim,
     onSuccessWrite: (data: any) => {
@@ -94,8 +109,6 @@ export default function SubChainEarlyUserReward({
 
       for (let i = 0; i < data.logs.length; i++) {
         try {
-          // TODO
-          // Safe対応
           const decodedLog = decodeEventLog({
             abi: OnrampABI,
             data: data.logs[i].data,
@@ -109,6 +122,7 @@ export default function SubChainEarlyUserReward({
             }
             // Set messageId to local storage
             localStorage.setItem(ccipMessageKey, messageId);
+            setCcipMessageId(messageId);
           }
           break;
         } catch (e) {
@@ -124,6 +138,7 @@ export default function SubChainEarlyUserReward({
     owner: safeAddress || address || "0x",
     spender: CONTRACT_ADDRESSES[chainId].DISTRIBUTOR,
     enabled: (!!safeAddress || !!address) && feeTokens[feeTokenIndex].address !== zeroAddress,
+    safeAddress: safeAddress,
     amount: fee.data,
     onSuccessWrite(data) {
       toast({
@@ -140,17 +155,6 @@ export default function SubChainEarlyUserReward({
         duration: 5000,
       });
     },
-  });
-
-  useEffect(() => {
-    const messageId = localStorage.getItem(ccipMessageKey);
-    setCcipMessageId(messageId);
-  }, [chainId]);
-
-  const status = useCCIPStatus({
-    sourceChainId: chainId,
-    destinationChainId: destinationChainId,
-    messageId: ccipMessageId,
   });
 
   return (
@@ -230,16 +234,60 @@ export default function SubChainEarlyUserReward({
               onChange={(ev) => setShouldClaim(ev.target.checked)}
             ></Switch>
           </HStack>
-          <HStack justifyContent={"space-between"} mt={2}>
+          <HStack justifyContent={"space-between"} alignItems={"baseline"} mt={2}>
             <chakra.p color={"gray.400"}>{t("FEE")}</chakra.p>
-            <chakra.p fontSize={"2xl"}>
-              {fee.data ? formatEtherInBig(fee.data.toString()).toFixed(3) : "-"}
-              <chakra.span color={"gray.400"} fontSize={"lg"} ml={1}>
-                {feeTokens[feeTokenIndex].symbol}
-                <chakra.span fontSize={"xs"}> + TX Fee</chakra.span>
-              </chakra.span>
-            </chakra.p>
+            <chakra.div>
+              <chakra.p textAlign={"right"} fontSize={"2xl"}>
+                {fee.data ? formatEtherInBig(fee.data.toString()).toFixed(3) : "-"}
+                <chakra.span color={"gray.400"} fontSize={"lg"} ml={1}>
+                  {feeTokens[feeTokenIndex].symbol}
+                  <chakra.span fontSize={"xs"}> + TX Fee</chakra.span>
+                </chakra.span>
+              </chakra.p>
+              <chakra.p color={"gray.400"} fontSize={"sm"} textAlign="right">
+                {t("BALANCE")}:{" "}
+                {feeTokenIndex === 0 && !!ethBalance.data && (
+                  <>{Number(ethBalance.data.formatted).toFixed(3)} ETH</>
+                )}
+                {feeTokenIndex > 0 && typeof tokenBalance.data === "bigint" && (
+                  <>
+                    {formatEtherInBig(tokenBalance.data.toString()).toFixed(3)}{" "}
+                    {feeTokens[feeTokenIndex].symbol}
+                  </>
+                )}
+              </chakra.p>
+            </chakra.div>
           </HStack>
+          {isContract && (
+            <HStack justifyContent={"space-between"} alignItems={"baseline"} mt={2}>
+              <chakra.p color={"gray.400"} whiteSpace={"nowrap"}>
+                {t("DESTINATION_ADDRESS_ON_L1")}
+                <Tooltip hasArrow label={t("DESTINATION_ADDRESS_ON_L1_HELP")}>
+                  <QuestionIcon fontSize={"md"} mb={1} ml={1} />
+                </Tooltip>
+              </chakra.p>
+              <FormControl
+                isInvalid={
+                  !!isInvalidDestination && !!destinationAddress && !isChekingContractWallet
+                }
+              >
+                <VStack w={"full"} alignItems={"end"} spacing={0}>
+                  <Input
+                    id="destinationAddress"
+                    name="destinationAddress"
+                    onChange={async (event: React.ChangeEvent<any>) => {
+                      setDestinationAddress(event.target.value);
+                    }}
+                    value={destinationAddress}
+                    maxW={"24rem"}
+                    fontSize={"sm"}
+                    placeholder="e.g. 0x78cE186ccCd42d632aBBeA31D247a619389cb76c"
+                  />
+                  <FormErrorMessage>{t("ERROR_ADDRESS_FORMAT")}</FormErrorMessage>
+                </VStack>
+              </FormControl>
+            </HStack>
+          )}
           <Flex justifyContent={"flex-end"} mt={2}>
             {feeTokenIndex > 0 && !!fee.data && approvals.allowance < fee.data ? (
               <Button
@@ -252,53 +300,41 @@ export default function SubChainEarlyUserReward({
                 {t("APPROVE_TOKEN")}
               </Button>
             ) : (
-              <Button
-                isLoading={
-                  readScore.isLoading ||
-                  typeof readScore.data === "undefined" ||
-                  sendScore?.isLoading ||
-                  waitFn?.isLoading ||
-                  fee.isLoading
-                }
-                isDisabled={!readScore.data || !sendScore.write || !fee.data}
-                onClick={() => {
-                  sendScore.write?.();
-                }}
-                variant={"solid"}
-                colorScheme="green"
-              >
-                {shouldClaim ? t("TRANSFER_SCORE_TO_L1_WITH_CLAIM") : t("TRANSFER_SCORE_TO_L1")}
-              </Button>
+              <Box>
+                <Button
+                  isLoading={
+                    readScore.isLoading ||
+                    typeof readScore.data === "undefined" ||
+                    sendScore?.isLoading ||
+                    waitFn?.isLoading ||
+                    fee.isLoading ||
+                    isChekingContractWallet ||
+                    (sendScore?.isSuccess && waitFn.isIdle)
+                  }
+                  isDisabled={
+                    !readScore.data ||
+                    !sendScore.write ||
+                    !fee.data ||
+                    !!isInvalidDestination ||
+                    notEnoughBalance
+                  }
+                  onClick={() => {
+                    sendScore.write?.();
+                  }}
+                  variant={"solid"}
+                  colorScheme="green"
+                >
+                  {shouldClaim ? t("TRANSFER_SCORE_TO_L1_WITH_CLAIM") : t("TRANSFER_SCORE_TO_L1")}
+                </Button>
+                {notEnoughBalance && (
+                  <chakra.p textAlign={"right"} fontSize={"sm"} color={"red.300"}>
+                    {t("ERROR_NOT_ENOUGH_BALANCE_TO_PAY_FEE")}
+                  </chakra.p>
+                )}
+              </Box>
             )}
           </Flex>
-          {ccipMessageId && status && (
-            <Box mt={2}>
-              <Heading fontSize={"sm"}>{t("TRANSACTION")}</Heading>
-              <HStack justifyContent={"space-between"} mt={2}>
-                <chakra.p color={"gray.400"}>
-                  <Link href={`https://ccip.chain.link/msg/${ccipMessageId}`} target="_blank">
-                    {`${ccipMessageId.slice(0, 14)}...${ccipMessageId.slice(-14)}`}
-                    <ExternalLinkIcon ml={2} />
-                  </Link>
-                </chakra.p>
-                <Flex alignItems={"center"}>
-                  {CCIP_MESSAGE_STATES[status] === CCIP_MESSAGE_STATES.UNTOUCHED && (
-                    <TimeIcon fontSize={"lg"} />
-                  )}
-                  {CCIP_MESSAGE_STATES[status] === CCIP_MESSAGE_STATES.IN_PROGRESS && (
-                    <Spinner fontSize={"lg"} />
-                  )}
-                  {CCIP_MESSAGE_STATES[status] === CCIP_MESSAGE_STATES.SUCCESS && (
-                    <CheckCircleIcon fontSize={"lg"} color={"green.300"} />
-                  )}
-                  {CCIP_MESSAGE_STATES[status] === CCIP_MESSAGE_STATES.FAILURE && (
-                    <WarningIcon fontSize={"lg"} color={"red.300"} />
-                  )}
-                  <chakra.span ml={2}>{status}</chakra.span>
-                </Flex>
-              </HStack>
-            </Box>
-          )}
+          <CCIPStatus chainId={chainId} ccipMessageId={ccipMessageId} />
         </Box>
       </CardFooter>
     </Card>

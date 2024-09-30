@@ -14,7 +14,7 @@ export const useIsContractWallet = ({
   const publicClient = usePublicClient({ chainId });
   const [_isContractWallet, setIsContractWallet] = useState<
     Awaited<ReturnType<typeof isContractWallet>>
-  >({});
+  >({ isContract: false, isSafe: false });
   const [isChecking, setIsChecking] = useState<boolean>(false);
 
   useEffect(() => {

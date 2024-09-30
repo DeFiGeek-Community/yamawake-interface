@@ -13,9 +13,14 @@ export default function Layout({
 }: {
   children: React.ReactNode;
 } & HeaderProps) {
-  const { requestedChain, connectedChain: chain } = useRequestedChain();
-
+  const { requestedChain, connectedChain } = useRequestedChain();
   const { t } = useLocale();
+  const [chain, setChain] =
+    useState<ReturnType<typeof useRequestedChain>["connectedChain"]>(undefined);
+
+  useEffect(() => {
+    setChain(connectedChain);
+  }, [connectedChain]);
 
   // Dark mode only for now
   const { colorMode, toggleColorMode } = useColorMode();

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createPublicClient, fallback, parseAbiItem } from "viem";
 import { useContractRead } from "wagmi";
 import { CHAIN_INFO } from "lib/constants/chains";
@@ -16,8 +16,9 @@ export default function useCCIPStatus({
   sourceChainId: number;
   destinationChainId: number;
   messageId: string | null;
-}): keyof typeof CCIP_MESSAGE_STATES | null {
-  const [status, setStatus] = useState<keyof typeof CCIP_MESSAGE_STATES | null>(null);
+}): { status: keyof typeof CCIP_MESSAGE_STATES | null; isError: boolean } {
+  const [status, setStatus] = useState<keyof typeof CCIP_MESSAGE_STATES | null>("IN_PROGRESS");
+  const [isError, setIsError] = useState<boolean>(false);
   const destinationChain = CHAIN_INFO[destinationChainId];
   const destinationRpcEndpoints = getRPCEndpoints(destinationChainId);
   const destinationClient = createPublicClient({
@@ -25,22 +26,22 @@ export default function useCCIPStatus({
     transport: fallback(destinationRpcEndpoints),
   });
 
-  const sourceRouterAddress = CONTRACT_ADDRESSES[sourceChainId].ROUTER;
+  // const sourceRouterAddress = CONTRACT_ADDRESSES[sourceChainId].ROUTER;
   const sourceChainSelector = CHAIN_INFO[sourceChainId].chainSelector;
   const destinationRouterAddress = CONTRACT_ADDRESSES[destinationChainId].ROUTER;
-  const destinationChainSelector = CHAIN_INFO[destinationChainId].chainSelector;
+  // const destinationChainSelector = CHAIN_INFO[destinationChainId].chainSelector;
 
-  const sourceRouterContract = {
-    address: sourceRouterAddress,
-    abi: RouterABI,
-    chainId: sourceChainId,
-  };
+  // const sourceRouterContract = {
+  //   address: sourceRouterAddress,
+  //   abi: RouterABI,
+  //   chainId: sourceChainId,
+  // };
 
-  const isChainSupported = useContractRead({
-    ...sourceRouterContract,
-    functionName: "isChainSupported",
-    args: [destinationChainSelector],
-  });
+  // const isChainSupported = useContractRead({
+  //   ...sourceRouterContract,
+  //   functionName: "isChainSupported",
+  //   args: [destinationChainSelector],
+  // });
 
   const destinationRouterContract = {
     address: destinationRouterAddress,
@@ -54,9 +55,27 @@ export default function useCCIPStatus({
     watch: status !== "SUCCESS",
   });
 
-  const matchingOffRamps = offRamps.data?.filter(
-    (offRamp: any) => offRamp.sourceChainSelector === sourceChainSelector,
-  );
+  const [matchingOffRamps, setMatchingOffRamps] = useState<any[] | undefined>(undefined);
+
+  useEffect(() => {
+    if (offRamps.data) {
+      setMatchingOffRamps(
+        offRamps.data.filter((offRamp: any) => offRamp.sourceChainSelector === sourceChainSelector),
+      );
+    }
+  }, [offRamps.data]);
+
+  useEffect(() => {
+    setIsError(false);
+    if (matchingOffRamps) {
+      for (const matchingOffRamp of matchingOffRamps) {
+        getLogs(matchingOffRamp).catch((e: any) => {
+          console.error(e.message);
+          setIsError(true);
+        });
+      }
+    }
+  }, [matchingOffRamps]);
 
   const getLogs = async (matchingOffRamp: any) => {
     const offRampContract = {
@@ -84,14 +103,12 @@ export default function useCCIPStatus({
       console.log(
         `Status of message ${messageId} on offRamp ${matchingOffRamp.offRamp} is ${CCIP_MESSAGE_STATES[state]}\n`,
       );
+    } else {
+      setStatus(
+        CCIP_MESSAGE_STATES[CCIP_MESSAGE_STATES.IN_PROGRESS] as keyof typeof CCIP_MESSAGE_STATES,
+      );
     }
   };
 
-  if (matchingOffRamps) {
-    for (const matchingOffRamp of matchingOffRamps) {
-      getLogs(matchingOffRamp);
-    }
-  }
-
-  return status;
+  return { status, isError };
 }
