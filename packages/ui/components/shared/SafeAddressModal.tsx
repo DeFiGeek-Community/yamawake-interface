@@ -65,6 +65,10 @@ export function SafeAddressModal({
     formikProps.validateForm();
   }, [isChecking]);
 
+  useEffect(() => {
+    setSelectedChain(requestedChain);
+  }, [requestedChain]);
+
   const handleSwitchNetwork = async (args: SwitchNetworkArgs) => {
     try {
       await switchNetwork(args);
