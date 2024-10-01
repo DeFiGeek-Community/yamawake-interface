@@ -139,7 +139,7 @@ export default function SubChainEarlyUserReward({
     spender: CONTRACT_ADDRESSES[chainId].DISTRIBUTOR,
     enabled: (!!safeAddress || !!address) && feeTokens[feeTokenIndex].address !== zeroAddress,
     safeAddress: safeAddress,
-    amount: fee.data,
+    amount: fee.data ? fee.data * 2n : undefined, // for accepting fluctuation in fee price
     onSuccessWrite(data) {
       toast({
         title: safeAddress ? t("SAFE_TRANSACTION_PROPOSED") : t("TRANSACTION_SENT"),
@@ -294,7 +294,11 @@ export default function SubChainEarlyUserReward({
                 variant="solid"
                 colorScheme="blue"
                 onClick={approvals.writeFn.write}
-                isLoading={approvals.writeFn.isLoading || approvals.waitFn.isLoading}
+                isLoading={
+                  approvals.writeFn.isLoading ||
+                  approvals.waitFn.isLoading ||
+                  (approvals.writeFn.isSuccess && approvals.waitFn.isIdle)
+                }
                 isDisabled={!approvals.writeFn.write || !fee.data}
               >
                 {t("APPROVE_TOKEN")}
