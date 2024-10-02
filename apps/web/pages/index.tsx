@@ -15,7 +15,7 @@ import MetaTags from "ui/components/layouts/MetaTags";
 export default function Web() {
   const { currentUser, mutate } = useContext(CurrentUserContext);
   const { setAllowNetworkChange } = useContext(LayoutContext);
-  const { requestedChain } = useRequestedChain();
+  const { requestedChain } = useRequestedChain({ redirectOnSwitchNetwork: true });
   const { t } = useLocale();
   useEffect(() => setAllowNetworkChange && setAllowNetworkChange(true), []);
 
