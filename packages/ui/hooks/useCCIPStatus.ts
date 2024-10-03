@@ -67,7 +67,7 @@ export default function useCCIPStatus({
 
   useEffect(() => {
     setIsError(false);
-    if (matchingOffRamps) {
+    if (messageId && matchingOffRamps) {
       for (const matchingOffRamp of matchingOffRamps) {
         getLogs(matchingOffRamp).catch((e: any) => {
           console.error(e.message);
@@ -75,7 +75,7 @@ export default function useCCIPStatus({
         });
       }
     }
-  }, [matchingOffRamps]);
+  }, [messageId, matchingOffRamps]);
 
   const getLogs = async (matchingOffRamp: any) => {
     const offRampContract = {
@@ -102,10 +102,6 @@ export default function useCCIPStatus({
       setStatus(CCIP_MESSAGE_STATES[state] as keyof typeof CCIP_MESSAGE_STATES);
       console.log(
         `Status of message ${messageId} on offRamp ${matchingOffRamp.offRamp} is ${CCIP_MESSAGE_STATES[state]}\n`,
-      );
-    } else {
-      setStatus(
-        CCIP_MESSAGE_STATES[CCIP_MESSAGE_STATES.IN_PROGRESS] as keyof typeof CCIP_MESSAGE_STATES,
       );
     }
   };

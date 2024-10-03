@@ -138,7 +138,6 @@ export default function useSubChainEarlyUserReward({
     value: feeToken === zeroAddress ? fee.data : 0n,
   });
 
-  console.log(feeToken, CONTRACT_ADDRESSES[chainId].DISTRIBUTOR);
   const approvals = useApprove({
     chainId,
     targetAddress: feeToken,
