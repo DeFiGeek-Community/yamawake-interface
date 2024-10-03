@@ -39,6 +39,7 @@ export default function Web() {
         currentUser={currentUser}
         mutate={mutate}
         subtitle={t("AN_INCLUSIVE_AND_TRANSPARENT_TOKEN_LAUNCHPAD")}
+        requestedChain={requestedChain}
       />
       <Container maxW={"container.xl"}>
         <Heading fontSize={{ base: "xl", md: "3xl" }}>{t("LIVE_UPCOMING_SALES")}</Heading>
