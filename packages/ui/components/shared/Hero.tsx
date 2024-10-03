@@ -1,4 +1,5 @@
 import Router from "next/router";
+import type { Chain } from "viem/chains";
 import { Button, Flex, Heading, Stack, HStack, useToast } from "@chakra-ui/react";
 import { KeyedMutator } from "swr";
 import { User } from "lib/types";
@@ -7,6 +8,7 @@ import { useLocale } from "../../hooks/useLocale";
 import bgImage from "assets/images/background_sky-min.png";
 
 type HeroProps = {
+  requestedChain: Chain;
   title?: string;
   subtitle?: string;
   currentUser?: User;
@@ -14,6 +16,7 @@ type HeroProps = {
 };
 
 export default function Hero({
+  requestedChain,
   title = "Yamawake",
   subtitle = "An inclusive and transparent token launchpad,\n offering a permissionless and fair launch model.",
   currentUser,
@@ -81,7 +84,10 @@ export default function Hero({
               }}
             />
           )}
-          <Button size={{ base: "md", md: "lg" }} onClick={() => Router.push("/auctions")}>
+          <Button
+            size={{ base: "md", md: "lg" }}
+            onClick={() => Router.push(`/auctions/${requestedChain.id}`)}
+          >
             {t("JOIN_AUCTION")}
           </Button>
         </HStack>

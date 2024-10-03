@@ -8,6 +8,7 @@ import { useEffect, useMemo, useState } from "react";
 import { parseAbiParameters, encodeAbiParameters, zeroAddress, isAddress } from "viem";
 import { useSafeContractWrite, useSafeWaitForTransaction } from "./Safe";
 import { useIsContractWallet } from "./useIsContractWallet";
+import useApprove from "./useApprove";
 
 export default function useSubChainEarlyUserReward({
   chainId,
@@ -17,10 +18,14 @@ export default function useSubChainEarlyUserReward({
   feeToken,
   shouldClaim,
   watch = true,
-  onSuccessWrite,
-  onErrorWrite,
-  onSuccessConfirm,
-  onErrorConfirm,
+  onSuccessSendScoreWrite,
+  onErrorSendScoreWrite,
+  onSuccessSendScoreConfirm,
+  onErrorSendScoreConfirm,
+  onSuccessApproveWrite,
+  onErrorApproveWrite,
+  onSuccessApproveConfirm,
+  onErrorApproveConfirm,
 }: {
   chainId: number;
   address: `0x${string}` | undefined;
@@ -29,11 +34,16 @@ export default function useSubChainEarlyUserReward({
   feeToken: `0x${string}`;
   shouldClaim: boolean;
   watch?: boolean;
-  onSuccessWrite?: (data: any) => void;
-  onErrorWrite?: (error: Error) => void;
-  onSuccessConfirm?: (data: any) => void;
-  onErrorConfirm?: (error: Error) => void;
+  onSuccessSendScoreWrite?: (data: any) => void;
+  onErrorSendScoreWrite?: (error: Error) => void;
+  onSuccessSendScoreConfirm?: (data: any) => void;
+  onErrorSendScoreConfirm?: (error: Error) => void;
+  onSuccessApproveWrite?: (data: any) => void;
+  onErrorApproveWrite?: (error: Error) => void;
+  onSuccessApproveConfirm?: (data: any) => void;
+  onErrorApproveConfirm?: (error: Error) => void;
 }): {
+  approvals: ReturnType<typeof useApprove>;
   readScore: ReturnType<typeof useContractRead<typeof DistributorABI, "scores", bigint>>;
   sendScore: ReturnType<typeof useSafeContractWrite>;
   waitFn: ReturnType<typeof useSafeWaitForTransaction>;
@@ -128,14 +138,37 @@ export default function useSubChainEarlyUserReward({
     value: feeToken === zeroAddress ? fee.data : 0n,
   });
 
+  const approvals = useApprove({
+    chainId,
+    targetAddress: feeToken,
+    owner: safeAddress || address || "0x",
+    spender: CONTRACT_ADDRESSES[chainId].DISTRIBUTOR,
+    enabled: (!!safeAddress || !!address) && feeToken !== zeroAddress,
+    safeAddress: safeAddress,
+    amount: fee.data,
+    // amount: fee.data ? fee.data * 2n : undefined, // for accepting fluctuation in fee price
+    onSuccessWrite(data) {
+      onSuccessApproveWrite && onSuccessApproveWrite(data);
+    },
+    onErrorWrite(error) {
+      onErrorApproveWrite && onErrorApproveWrite(error);
+    },
+    onSuccessConfirm(data) {
+      onSuccessApproveConfirm && onSuccessApproveConfirm(data);
+    },
+    onErrorConfirm(error) {
+      onErrorApproveConfirm && onErrorApproveConfirm(error);
+    },
+  });
+
   const sendScore = useSafeContractWrite({
     ...sendScoreConfig,
     safeAddress,
     onSuccess(data) {
-      onSuccessWrite && onSuccessWrite(data);
+      onSuccessSendScoreWrite && onSuccessSendScoreWrite(data);
     },
     onError(e: Error) {
-      onErrorWrite && onErrorWrite(e);
+      onErrorSendScoreWrite && onErrorSendScoreWrite(e);
     },
   });
 
@@ -143,10 +176,10 @@ export default function useSubChainEarlyUserReward({
     hash: sendScore.data?.hash,
     safeAddress,
     onSuccess(data) {
-      onSuccessConfirm && onSuccessConfirm(data);
+      onSuccessSendScoreConfirm && onSuccessSendScoreConfirm(data);
     },
     onError(e: Error) {
-      onErrorConfirm && onErrorConfirm(e);
+      onErrorSendScoreConfirm && onErrorSendScoreConfirm(e);
     },
   });
 
@@ -192,6 +225,7 @@ export default function useSubChainEarlyUserReward({
   }, [feeToken, fee.data, tokenBalance.data, ethBalance.data]);
 
   return {
+    approvals,
     readScore,
     sendScore,
     waitFn,

@@ -15,7 +15,7 @@ import MetaTags from "ui/components/layouts/MetaTags";
 export default function Web() {
   const { currentUser, mutate } = useContext(CurrentUserContext);
   const { setAllowNetworkChange } = useContext(LayoutContext);
-  const { requestedChain } = useRequestedChain();
+  const { requestedChain } = useRequestedChain({ redirectOnSwitchNetwork: true });
   const { t } = useLocale();
   useEffect(() => setAllowNetworkChange && setAllowNetworkChange(true), []);
 
@@ -39,6 +39,7 @@ export default function Web() {
         currentUser={currentUser}
         mutate={mutate}
         subtitle={t("AN_INCLUSIVE_AND_TRANSPARENT_TOKEN_LAUNCHPAD")}
+        requestedChain={requestedChain}
       />
       <Container maxW={"container.xl"}>
         <Heading fontSize={{ base: "xl", md: "3xl" }}>{t("LIVE_UPCOMING_SALES")}</Heading>

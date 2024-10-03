@@ -505,7 +505,11 @@ export default function AuctionForm({
             variant="solid"
             colorScheme="blue"
             onClick={approvals.writeFn.write}
-            isLoading={approvals.writeFn.isLoading || approvals.waitFn.isLoading}
+            isLoading={
+              approvals.writeFn.isLoading ||
+              approvals.waitFn.isLoading ||
+              (approvals.writeFn.isSuccess && approvals.waitFn.isIdle)
+            }
             isDisabled={
               !isSupportedChain(chainId) || !approvals.writeFn.write || !formikProps.isValid
             }

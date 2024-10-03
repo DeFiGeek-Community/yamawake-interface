@@ -68,6 +68,7 @@ export default function SubChainEarlyUserReward({
   }, [ccipMessageKey]);
 
   const {
+    approvals,
     readScore,
     sendScore,
     waitFn,
@@ -85,7 +86,7 @@ export default function SubChainEarlyUserReward({
     destinationAddress,
     feeToken: feeTokens[feeTokenIndex].address,
     shouldClaim,
-    onSuccessWrite: (data: any) => {
+    onSuccessSendScoreWrite: (data: any) => {
       toast({
         title: safeAddress ? t("SAFE_TRANSACTION_PROPOSED") : t("TRANSACTION_SENT"),
         status: "success",
@@ -93,14 +94,14 @@ export default function SubChainEarlyUserReward({
         render: safeAddress ? undefined : (props) => <TxSentToast txid={data?.hash} {...props} />,
       });
     },
-    onErrorWrite: (e: Error) => {
+    onErrorSendScoreWrite: (e: Error) => {
       toast({
         description: e.message,
         status: "error",
         duration: 5000,
       });
     },
-    onSuccessConfirm: (data: any) => {
+    onSuccessSendScoreConfirm: (data: any) => {
       toast({
         description: t("TRANSACTION_CONFIRMED"),
         status: "success",
@@ -130,17 +131,14 @@ export default function SubChainEarlyUserReward({
         }
       }
     },
-  });
-
-  const approvals = useApprove({
-    chainId,
-    targetAddress: feeTokens[feeTokenIndex].address,
-    owner: safeAddress || address || "0x",
-    spender: CONTRACT_ADDRESSES[chainId].DISTRIBUTOR,
-    enabled: (!!safeAddress || !!address) && feeTokens[feeTokenIndex].address !== zeroAddress,
-    safeAddress: safeAddress,
-    amount: fee.data ? fee.data * 2n : undefined, // for accepting fluctuation in fee price
-    onSuccessWrite(data) {
+    onErrorSendScoreConfirm: (e: Error) => {
+      toast({
+        description: e.message,
+        status: "error",
+        duration: 5000,
+      });
+    },
+    onSuccessApproveWrite(data) {
       toast({
         title: safeAddress ? t("SAFE_TRANSACTION_PROPOSED") : t("TRANSACTION_SENT"),
         status: "success",
@@ -148,10 +146,24 @@ export default function SubChainEarlyUserReward({
         render: safeAddress ? undefined : (props) => <TxSentToast txid={data.hash} {...props} />,
       });
     },
-    onSuccessConfirm(data) {
+    onErrorApproveWrite: (e: Error) => {
+      toast({
+        description: e.message,
+        status: "error",
+        duration: 5000,
+      });
+    },
+    onSuccessApproveConfirm(data) {
       toast({
         title: t("APPROVAL_CONFIRMED"),
         status: "success",
+        duration: 5000,
+      });
+    },
+    onErrorApproveConfirm: (e: Error) => {
+      toast({
+        description: e.message,
+        status: "error",
         duration: 5000,
       });
     },
