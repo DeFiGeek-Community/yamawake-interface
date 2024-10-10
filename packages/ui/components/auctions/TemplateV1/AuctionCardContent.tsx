@@ -17,6 +17,7 @@ import {
   Tooltip,
 } from "@chakra-ui/react";
 import { EditIcon, QuestionIcon } from "@chakra-ui/icons";
+import { format } from "date-fns";
 import { Link } from "../../shared/Link";
 import Big, { divideToNum, getBigNumber } from "lib/utils/bignumber";
 import { AuctionProps, TemplateV1 } from "lib/types/Auction";
@@ -171,6 +172,10 @@ export default function AuctionCardContent({
               mt={{ base: 2, md: 0 }}
               alignItems={"center"}
             />
+            <Text mt={-2} fontSize={"xs"} color={"gray.400"}>
+              {format(auction.startingAt * 1000, "yyyy/MM/dd HH:mm:ss")} -
+              {format(auction.closingAt * 1000, " yyyy/MM/dd HH:mm:ss (z)")}
+            </Text>
           </Stack>
         </CardBody>
       </Stack>
