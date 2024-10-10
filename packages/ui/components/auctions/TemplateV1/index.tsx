@@ -441,6 +441,7 @@ export default memo(function DetailPage({
                       raisedTokenDecimal={raisedTokenDecimal}
                       isEnding={ended}
                       isClaimed={auction.claims.length > 0}
+                      isFailed={auction.isFailed()}
                       isLodingTX={isLoadingWaitTX || isLoadingSendTX}
                     />
                   </Box>

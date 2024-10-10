@@ -106,7 +106,7 @@ export default function ClaimButton({
     >
       {isClaimed || claimSucceeded
         ? t("CLAIMED")
-        : expectedAmount.eq(0) && myContribution.gt(0)
+        : auction.isFailed()
           ? t("CLAIM_REFUND")
           : t("CLAIM")}
     </Button>

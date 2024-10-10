@@ -30,6 +30,10 @@ export abstract class BaseAuction implements AuctionProps {
     this.claims = data.claims;
     this.blockNumber = data.blockNumber;
   }
+
+  isEnded(): boolean {
+    return this.closingAt <= new Date().getTime() / 1000;
+  }
 }
 
 export class TemplateV1 extends BaseAuction {
@@ -44,6 +48,14 @@ export class TemplateV1 extends BaseAuction {
     const decodedArgs = this.parseArgs();
     this.allocatedAmount = decodedArgs.allocatedAmount;
     this.minRaisedAmount = decodedArgs.minRaisedAmount;
+  }
+
+  isFailed(): boolean {
+    return (
+      this.isEnded() &&
+      (BigInt(this.totalRaised[0].amount) === 0n ||
+        BigInt(this.totalRaised[0].amount) < BigInt(this.minRaisedAmount))
+    );
   }
 }
 
