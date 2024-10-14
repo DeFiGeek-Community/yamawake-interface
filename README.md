@@ -96,7 +96,7 @@ TEST_FACTORY_ADDRESS="0x..."
 
 ```bash
 cd subgraph
-yarn codegen && yarn build
+yarn codegen && yarn build:mainnet
 yarn deploy --studio SUBGRAPH_NAME
 ```
 

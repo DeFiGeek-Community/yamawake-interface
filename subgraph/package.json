@@ -3,7 +3,8 @@
   "license": "UNLICENSED",
   "scripts": {
     "codegen": "graph codegen",
-    "build": "graph build",
+    "build:mainnet": "graph build --network mainnet",
+    "build:base": "graph build --network base",
     "deploy": "graph deploy",
     "create-local": "graph create --node http://localhost:8020/ yamawake",
     "remove-local": "graph remove --node http://localhost:8020/ yamawake",
