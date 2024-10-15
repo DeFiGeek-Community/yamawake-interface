@@ -10,7 +10,7 @@ export const CHAIN_INFO: { [id: number]: ChainInfo } =
     ? {
         [mainnet.id]: { ...mainnet, chainSelector: 5009297550715157269n },
         // [arbitrum.id]: { ...arbitrum, chainSelector: 4949039107694359620n },
-        // [base.id]: { ...base, chainSelector: 15971525489660198786n },
+        [base.id]: { ...base, chainSelector: 15971525489660198786n },
       }
     : process.env.NEXT_PUBLIC_ENV === "testnet"
       ? {
