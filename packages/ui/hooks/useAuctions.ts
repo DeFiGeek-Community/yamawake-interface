@@ -10,8 +10,9 @@ import {
   LIST_PARTICIPATED_SALE_QUERY,
 } from "lib/graphql/query";
 import { AuctionProps, BaseAuction } from "lib/types/Auction";
-import client from "lib/graphql/client";
 import { zeroAddress } from "viem";
+import { GraphQLChainClient } from "lib/graphql/client";
+import { GraphQLClient } from "graphql-request";
 
 interface SWRAuctionStore {
   auctions: AuctionProps[];
@@ -34,6 +35,8 @@ type AuctionsParams = {
   keySuffix?: string;
 };
 
+type Variable = { skip: number; first: number; now: number; id: string };
+
 // TODO Send limit as a param
 const LIMIT = 50;
 const NOW = Math.floor(new Date().getTime() / 1000);
@@ -41,7 +44,9 @@ const NOW = Math.floor(new Date().getTime() / 1000);
 export const useSWRAuctions = (
   config: AuctionsParams & SWRConfiguration,
   queryType: QueryType = QueryType.ACTIVE_AND_UPCOMING,
+  chainId: number | undefined,
 ): SWRAuctionStore => {
+  let client = new GraphQLChainClient({ chainId });
   const getQuery = (queryType: QueryType): string => {
     switch (queryType) {
       case QueryType.ACTIVE_AND_UPCOMING:
@@ -69,24 +74,42 @@ export const useSWRAuctions = (
     const id = config.id ? config.id : zeroAddress;
     const now = NOW;
 
-    return { query, variables: { skip, first, now, id } };
+    return { query, variables: { skip, first, now, id, chainId } };
   };
 
   const fetcher = async (
     params: {
       query: string;
-      variables: { skip: number; first: number; now: number; id: string };
+      variables: Variable;
     } | null,
   ) => {
-    let auctions: AuctionProps[] = [];
-    if (params === null) return auctions;
-    try {
-      const result = await client.request<QueryResponse>(params.query, params.variables);
-      auctions = result.auctions;
-    } catch (e) {
-      console.error(e);
+    if (params === null) return [];
+    let result: AuctionProps[] | Error;
+
+    result = await handleFetch(client, params.query, params.variables);
+    if (result instanceof Error) {
+      client = new GraphQLChainClient({ chainId, useSecondaryEndpoint: true });
+      result = await handleFetch(client, params.query, params.variables);
+      if (result instanceof Error) throw result;
     }
-    return auctions;
+
+    return result;
+  };
+
+  const handleFetch = async (
+    client: GraphQLClient,
+    query: string,
+    variables: Variable,
+  ): Promise<AuctionProps[] | Error> => {
+    try {
+      const result = await client.request<QueryResponse>(query, variables);
+      return result.auctions;
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        return e;
+      }
+      return new Error("An error occurred");
+    }
   };
 
   const {

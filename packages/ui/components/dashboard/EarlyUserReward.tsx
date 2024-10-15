@@ -18,17 +18,27 @@ import useEarlyUserReward from "../../hooks/useEarlyUserReward";
 import { formatEtherInBig } from "lib/utils";
 import TxSentToast from "../shared/TxSentToast";
 
-export default function EarlyUserReward({ address }: { address: `0x${string}` }) {
+export default function EarlyUserReward({
+  chainId,
+  address,
+  safeAddress,
+}: {
+  chainId: number;
+  address: `0x${string}` | undefined;
+  safeAddress: `0x${string}` | undefined;
+}) {
   const toast = useToast({ position: "top-right", isClosable: true });
   const { t } = useLocale();
   const { readFn, writeFn, waitFn } = useEarlyUserReward({
+    chainId,
     address,
+    safeAddress,
     onSuccessWrite: (data: any) => {
       toast({
-        title: "Transaction sent!",
+        title: safeAddress ? t("SAFE_TRANSACTION_PROPOSED") : t("TRANSACTION_SENT"),
         status: "success",
-        duration: 5000,
-        render: (props) => <TxSentToast txid={data?.hash} {...props} />,
+        duration: 10000,
+        render: safeAddress ? undefined : (props) => <TxSentToast txid={data?.hash} {...props} />,
       });
     },
     onErrorWrite: (e: Error) => {
@@ -40,7 +50,7 @@ export default function EarlyUserReward({ address }: { address: `0x${string}` })
     },
     onSuccessConfirm: (data: any) => {
       toast({
-        description: `Transaction confirmed!`,
+        description: t("TRANSACTION_CONFIRMED"),
         status: "success",
         duration: 5000,
       });
@@ -80,7 +90,8 @@ export default function EarlyUserReward({ address }: { address: `0x${string}` })
             readFn.isLoading ||
             typeof readFn.data === "undefined" ||
             writeFn?.isLoading ||
-            waitFn?.isLoading
+            waitFn?.isLoading ||
+            (writeFn?.isSuccess && waitFn.isIdle)
           }
           isDisabled={(typeof readFn.data === "bigint" && readFn.data === 0n) || !writeFn.write}
           onClick={() => {

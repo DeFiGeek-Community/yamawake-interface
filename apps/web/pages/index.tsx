@@ -1,11 +1,12 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import Router from "next/router";
 import { HStack, Container, Alert, AlertIcon, Heading, Text, Flex, Button } from "@chakra-ui/react";
 import CurrentUserContext from "ui/contexts/CurrentUserContext";
-import Layout from "ui/components/layouts/layout";
+import LayoutContext from "ui/contexts/LayoutContext";
 import Hero from "ui/components/shared/Hero";
 import AuctionCard, { AuctionCardSkeleton } from "ui/components/auctions/AuctionCard";
 import { useSWRAuctions } from "ui/hooks/useAuctions";
+import { useRequestedChain } from "ui/hooks/useRequestedChain";
 import { useLocale } from "ui/hooks/useLocale";
 import { AuctionProps } from "lib/types/Auction";
 import { QueryType } from "lib/graphql/query";
@@ -13,6 +14,11 @@ import MetaTags from "ui/components/layouts/MetaTags";
 
 export default function Web() {
   const { currentUser, mutate } = useContext(CurrentUserContext);
+  const { setAllowNetworkChange } = useContext(LayoutContext);
+  const { requestedChain } = useRequestedChain({ redirectOnSwitchNetwork: true });
+  const { t } = useLocale();
+  useEffect(() => setAllowNetworkChange && setAllowNetworkChange(true), []);
+
   const {
     auctions: activeAuctions,
     isLast: isLastActiveAuctions,
@@ -20,16 +26,20 @@ export default function Web() {
     isValidating: isValidatingActiveAuctions,
     error: activeAuctionsError,
     loadMoreAuctions: loadMoreActiveAuctions,
-  } = useSWRAuctions({ first: 5, keySuffix: "top" }, QueryType.ACTIVE_AND_UPCOMING);
-  const { t } = useLocale();
+  } = useSWRAuctions(
+    { first: 5, keySuffix: "top" },
+    QueryType.ACTIVE_AND_UPCOMING,
+    requestedChain.id,
+  );
 
   return (
-    <Layout>
+    <>
       <MetaTags />
       <Hero
         currentUser={currentUser}
         mutate={mutate}
         subtitle={t("AN_INCLUSIVE_AND_TRANSPARENT_TOKEN_LAUNCHPAD")}
+        requestedChain={requestedChain}
       />
       <Container maxW={"container.xl"}>
         <Heading fontSize={{ base: "xl", md: "3xl" }}>{t("LIVE_UPCOMING_SALES")}</Heading>
@@ -48,7 +58,13 @@ export default function Web() {
             </>
           ) : (
             activeAuctions.map((auctionProps: AuctionProps) => {
-              return <AuctionCard key={auctionProps.id} auctionProps={auctionProps} />;
+              return (
+                <AuctionCard
+                  chainId={requestedChain.id}
+                  key={auctionProps.id}
+                  auctionProps={auctionProps}
+                />
+              );
             })
           )}
           {!isLoadingActiveAuctions && activeAuctions.length === 0 && (
@@ -60,11 +76,14 @@ export default function Web() {
           )}
         </HStack>
         <Flex alignItems={"center"} justifyContent={"center"} pb={8}>
-          <Button size={{ base: "md", md: "lg" }} onClick={() => Router.push("/auctions")}>
+          <Button
+            size={{ base: "md", md: "lg" }}
+            onClick={() => Router.push(`/auctions/${requestedChain.id}`)}
+          >
             {t("VIEW_ALL_SALES")}
           </Button>
         </Flex>
       </Container>
-    </Layout>
+    </>
   );
 }

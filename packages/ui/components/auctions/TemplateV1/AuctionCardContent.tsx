@@ -1,7 +1,5 @@
-import { useEffect, useState } from "react";
 import {
   chakra,
-  Link,
   Box,
   Divider,
   Skeleton,
@@ -19,6 +17,8 @@ import {
   Tooltip,
 } from "@chakra-ui/react";
 import { EditIcon, QuestionIcon } from "@chakra-ui/icons";
+import { format } from "date-fns";
+import { Link } from "../../shared/Link";
 import Big, { divideToNum, getBigNumber } from "lib/utils/bignumber";
 import { AuctionProps, TemplateV1 } from "lib/types/Auction";
 import useSWRMetaData from "../../../hooks/useSWRMetaData";
@@ -33,18 +33,22 @@ import {
 } from "lib/utils";
 import { useLocale } from "../../../hooks/useLocale";
 import AuctionCardCountdown from "../AuctionCardCountdown";
+import { getSupportedChain } from "lib/utils/chain";
 
 export default function AuctionCardContent({
+  chainId,
   auctionProps,
   editable = false,
 }: {
+  chainId: number | undefined;
   auctionProps: AuctionProps;
   editable?: boolean;
 }) {
   const auction = new TemplateV1(auctionProps);
   const { onOpen, isOpen, onClose } = useDisclosure();
   const { t, locale } = useLocale();
-  const { data, mutate, error } = useSWRMetaData(auction.id as string);
+  const chain = typeof chainId === "undefined" ? chainId : getSupportedChain(chainId);
+  const { data, mutate, error } = useSWRMetaData(chain?.id, auction.id as string);
 
   const card = (
     <Card
@@ -74,7 +78,7 @@ export default function AuctionCardContent({
               <chakra.div flex={11} pr={4}>
                 <Heading size="lg">
                   {editable ? (
-                    <Link _hover={{ opacity: 0.75 }} href={`/auctions/${auction.id}`}>
+                    <Link _hover={{ opacity: 0.75 }} href={`/auctions/${chain?.id}/${auction.id}`}>
                       {data?.metaData?.title ? data?.metaData?.title : t("UNNAMED_SALE")}
                     </Link>
                   ) : (
@@ -168,11 +172,16 @@ export default function AuctionCardContent({
               mt={{ base: 2, md: 0 }}
               alignItems={"center"}
             />
+            <Text mt={-2} fontSize={"xs"} color={"gray.400"}>
+              {format(auction.startingAt * 1000, "yyyy/MM/dd HH:mm:ss")} -
+              {format(auction.closingAt * 1000, " yyyy/MM/dd HH:mm:ss (z)")}
+            </Text>
           </Stack>
         </CardBody>
       </Stack>
-      {editable && isOpen && (
+      {editable && chain && isOpen && (
         <MetaDataFormModal
+          chainId={chain.id}
           minRaisedAmount={divideToNum(auction.minRaisedAmount, Big(10).pow(18))}
           isOpen={isOpen}
           onClose={onClose}
@@ -189,7 +198,7 @@ export default function AuctionCardContent({
   } else {
     return (
       <Link
-        href={`/auctions/${auction.id}`}
+        href={`/auctions/${chain?.id}/${auction.id}`}
         transition={"filter"}
         transitionDuration={"0.3s"}
         w={{ base: "100%" }}

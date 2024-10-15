@@ -1,7 +1,7 @@
 // emulates some features of api kit https://github.com/safe-global/safe-core-sdk/tree/main/packages/api-kit
 // https://docs.safe.global/safe-core-api/available-services
 
-import { Address, PublicClient } from "viem";
+import { Address, getContract, PublicClient } from "viem";
 import {
   arbitrum,
   base,
@@ -12,7 +12,9 @@ import {
   mainnet,
   optimism,
   polygon,
+  baseSepolia,
 } from "viem/chains";
+import SafeABI from "../constants/abis/Safe.json";
 
 export function delay(milliseconds: number) {
   return new Promise((resolve) => {
@@ -35,9 +37,12 @@ type TxServiceApiTransactionResponse = {
   }>;
 };
 
-//Gnosis Safe Proxy
+// Gnosis Safe Proxy
 const PROXY_BYTECODE =
   "0x608060405273ffffffffffffffffffffffffffffffffffffffff600054167fa619486e0000000000000000000000000000000000000000000000000000000060003514156050578060005260206000f35b3660008037600080366000845af43d6000803e60008114156070573d6000fd5b3d6000f3fea2646970667358221220d1429297349653a4918076d650332de1a1068c5f3e07c5c82360c277770b955264736f6c63430007060033";
+// Reference:
+// https://www.alchemy.com/smart-contracts/gnosissafeproxy
+// Consider comparing this with the resolt of "getBytecode"
 
 //https://docs.safe.global/safe-core-api/available-services
 const apiNetworkName = (chainId: number): string => {
@@ -53,6 +58,7 @@ const apiNetworkName = (chainId: number): string => {
           [optimism.id]: "optimism",
           [polygon.id]: "polygon",
           [base.id]: "base",
+          [baseSepolia.id]: "base-sepolia",
           [arbitrum.id]: "arbitrum",
           [goerli.id]: "goerli",
           [sepolia.id]: "sepolia",
@@ -100,21 +106,33 @@ export const isContractWallet = async (
   publicClient: PublicClient,
   address: Address,
 ): Promise<{
-  isContract?: boolean;
-  isSafe?: boolean;
+  isContract: boolean;
+  isSafe: boolean;
 }> => {
-  const bytecode = await publicClient.getBytecode({ address });
+  let isContract = false;
+  let isSafe = false;
+  try {
+    const bytecode = await publicClient.getBytecode({ address });
+    isContract = !!bytecode && bytecode.length > 0;
 
-  if (!bytecode || bytecode.length == 0) {
-    return {
-      isContract: false,
-      isSafe: false,
-    };
-  } else {
-    return {
-      isContract: true,
-      //todo: Safes *can* be deployed without a proxy
-      isSafe: PROXY_BYTECODE === bytecode,
-    };
+    const safeAccount = getContract({
+      address,
+      abi: SafeABI,
+      publicClient,
+    });
+
+    // Reference:
+    // https://github.com/safe-global/safe-smart-account/blob/main/contracts/base/OwnerManager.sol
+    const threshold = (await safeAccount.read.getThreshold()) as bigint;
+    isSafe = threshold > 0; // && PROXY_BYTECODE === bytecode;
+  } catch (error: unknown) {
+    console.info(`${address} is not a Safe account`);
   }
+
+  return {
+    isContract,
+    isSafe,
+  };
 };
+
+export const signedInAsSafeAccount = () => {};

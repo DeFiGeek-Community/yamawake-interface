@@ -1,6 +1,6 @@
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import Router from "next/router";
-import { useAccount } from "wagmi";
+import { useAccount, useNetwork } from "wagmi";
 import {
   Spinner,
   Container,
@@ -13,69 +13,103 @@ import {
   Grid,
 } from "@chakra-ui/react";
 import CurrentUserContext from "ui/contexts/CurrentUserContext";
-import Layout from "ui/components/layouts/layout";
+import LayoutContext from "ui/contexts/LayoutContext";
 import EarlyUserReward from "ui/components/dashboard/EarlyUserReward";
+import SubChainEarlyUserReward from "ui/components/dashboard/SubChainEarlyUserReward";
 import VeReward from "ui/components/dashboard/VeReward";
 import MyAuctions from "ui/components/dashboard/MyAuctions";
 import ParticipatedAuctions from "ui/components/dashboard/ParticipatedAuctions";
 import { useLocale } from "ui/hooks/useLocale";
+import { getSupportedChain } from "lib/utils/chain";
+import type { ChainInfo } from "lib/constants/chains";
 
 export default function DashboardPage() {
-  const { address, isConnected, connector } = useAccount();
+  const { address } = useAccount();
+  const { chain } = useNetwork();
   const { currentUser } = useContext(CurrentUserContext);
   const { t } = useLocale();
 
+  const [chainInfo, setChainInfo] = useState<ChainInfo | undefined>(undefined);
+  const { setAllowNetworkChange } = useContext(LayoutContext);
+
+  useEffect(() => setAllowNetworkChange && setAllowNetworkChange(true), []);
+  useEffect(() => {
+    if (!chain) {
+      setChainInfo(undefined);
+    } else {
+      setChainInfo(getSupportedChain(chain.id));
+    }
+  }, [chain]);
+
   if (typeof currentUser === "undefined") {
     return (
-      <Layout>
-        <Container maxW="container.lg" py={16} textAlign="center">
-          <Spinner />
-        </Container>
-      </Layout>
+      <Container maxW="container.lg" py={16} textAlign="center">
+        <Spinner />
+      </Container>
     );
   } else if (currentUser === null && typeof address === "undefined") {
     Router.push("/");
     return (
-      <Layout>
-        <Container maxW="container.lg" py={16} textAlign="center">
-          <Spinner />
-        </Container>
-      </Layout>
+      <Container maxW="container.lg" py={16} textAlign="center">
+        <Spinner />
+      </Container>
     );
   }
 
   return (
-    <Layout>
-      <Container maxW="container.xl" py={16}>
-        <Heading size={"lg"}>{t("DASHBOARD")}</Heading>
+    <Container maxW="container.xl" py={16}>
+      <Heading size={"lg"}>{t("DASHBOARD")}</Heading>
 
-        <Grid
-          templateColumns={{ base: "repeat(1, 1fr)", md: "repeat(2, 1fr)" }}
-          gap={4}
-          mt={{ base: 4, md: 8 }}
-        >
-          <EarlyUserReward address={address as `0x${string}`} />
-          <VeReward />
-        </Grid>
+      <Grid
+        templateColumns={{ base: "repeat(1, 1fr)", md: "repeat(2, 1fr)" }}
+        gap={4}
+        mt={{ base: 4, md: 8 }}
+      >
+        {!!chainInfo && !chainInfo.sourceId && (
+          <EarlyUserReward
+            chainId={chainInfo.id}
+            address={address}
+            safeAddress={currentUser?.safeAccount}
+          />
+        )}
+        {!!chainInfo && !!chainInfo.sourceId && (
+          <SubChainEarlyUserReward
+            chainId={chainInfo.id}
+            address={address}
+            safeAddress={currentUser?.safeAccount}
+          />
+        )}
+        <VeReward />
+      </Grid>
 
-        <Tabs mt={{ base: 4, md: 8 }}>
-          <TabList>
-            {currentUser && <Tab>{t("YOUR_SALES")}</Tab>}
-            <Tab>{t("PARTICIPATED_SALES")}</Tab>
-          </TabList>
+      <Tabs mt={{ base: 4, md: 8 }}>
+        <TabList>
+          {currentUser && <Tab>{t("YOUR_SALES")}</Tab>}
+          <Tab>{t("PARTICIPATED_SALES")}</Tab>
+        </TabList>
 
-          <TabPanels>
-            {currentUser && (
-              <TabPanel p={{ base: 0, md: 4 }}>
-                <MyAuctions />
-              </TabPanel>
-            )}
+        <TabPanels>
+          {currentUser && (
             <TabPanel p={{ base: 0, md: 4 }}>
-              <ParticipatedAuctions />
+              {!!chain && !!address && (
+                <MyAuctions
+                  chainId={chain.id}
+                  address={address}
+                  safeAddress={currentUser.safeAccount}
+                />
+              )}
             </TabPanel>
-          </TabPanels>
-        </Tabs>
-      </Container>
-    </Layout>
+          )}
+          <TabPanel p={{ base: 0, md: 4 }}>
+            {!!chain && !!address && (
+              <ParticipatedAuctions
+                chainId={chain.id}
+                address={currentUser?.safeAccount ? currentUser.safeAccount : address}
+              />
+            )}
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
+    </Container>
   );
 }

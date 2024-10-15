@@ -16,12 +16,14 @@ import {
 import { memo } from "react";
 
 export type DetailPageParams = {
+  chainId: number;
   auctionProps: AuctionProps;
   refetchAuction: KeyedMutator<any>;
   metaData: MetaData;
   refetchMetaData: KeyedMutator<any>;
   address: `0x${string}` | undefined;
   contractAddress: `0x${string}`;
+  safeAddress: `0x${string}` | undefined;
 };
 
 export default memo(function AuctionDetail(props: DetailPageParams) {

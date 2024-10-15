@@ -84,11 +84,10 @@ export default function StatisticsInCircle({
               <chakra.p textAlign={"center"} p={1}>
                 {t("TARGET_TOTAL_RAISED")}: {etherAmountFormat(targetTotalRaised)}
                 ETH
-                {totalRaised.gte(targetTotalRaised) && (
-                  <>
-                    <br /> {t("ACHIEVED")}
-                  </>
-                )}
+                <>
+                  <br />
+                  {totalRaised.gte(targetTotalRaised) && t("ACHIEVED")}
+                </>
               </chakra.p>
             }
           >

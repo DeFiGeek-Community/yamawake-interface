@@ -4,19 +4,29 @@ import { Address } from "viem";
 import { usePublicClient } from "wagmi";
 import { isContractWallet } from "lib/utils/safe";
 
-export const useIsContractWallet = (address?: Address) => {
-  const publicClient = usePublicClient();
+export const useIsContractWallet = ({
+  chainId,
+  address,
+}: {
+  chainId: number | undefined;
+  address: Address | undefined;
+}): Awaited<ReturnType<typeof isContractWallet>> & { isChecking: boolean } => {
+  const publicClient = usePublicClient({ chainId });
   const [_isContractWallet, setIsContractWallet] = useState<
     Awaited<ReturnType<typeof isContractWallet>>
-  >({});
+  >({ isContract: false, isSafe: false });
+  const [isChecking, setIsChecking] = useState<boolean>(false);
 
   useEffect(() => {
     if (!address || !publicClient) return;
 
-    isContractWallet(publicClient, address).then(setIsContractWallet);
+    setIsChecking(true);
+    isContractWallet(publicClient, address)
+      .then(setIsContractWallet)
+      .finally(() => setIsChecking(false));
   }, [address, publicClient]);
 
-  return _isContractWallet;
+  return { ..._isContractWallet, isChecking };
 };
 
 /* try to check whether our connector *can* actually be a safe,  this is privy specific,

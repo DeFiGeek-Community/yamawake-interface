@@ -1,0 +1,14 @@
+{
+    "mainnet": {
+        "Factory": {
+            "address": "0x3Ee0952314739e2c4270F0ecE989cf73F5891243",
+            "startBlock": 19390083
+        }
+    },
+    "base": {
+        "Factory": {
+            "address": "0x7D8B9EbFC8BB3D42099Cd8cD86B4376e49dF3275",
+            "startBlock": 20962019
+        }
+    }
+}

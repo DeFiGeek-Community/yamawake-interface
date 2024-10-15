@@ -1,4 +1,3 @@
-import { useAccount } from "wagmi";
 import { chakra, Flex, Button, Text, HStack, useDisclosure } from "@chakra-ui/react";
 import { AddIcon } from "@chakra-ui/icons";
 import { AuctionProps } from "lib/types/Auction";
@@ -8,8 +7,15 @@ import AuctionCard, { AuctionCardSkeleton } from "../auctions/AuctionCard";
 import { useLocale } from "../../hooks/useLocale";
 import { useSWRAuctions } from "../../hooks/useAuctions";
 
-export default function MyAuctions() {
-  const { address, isConnected, connector } = useAccount();
+export default function MyAuctions({
+  chainId,
+  address,
+  safeAddress,
+}: {
+  chainId: number;
+  address: `0x${string}`;
+  safeAddress: `0x${string}` | undefined;
+}) {
   const auctionFormModalDisclosure = useDisclosure();
   const {
     auctions: myAuctions,
@@ -19,8 +25,9 @@ export default function MyAuctions() {
     isValidating: isValidatingMyAuctions,
     isLast: isLastMyAuction,
   } = useSWRAuctions(
-    { id: String(address).toLowerCase() as `0x${string}` },
+    { id: String(safeAddress || address).toLowerCase() as `0x${string}` },
     QueryType.MY_SALE_QUERY,
+    chainId,
   );
   const { t } = useLocale();
 
@@ -33,6 +40,9 @@ export default function MyAuctions() {
         </Button>
       </chakra.div>
       <AuctionFormModal
+        chainId={chainId}
+        address={address}
+        safeAddress={safeAddress}
         isOpen={auctionFormModalDisclosure.isOpen}
         onClose={auctionFormModalDisclosure.onClose}
         onDeployConfirmed={mutateMyAuctions}
@@ -47,7 +57,14 @@ export default function MyAuctions() {
           </>
         ) : (
           myAuctions.map((auctionProps: AuctionProps) => {
-            return <AuctionCard key={auctionProps.id} auctionProps={auctionProps} editable />;
+            return (
+              <AuctionCard
+                chainId={chainId}
+                key={auctionProps.id}
+                auctionProps={auctionProps}
+                editable
+              />
+            );
           })
         )}
         {!isLastMyAuction && myAuctions.length > 0 && (

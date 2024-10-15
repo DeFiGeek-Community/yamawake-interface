@@ -30,23 +30,33 @@ import { ExternalLinkIcon, QuestionIcon, CopyIcon } from "@chakra-ui/icons";
 import { DateRangePicker } from "rsuite";
 import { differenceInSeconds, format } from "date-fns";
 import { ethers } from "ethers";
-import { useNetwork } from "wagmi";
-import { getDecimalsForView, getEtherscanLink, tokenAmountFormat } from "lib/utils";
-import { getChain } from "lib/utils/chain";
+import { getDecimalsForView, tokenAmountFormat } from "lib/utils";
 import Big, { divide, getBigNumber, multiply } from "lib/utils/bignumber";
-import { AuctionForm } from "lib/types/Auction";
+import {
+  getSupportedChain,
+  isSupportedChain,
+  getEtherscanLink,
+  getChainById,
+} from "lib/utils/chain";
+import type { AuctionForm } from "lib/types/Auction";
 import { useLocale } from "../../../hooks/useLocale";
 import useAuctionForm from "../../../hooks/TemplateV1/useAuctionForm";
 import TxSentToast from "../../shared/TxSentToast";
+import "rsuite/dist/rsuite-no-reset.min.css";
+import "assets/css/rsuite-override.css";
 
 export default function AuctionForm({
+  chainId,
   address,
+  safeAddress,
   onSubmitSuccess,
   onSubmitError,
   onApprovalTxSent,
   onApprovalTxConfirmed,
 }: {
+  chainId: number;
   address: `0x${string}`;
+  safeAddress: `0x${string}` | undefined;
   onSubmitSuccess?: (result: any) => void;
   onSubmitError?: (e: Error) => void;
   onApprovalTxSent?: (result: any) => void;
@@ -57,7 +67,6 @@ export default function AuctionForm({
   const cancelRef = useRef<HTMLButtonElement>(null);
   const toast = useToast({ position: "top-right", isClosable: true });
   const { t } = useLocale();
-  const { chain } = useNetwork();
 
   const {
     formikProps,
@@ -67,19 +76,21 @@ export default function AuctionForm({
     tokenData,
     balance,
     debouncedAuction,
-    getEncodedArgs,
-    getDecodedArgs,
     getTransactionRawData,
   } = useAuctionForm({
-    address: address as `0x${string}`,
+    chainId,
+    address,
+    safeAddress,
     onSubmitSuccess: (result) => {
       onSubmitSuccess
         ? onSubmitSuccess(result)
         : toast({
-            title: t("TRANSACTION_SENT"),
+            title: safeAddress ? t("SAFE_TRANSACTION_PROPOSED") : t("TRANSACTION_SENT"),
             status: "success",
-            duration: 5000,
-            render: (props) => <TxSentToast txid={result.hash} {...props} />,
+            duration: 10000,
+            render: safeAddress
+              ? undefined
+              : (props) => <TxSentToast txid={result.hash} {...props} />,
           });
     },
     onSubmitError: (e: any) => {
@@ -95,10 +106,12 @@ export default function AuctionForm({
       onApprovalTxSent
         ? onApprovalTxSent(result)
         : toast({
-            title: t("TRANSACTION_SENT"),
+            title: safeAddress ? t("SAFE_TRANSACTION_PROPOSED") : t("TRANSACTION_SENT"),
             status: "success",
-            duration: 5000,
-            render: (props) => <TxSentToast txid={result.hash} {...props} />,
+            duration: 10000,
+            render: safeAddress
+              ? undefined
+              : (props) => <TxSentToast txid={result.hash} {...props} />,
           });
     },
     onApprovalTxConfirmed: (result: any) => {
@@ -341,7 +354,7 @@ export default function AuctionForm({
               variant="solid"
               colorScheme="green"
               isLoading={writeFn.isLoading}
-              isDisabled={chain?.unsupported || !writeFn.writeAsync || !formikProps.isValid}
+              isDisabled={!isSupportedChain(chainId) || !writeFn.writeAsync || !formikProps.isValid}
               onClick={onOpen}
             >
               {t("DEPLOY_SALE_CONTRACT")}
@@ -357,7 +370,7 @@ export default function AuctionForm({
               <AlertDialogOverlay>
                 <AlertDialogContent>
                   <AlertDialogHeader fontSize="lg" fontWeight="bold">
-                    {t("CONFIRMATION")}
+                    {t("CONFIRMATION", { network: getChainById(chainId)?.name ?? "" })}
                   </AlertDialogHeader>
 
                   <AlertDialogBody>
@@ -370,11 +383,28 @@ export default function AuctionForm({
                       </div>
 
                       <div>
+                        <chakra.p>{t("OWNER")}</chakra.p>
+                        <chakra.p fontWeight={"bold"} aria-label="Auction Template">
+                          <Link
+                            href={getEtherscanLink(
+                              getSupportedChain(chainId),
+                              debouncedAuction.owner as `0x${string}`,
+                              "address",
+                            )}
+                            target={"_blank"}
+                          >
+                            {debouncedAuction.owner}
+                            <ExternalLinkIcon ml={1} />
+                          </Link>
+                        </chakra.p>
+                      </div>
+
+                      <div>
                         <chakra.p>{t("TOKEN_ADDRESS")}</chakra.p>
                         <chakra.p fontWeight={"bold"} aria-label="Token address">
                           <Link
                             href={getEtherscanLink(
-                              getChain(Number(process.env.NEXT_PUBLIC_CHAIN_ID)).name.toLowerCase(),
+                              getSupportedChain(chainId),
                               debouncedAuction.token as `0x${string}`,
                               "token",
                             )}
@@ -457,7 +487,9 @@ export default function AuctionForm({
                       variant="solid"
                       colorScheme="green"
                       isLoading={writeFn.isLoading}
-                      isDisabled={chain?.unsupported || !writeFn.writeAsync || !formikProps.isValid}
+                      isDisabled={
+                        !isSupportedChain(chainId) || !writeFn.writeAsync || !formikProps.isValid
+                      }
                     >
                       {t("DEPLOY_SALE_CONTRACT")}
                     </Button>
@@ -473,8 +505,14 @@ export default function AuctionForm({
             variant="solid"
             colorScheme="blue"
             onClick={approvals.writeFn.write}
-            isLoading={approvals.writeFn.isLoading || approvals.waitFn.isLoading}
-            isDisabled={chain?.unsupported || !approvals.writeFn.write || !formikProps.isValid}
+            isLoading={
+              approvals.writeFn.isLoading ||
+              approvals.waitFn.isLoading ||
+              (approvals.writeFn.isSuccess && approvals.waitFn.isIdle)
+            }
+            isDisabled={
+              !isSupportedChain(chainId) || !approvals.writeFn.write || !formikProps.isValid
+            }
           >
             {t("APPROVE_TOKEN")}
           </Button>

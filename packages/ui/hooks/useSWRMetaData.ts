@@ -1,24 +1,21 @@
 import useSWR, { SWRResponse } from "swr";
 import { MetaData } from "lib/types/Auction";
-import { LOCK_DURATION, FEE_RATE_PER_MIL, TEMPLATE_V1_NAME } from "lib/constants/templates";
+import { getSupportedChain } from "lib/utils/chain";
 import { useLocale } from "./useLocale";
 
-export type Constants = { lockDuration: number; feeRatePerMil: number };
-
-// Currently unused parameters
-const constants = {
-  lockDuration: LOCK_DURATION[TEMPLATE_V1_NAME],
-  feeRatePerMil: FEE_RATE_PER_MIL[TEMPLATE_V1_NAME],
-};
-
 const useSWRMetaData = (
+  chainId: number | undefined,
   id: string,
   fallbackData?: MetaData | null,
-): SWRResponse<{ metaData: MetaData; constants: Constants } | undefined, Error> => {
+): SWRResponse<{ metaData: MetaData } | undefined, Error> => {
   const { t } = useLocale();
-  const fetcher = (
-    url: string,
-  ): Promise<{ metaData: MetaData; constants: Constants } | undefined> =>
+
+  if (!chainId) return useSWR(undefined);
+
+  const chain = getSupportedChain(chainId);
+  if (!chain) return useSWR(undefined);
+
+  const fetcher = (url: string): Promise<{ metaData: MetaData } | undefined> =>
     fetch(url)
       .then((res) => res.json())
       .then((data) => {
@@ -29,15 +26,14 @@ const useSWRMetaData = (
                 id,
                 title: t("UNNAMED_SALE"),
               } as MetaData),
-          constants,
         };
       });
-  return useSWR<{ metaData: MetaData; constants: Constants } | undefined, Error>(
-    `/api/metadata/${id}`,
+  return useSWR<{ metaData: MetaData } | undefined, Error>(
+    `/api/metadata/${chain.id}/${id}`,
     fetcher,
     {
       errorRetryCount: 2,
-      fallbackData: fallbackData ? { metaData: fallbackData, constants } : undefined,
+      fallbackData: fallbackData ? { metaData: fallbackData } : undefined,
     },
   );
 };

@@ -16,12 +16,13 @@ import { AuctionForm } from "lib/types/Auction";
 import Big, { multiply } from "lib/utils/bignumber";
 import FactoryABI from "lib/constants/abis/Factory.json";
 import { TEMPLATE_V1_NAME } from "lib/constants/templates";
+import { CONTRACT_ADDRESSES } from "lib/constants/contracts";
 import { creatingAuctionAtom, waitingCreationTxAtom } from "lib/store";
-import "rsuite/dist/rsuite-no-reset.min.css";
-import "assets/css/rsuite-override.css";
+import { useSafeContractWrite } from "../Safe";
 
 const now = new Date().getTime();
 export default function useAuctionForm({
+  chainId,
   address,
   onSubmitSuccess,
   onSubmitError,
@@ -29,8 +30,11 @@ export default function useAuctionForm({
   onContractWriteError,
   onApprovalTxSent,
   onApprovalTxConfirmed,
+  safeAddress,
 }: {
+  chainId: number;
   address: `0x${string}`;
+  safeAddress: `0x${string}` | undefined;
   onSubmitSuccess?: (result: any) => void;
   onSubmitError?: (e: any) => void;
   onContractWriteSuccess?: (result: any) => void;
@@ -59,7 +63,7 @@ export default function useAuctionForm({
     eventDuration: 60 * 60 * 24 * 7,
     allocatedAmount: 1,
     minRaisedAmount: 0,
-    owner: address,
+    owner: safeAddress || address,
   };
 
   const getEncodedArgs = (): string => {
@@ -102,6 +106,10 @@ export default function useAuctionForm({
   const validate = (values: AuctionForm) => {
     const errors: any = {};
 
+    if (!values.owner) {
+      errors.owner = "Owner is required";
+    }
+
     if (!values.templateName) {
       errors.templateName = "Template is required";
     }
@@ -125,7 +133,7 @@ export default function useAuctionForm({
     }
 
     if (
-      balance &&
+      typeof balance === "bigint" &&
       tokenData &&
       Big(balance.toString()).lt(
         Big(formikProps.values.allocatedAmount).mul(Big(10).pow(tokenData.decimals)),
@@ -171,9 +179,10 @@ export default function useAuctionForm({
     address: debouncedAuction.token as `0x${string}`,
     abi: erc20ABI,
     functionName: "balanceOf",
-    args: [address],
+    args: [safeAddress || address],
     watch: true,
-    enabled: !!debouncedAuction.token && isAddress(debouncedAuction.token),
+    enabled:
+      (!!safeAddress || !!address) && !!debouncedAuction.token && isAddress(debouncedAuction.token),
   });
 
   const {
@@ -181,23 +190,28 @@ export default function useAuctionForm({
     isLoading: tokenLoading,
     isFetched: tokenFetched,
   } = useToken({
+    chainId,
     address: debouncedAuction.token as `0x${string}`,
     enabled: !!debouncedAuction.token && isAddress(debouncedAuction.token),
   });
 
   const prepareFn = usePrepareContractWrite({
-    address: process.env.NEXT_PUBLIC_FACTORY_ADDRESS as `0x${string}`, //factory
+    chainId,
+    account: safeAddress || address,
+    address: CONTRACT_ADDRESSES[chainId]?.FACTORY, //factory
     abi: FactoryABI,
     functionName: "deployAuction",
     args: [
       debouncedAuction.templateName, //TEMPLATE_V1_NAME
       getEncodedArgs(),
     ],
-    enabled: !!debouncedAuction.token && isAddress(debouncedAuction.token),
+    enabled:
+      (!!safeAddress || !!address) && !!debouncedAuction.token && isAddress(debouncedAuction.token),
   });
 
-  const writeFn = useContractWrite({
+  const writeFn = useSafeContractWrite({
     ...prepareFn.config,
+    safeAddress: safeAddress,
     onSuccess(data) {
       // Save tx id to Atom to watch status from the form component
       setWaitingTx(data.hash);
@@ -211,9 +225,17 @@ export default function useAuctionForm({
   });
 
   const approvals = useApprove({
+    chainId,
     targetAddress: debouncedAuction.token,
-    owner: address as `0x${string}`,
-    spender: process.env.NEXT_PUBLIC_FACTORY_ADDRESS as `0x${string}`,
+    owner: safeAddress || address,
+    spender: CONTRACT_ADDRESSES[chainId]?.FACTORY,
+    safeAddress: safeAddress,
+    amount: BigInt(
+      Big(debouncedAuction.allocatedAmount)
+        .mul(Big(10).pow(tokenData ? tokenData.decimals : 0))
+        .toString(),
+    ),
+
     onSuccessWrite(data) {
       onApprovalTxSent && onApprovalTxSent(data);
     },
@@ -221,7 +243,8 @@ export default function useAuctionForm({
       onApprovalTxConfirmed && onApprovalTxConfirmed(data);
       prepareFn.refetch();
     },
-    enabled: !!debouncedAuction.token && isAddress(debouncedAuction.token),
+    enabled:
+      (!!safeAddress || !!address) && !!debouncedAuction.token && isAddress(debouncedAuction.token),
   });
 
   return {

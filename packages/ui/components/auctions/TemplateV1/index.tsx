@@ -28,41 +28,43 @@ import {
   CardBody,
   StackDivider,
 } from "@chakra-ui/react";
-import { ExternalLinkIcon, QuestionIcon } from "@chakra-ui/icons";
+import { AddIcon, ExternalLinkIcon, QuestionIcon } from "@chakra-ui/icons";
 import { useFormik } from "formik";
-import {
-  useWaitForTransaction,
-  usePrepareSendTransaction,
-  useSendTransaction,
-  useBalance,
-  useNetwork,
-} from "wagmi";
+import { useBalance, useNetwork, useWalletClient } from "wagmi";
 import Big, { getBigNumber } from "lib/utils/bignumber";
+import { getSupportedChain, isSupportedChain, getEtherscanLink } from "lib/utils/chain";
+import { getDecimalsForView, tokenAmountFormat, parseEther } from "lib/utils";
 import CalendarInCircle from "./CalendarInCircle";
 import PersonalStatistics from "./PersonalStatistics";
 import StatisticsInCircle from "./StatisticsInCircle";
 import PriceChart from "./PriceChart";
 import useRaised from "../../../hooks/TemplateV1/useRaised";
 import useRate from "../../../hooks/useRate";
-import { TemplateV1 } from "lib/types/Auction";
+import { TemplateV1, Token } from "lib/types/Auction";
 import ExternalLinkTag from "../../shared/ExternalLinkTag";
 import ClaimButton from "./ClaimButton";
 import TxSentToast from "../../shared/TxSentToast";
 import WithdrawRaisedETH from "./WithdrawRaisedETH";
 import WithdrawERC20 from "./WithdrawERC20OnSale";
 import { useLocale } from "../../../hooks/useLocale";
-import { getDecimalsForView, getEtherscanLink, tokenAmountFormat, parseEther } from "lib/utils";
-import { getChain } from "lib/utils/chain";
 import ConnectButton from "../../shared/connectButton";
 import { DetailPageParams } from "../AuctionDetail";
+import { ChainNameTag } from "../../shared/ChainNameTag";
+import {
+  useSafeSendTransaction,
+  useSafeWaitForTransaction,
+  usePrepareSafeSendTransaction,
+} from "../../../hooks/Safe";
 
 export default memo(function DetailPage({
+  chainId,
   auctionProps,
   refetchAuction,
   metaData,
   refetchMetaData,
   address,
   contractAddress,
+  safeAddress,
 }: DetailPageParams) {
   const auction = new TemplateV1(auctionProps);
   const toast = useToast({ position: "top-right", isClosable: true });
@@ -72,14 +74,12 @@ export default memo(function DetailPage({
     isLoading: isLoadingRaisedAmount,
     isError: isErrorFetchRaised,
     refetch: refetchRaised,
-  } = useRaised(auction, address);
+  } = useRaised({ auction, chainId, address: safeAddress || address });
   const {
     data: balanceData,
     isLoading: isLoadingBalance,
     refetch: refetchBalance,
-  } = useBalance({ address, enabled: !!address });
-  const { chain } = useNetwork();
-
+  } = useBalance({ chainId, address: safeAddress || address, enabled: !!safeAddress || !!address });
   const raisedTokenSymbol = "ETH";
   const raisedTokenDecimal = 18;
   const fiatSymbol = "usd";
@@ -87,7 +87,10 @@ export default memo(function DetailPage({
   const [started, setStarted] = useState<boolean>(false);
   const [ended, setEnded] = useState<boolean>(false);
 
-  const { data: rateData, refetch: updateRate } = useRate(Number(process.env.NEXT_PUBLIC_CHAIN_ID));
+  const { data: rateData, refetch: updateRate } = useRate(chainId);
+  const { chain: connectedChain } = useNetwork();
+  // TODO Consider getting chain from getChainById in case of supported chain reduced in the future
+  const chain = getSupportedChain(chainId);
 
   useInterval(() => {
     setStarted(auction.startingAt * 1000 <= new Date().getTime());
@@ -119,18 +122,22 @@ export default memo(function DetailPage({
     validate,
   });
 
-  const { config, isError } = usePrepareSendTransaction({
+  const { config, isError } = usePrepareSafeSendTransaction({
     to: contractAddress,
+    account: safeAddress || address,
     value: formikProps.values.amount ? BigInt(parseEther(formikProps.values.amount)) : undefined,
-    enabled: started && !ended && formikProps.values.amount > 0,
+    enabled: started && !ended && formikProps.values.amount > 0 && connectedChain?.id === chainId,
   });
 
   const {
     data,
     sendTransactionAsync,
     isLoading: isLoadingSendTX,
-  } = useSendTransaction({
+    isSuccess: isSuccessSendTX,
+    status: statusSendTX,
+  } = useSafeSendTransaction({
     ...config,
+    safeAddress,
     onError(e: Error) {
       toast({
         description: e.message,
@@ -140,16 +147,22 @@ export default memo(function DetailPage({
     },
     onSuccess(data) {
       toast({
-        title: "Transaction sent!",
+        title: safeAddress ? t("SAFE_TRANSACTION_PROPOSED") : t("TRANSACTION_SENT"),
         status: "success",
         duration: 5000,
-        render: (props) => <TxSentToast txid={data?.hash} {...props} />,
+        render: safeAddress ? undefined : (props) => <TxSentToast txid={data?.hash} {...props} />,
       });
     },
   });
 
-  const { isLoading: isLoadingWaitTX, isSuccess } = useWaitForTransaction({
+  const {
+    isLoading: isLoadingWaitTX,
+    isSuccess: isSuccessWaitTX,
+    isIdle: isIdleWaitTX,
+    status: statusWaitTX,
+  } = useSafeWaitForTransaction({
     hash: data?.hash,
+    safeAddress,
     confirmations: 2,
     onError(e: Error) {
       toast({
@@ -160,7 +173,7 @@ export default memo(function DetailPage({
     },
     onSuccess(data) {
       toast({
-        description: `Transaction confirmed!`,
+        description: t("TRANSACTION_CONFIRMED"),
         status: "success",
         duration: 5000,
       });
@@ -174,6 +187,26 @@ export default memo(function DetailPage({
   });
 
   const { t } = useLocale();
+
+  const { data: walletClient } = useWalletClient();
+  const addTokenToWallet = async (token: Token) => {
+    if (walletClient) {
+      try {
+        await walletClient.watchAsset({
+          type: "ERC20",
+          options: {
+            address: token.id,
+            symbol: token.symbol,
+            decimals: parseInt(token.decimals),
+          },
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    } else {
+      console.error("No signer found");
+    }
+  };
 
   return (
     <>
@@ -192,6 +225,7 @@ export default memo(function DetailPage({
             alt={metaData.title}
           />
           <Box px={{ base: 0, md: 8 }} w={{ base: "full", md: "auto" }}>
+            {chain && <ChainNameTag chainId={chain.id} />}
             <Heading>{metaData.title ? metaData.title : "Unnamed Auction"}</Heading>
             <HStack spacing={{ base: 4, lg: 4 }} mt={1}>
               <chakra.p fontSize={"sm"}>
@@ -200,11 +234,7 @@ export default memo(function DetailPage({
                 </Tag>
                 <Link
                   ml={1}
-                  href={getEtherscanLink(
-                    getChain(Number(process.env.NEXT_PUBLIC_CHAIN_ID)).name.toLowerCase(),
-                    auction.auctionToken.id as `0x${string}`,
-                    "token",
-                  )}
+                  href={getEtherscanLink(chain, auction.auctionToken.id as `0x${string}`, "token")}
                   target={"_blank"}
                   fontSize={{ base: "xs", lg: "sm" }}
                   display={{ base: "block", lg: "inline" }}
@@ -232,11 +262,7 @@ export default memo(function DetailPage({
                   fontFamily={"'Meiryo', 'Osaka'"}
                   letterSpacing={"-0.5px"}
                   fontSize={"xs"}
-                  href={getEtherscanLink(
-                    getChain(Number(process.env.NEXT_PUBLIC_CHAIN_ID)).name.toLowerCase(),
-                    auction.id as `0x${string}`,
-                    "address",
-                  )}
+                  href={getEtherscanLink(chain, auction.id as `0x${string}`, "address")}
                   target={"_blank"}
                   display={{ base: "block", lg: "inline" }}
                 >
@@ -367,8 +393,17 @@ export default memo(function DetailPage({
                             <chakra.div px={2}>{raisedTokenSymbol}</chakra.div>
                             {address ? (
                               <Button
-                                isLoading={isLoadingWaitTX || isLoadingSendTX}
-                                isDisabled={chain?.unsupported || !sendTransactionAsync || !started}
+                                isLoading={
+                                  isLoadingWaitTX ||
+                                  isLoadingSendTX ||
+                                  (isSuccessSendTX && isIdleWaitTX)
+                                }
+                                isDisabled={
+                                  connectedChain?.id !== chainId ||
+                                  !isSupportedChain(chainId) ||
+                                  !sendTransactionAsync ||
+                                  !started
+                                }
                                 type="submit"
                                 variant="solid"
                                 colorScheme={"green"}
@@ -389,7 +424,7 @@ export default memo(function DetailPage({
                       </form>
                       <chakra.p mt={2} color={"gray.400"} fontSize={"sm"} textAlign="right">
                         {t("BALANCE")}:{" "}
-                        {balanceData ? Number(balanceData.formatted).toFixed(2) : "-"} ETH
+                        {balanceData ? Number(balanceData.formatted).toFixed(3) : "-"} ETH
                       </chakra.p>
                     </Box>
                   )}
@@ -406,19 +441,28 @@ export default memo(function DetailPage({
                       raisedTokenDecimal={raisedTokenDecimal}
                       isEnding={ended}
                       isClaimed={auction.claims.length > 0}
+                      isFailed={auction.isFailed()}
                       isLodingTX={isLoadingWaitTX || isLoadingSendTX}
                     />
                   </Box>
                   {address && ended && (
                     <chakra.div textAlign={"right"} mt={4}>
-                      <ClaimButton
-                        auction={auction}
-                        address={address}
-                        myContribution={raised}
-                        isClaimed={auction.claims.length > 0}
-                        mutateIsClaimed={refetchAuction}
-                        colorScheme={"green"}
-                      />
+                      <Flex justifyContent={"flex-end"}>
+                        <Button mr={2} onClick={() => addTokenToWallet(auction.auctionToken)}>
+                          <AddIcon mr={1} />{" "}
+                          {t("ADD_TOKEN", { symbol: auction.auctionToken.symbol })}
+                        </Button>
+                        <ClaimButton
+                          chainId={chainId}
+                          auction={auction}
+                          address={address}
+                          safeAddress={safeAddress}
+                          myContribution={raised}
+                          isClaimed={auction.claims.length > 0}
+                          mutateIsClaimed={refetchAuction}
+                          colorScheme={"green"}
+                        />
+                      </Flex>
                     </chakra.div>
                   )}
                 </CardBody>
@@ -437,7 +481,8 @@ export default memo(function DetailPage({
           )}
         </Flex>
 
-        {address && auction.owner.toLowerCase() === address.toLowerCase() && (
+        {((safeAddress && auction.owner.toLowerCase() === safeAddress.toLowerCase()) ||
+          (address && auction.owner.toLowerCase() === address.toLowerCase())) && (
           <>
             <Divider mt={8} />
             <Card mt={8}>
@@ -448,11 +493,23 @@ export default memo(function DetailPage({
               <CardBody>
                 <Stack divider={<StackDivider />} spacing="4">
                   <chakra.div textAlign={"center"}>
-                    <WithdrawERC20 auction={auction} onSuccessConfirm={refetchAuction} />
+                    <WithdrawERC20
+                      chainId={chainId}
+                      auction={auction}
+                      account={address}
+                      safeAddress={safeAddress}
+                      onSuccessConfirm={() => refetchAuction()}
+                    />
                   </chakra.div>
 
                   <chakra.div textAlign={"center"}>
-                    <WithdrawRaisedETH auction={auction} onSuccessConfirm={refetchAuction} />
+                    <WithdrawRaisedETH
+                      chainId={chainId}
+                      auction={auction}
+                      account={address}
+                      safeAddress={safeAddress}
+                      onSuccessConfirm={() => refetchAuction()}
+                    />
                   </chakra.div>
                 </Stack>
               </CardBody>

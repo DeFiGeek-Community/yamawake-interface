@@ -9,7 +9,9 @@ import TemplateV1AuctionForm from "./TemplateV1/AuctionForm";
 import useTemplates from "../../hooks/useTemplates";
 
 export type AuctionFormWrapperParams = {
+  chainId: number;
   address: `0x${string}`;
+  safeAddress: `0x${string}` | undefined;
   onSubmitSuccess?: (result: any) => void;
   onSubmitError?: (e: Error) => void;
   onApprovalTxSent?: (result: any) => void;
@@ -17,14 +19,14 @@ export type AuctionFormWrapperParams = {
 };
 
 export default function AuctionFormWrapper(props: AuctionFormWrapperParams) {
-  const { data: templateData } = useTemplates();
+  const { data: templateData } = useTemplates(props.chainId);
   const [templateName, setTemplateName] = useState<string | undefined>(TEMPLATE_V1_NAME);
   const { t } = useLocale();
   useEffect(() => {
     if (!templateData) return;
 
     const compatibleTemplates = templateData.templates.filter((template: Template) =>
-      COMPATIBLE_TEMPLATES.includes(template.templateName),
+      COMPATIBLE_TEMPLATES[props.chainId].includes(template.templateName),
     );
     compatibleTemplates.length > 0 && setTemplateName(compatibleTemplates[0].templateName);
   }, [templateData]);
@@ -63,7 +65,9 @@ export default function AuctionFormWrapper(props: AuctionFormWrapperParams) {
         )}
         {templateData &&
           templateData.templates
-            .filter((template: Template) => COMPATIBLE_TEMPLATES.includes(template.templateName))
+            .filter((template: Template) =>
+              COMPATIBLE_TEMPLATES[props.chainId].includes(template.templateName),
+            )
             .map((template: Template) => (
               <option key={template.id} value={template.templateName}>
                 {ethers.decodeBytes32String(template.templateName)}

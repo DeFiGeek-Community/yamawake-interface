@@ -9,13 +9,25 @@ import TxSentToast from "../../shared/TxSentToast";
 import { useLocale } from "../../../hooks/useLocale";
 
 type Props = {
+  chainId: number;
   auction: TemplateV1;
+  account: `0x${string}` | undefined;
+  safeAddress: `0x${string}` | undefined;
   onSuccessConfirm?: (data: any) => void;
 };
-export default function WithdrawERC20({ auction, onSuccessConfirm }: Props) {
+export default function WithdrawERC20({
+  chainId,
+  auction,
+  account,
+  safeAddress,
+  onSuccessConfirm,
+}: Props) {
   const toast = useToast({ position: "top-right", isClosable: true });
+  const { t } = useLocale();
+  const { chain: connectedChain } = useNetwork();
   const { data: balance } = useContractRead({
     address: auction.auctionToken.id as `0x${string}`,
+    account: safeAddress || account || "0x",
     abi: erc20ABI,
     functionName: "balanceOf",
     args: [auction.id as `0x${string}`],
@@ -27,12 +39,14 @@ export default function WithdrawERC20({ auction, onSuccessConfirm }: Props) {
     waitFn: withdrawERC20WaitFn,
   } = useWithdrawERC20OnSale({
     targetAddress: auction.id as `0x${string}`,
+    account: account || "0x",
+    safeAddress,
     onSuccessWrite: (data: any) => {
       toast({
-        title: "Transaction sent!",
+        title: safeAddress ? t("SAFE_TRANSACTION_PROPOSED") : t("TRANSACTION_SENT"),
         status: "success",
-        duration: 5000,
-        render: (props) => <TxSentToast txid={data?.hash} {...props} />,
+        duration: 10000,
+        render: safeAddress ? undefined : (props) => <TxSentToast txid={data?.hash} {...props} />,
       });
     },
     onErrorWrite: (e: Error) => {
@@ -44,7 +58,7 @@ export default function WithdrawERC20({ auction, onSuccessConfirm }: Props) {
     },
     onSuccessConfirm: (data: any) => {
       toast({
-        description: `Transaction confirmed!`,
+        description: t("TRANSACTION_CONFIRMED"),
         status: "success",
         duration: 5000,
       });
@@ -53,10 +67,9 @@ export default function WithdrawERC20({ auction, onSuccessConfirm }: Props) {
     isReady:
       auction.closingAt < new Date().getTime() / 1000 &&
       typeof balance !== "undefined" &&
-      balance !== 0n,
+      balance !== 0n &&
+      chainId === connectedChain?.id,
   });
-  const { t } = useLocale();
-  const { chain } = useNetwork();
 
   return (
     <Box>
@@ -86,9 +99,17 @@ export default function WithdrawERC20({ auction, onSuccessConfirm }: Props) {
         <Button
           variant={"solid"}
           isDisabled={
-            chain?.unsupported || !balance || balance === 0n || !withdrawERC20WriteFn.write
+            chainId !== connectedChain?.id ||
+            connectedChain?.unsupported ||
+            !balance ||
+            balance === 0n ||
+            !withdrawERC20WriteFn.write
           }
-          isLoading={withdrawERC20WriteFn.isLoading || withdrawERC20WaitFn.isLoading}
+          isLoading={
+            withdrawERC20WriteFn.isLoading ||
+            withdrawERC20WaitFn.isLoading ||
+            (withdrawERC20WriteFn.isSuccess && withdrawERC20WaitFn.isIdle)
+          }
           onClick={withdrawERC20WriteFn.write}
         >
           {t("WITHDRAW_TOKEN")}

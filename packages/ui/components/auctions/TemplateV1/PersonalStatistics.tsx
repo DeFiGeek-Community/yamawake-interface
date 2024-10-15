@@ -22,6 +22,7 @@ interface Props {
   raisedTokenDecimal: number;
   isEnding: boolean;
   isClaimed: boolean;
+  isFailed: boolean;
   isLodingTX: boolean;
 }
 export default function PersonalStatistics({
@@ -36,6 +37,7 @@ export default function PersonalStatistics({
   raisedTokenDecimal,
   isEnding,
   isClaimed,
+  isFailed,
   isLodingTX,
   ...boxProps
 }: Props & BoxProps) {
@@ -47,7 +49,7 @@ export default function PersonalStatistics({
   );
   const sumOfContributionAmount = etherAmountFormat(add(myContribution, inputValueInBig));
   const fixedContributionAmount = etherAmountFormat(myContribution);
-  const inputtingValueInFormat = tokenAmountFormat(inputValueInBig, raisedTokenDecimal, 2);
+  const inputtingValueInFormat = tokenAmountFormat(inputValueInBig, raisedTokenDecimal, 3);
   const { t } = useLocale();
 
   // if(isLoading) {
@@ -68,7 +70,7 @@ export default function PersonalStatistics({
             </chakra.span>
             <chakra.div textAlign={"right"}>
               <chakra.span fontWeight={"bold"} ml={2}>
-                {expectedAmount} {distributedTokenSymbol.toUpperCase()}
+                {isFailed ? "0" : expectedAmount} {distributedTokenSymbol.toUpperCase()}
               </chakra.span>
             </chakra.div>
           </Flex>
