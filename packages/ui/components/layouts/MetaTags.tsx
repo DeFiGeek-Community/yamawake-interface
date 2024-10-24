@@ -24,7 +24,6 @@ export default function MetaTags(props: MetaTagProps | undefined) {
   return (
     <Head>
       <title>{contents.title}</title>
-      <meta name="robots" content="noindex" />
       <meta name="description" content={contents.description} />
       <meta property="og:title" content={contents.title} />
       <meta property="og:description" content={contents.description} />
@@ -35,7 +34,10 @@ export default function MetaTags(props: MetaTagProps | undefined) {
       <meta name="twitter:title" content={contents.title} />
       <meta name="twitter:description" content={contents.description} />
       <meta name="twitter:image" content={contents.image ? contents.image : `${bgImage.src}`} />
-      <link rel="icon" href="/favicon.ico" />
+      <link
+        rel="icon"
+        href="/logo/yamawake-favicon/png/32px/yamawake-favicon-transparent-32×32.ico"
+      />
       {!!contents.children && contents.children}
     </Head>
   );

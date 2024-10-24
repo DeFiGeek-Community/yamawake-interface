@@ -331,14 +331,11 @@ export default function Header({ title = "Yamawake", allowNetworkChange = true }
               cursor={"pointer"}
               onClick={() => router.push(`/?chainId=${requestedChain.id}`)}
             >
-              <Text
-                bgGradient="linear(to-l, #7928CA, #FF0080)"
-                bgClip="text"
-                fontSize="xl"
-                fontWeight="extrabold"
-              >
-                {title ? title : "Yamawake"}
-              </Text>
+              <Image
+                height={"24px"}
+                alt={title ? title : "Yamawake"}
+                src={"/logo/yamawake-lockup/svg/yamawake-lockup-transparent.svg"}
+              />
             </Heading>
           </HStack>
           <HStack spacing={{ base: 2, md: 4 }}>
