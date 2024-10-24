@@ -1,3 +1,4 @@
+import { useWalletClient } from "wagmi";
 import {
   Button,
   useToast,
@@ -11,11 +12,13 @@ import {
   CardFooter,
   Spinner,
   Text,
+  Image,
 } from "@chakra-ui/react";
 import { useLocale } from "../../hooks/useLocale";
 import { QuestionIcon } from "@chakra-ui/icons";
 import useEarlyUserReward from "../../hooks/useEarlyUserReward";
 import { formatEtherInBig } from "lib/utils";
+import { CONTRACT_ADDRESSES } from "lib/constants/contracts";
 import TxSentToast from "../shared/TxSentToast";
 
 export default function EarlyUserReward({
@@ -57,6 +60,28 @@ export default function EarlyUserReward({
     },
   });
 
+  const { data: walletClient } = useWalletClient();
+  const addYMWKToWallet = async () => {
+    if (walletClient) {
+      try {
+        await walletClient.watchAsset({
+          type: "ERC20",
+          options: {
+            address: CONTRACT_ADDRESSES[chainId].YMWK,
+            symbol: "YMWK",
+            decimals: 18,
+            image:
+              "https://yamawake.xyz/logo/yamawake-App-icon/png/64px/yamawake-App-icon-transparent-64×64.png",
+          },
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    } else {
+      console.error("No signer found");
+    }
+  };
+
   return (
     <Card flex={1}>
       <CardBody>
@@ -85,6 +110,15 @@ export default function EarlyUserReward({
         </HStack>
       </CardBody>
       <CardFooter pt={0} justifyContent={"flex-end"}>
+        <Button mr={2} onClick={() => addYMWKToWallet()}>
+          <Image
+            w={6}
+            h={6}
+            mr={1}
+            src="/logo/yamawake-App-icon/png/64px/yamawake-App-icon-transparent-64×64.png"
+          />
+          {t("ADD_TOKEN", { symbol: "YMWK" })}
+        </Button>
         <Button
           isLoading={
             readFn.isLoading ||
