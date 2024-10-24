@@ -25,7 +25,7 @@ export default function NetworkMenu({
           size={"lg"}
           display={{ base: "none", md: "flex" }}
           variant="solid"
-          colorScheme={allowNetworkChange ? "teal" : "gray"}
+          colorScheme={allowNetworkChange ? "green" : "gray"}
         >
           {!isSupportedChain(chain.id) ? (
             "Unsupported Chain"

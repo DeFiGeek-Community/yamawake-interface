@@ -7,7 +7,7 @@ type ChainNameTagType = { chainId: number } & React.ComponentProps<typeof Tag>;
 export const ChainNameTag = ({ chainId, ...props }: ChainNameTagType) => {
   const chain = getChainById(chainId);
   return (
-    <Tag variant="solid" colorScheme="teal" borderRadius="full" {...props}>
+    <Tag variant="solid" colorScheme="green" borderRadius="full" {...props}>
       <ChainLogo chainId={chainId} mr={1} h={18} w={18} />
       {chain?.name}
     </Tag>
