@@ -1,6 +1,6 @@
 import Head from "next/head";
-import bgImage from "assets/images/background_sky-min.png";
 import { useLocale } from "../../hooks/useLocale";
+import { YAMAWAKE_OGP_URL } from "lib/constants";
 
 type MetaTagProps = {
   title?: string;
@@ -28,12 +28,12 @@ export default function MetaTags(props: MetaTagProps | undefined) {
       <meta property="og:title" content={contents.title} />
       <meta property="og:description" content={contents.description} />
       <meta property="og:site_name" content={contents.site_name} />
-      <meta property="og:image" content={contents.image ? contents.image : `${bgImage.src}`} />
+      <meta property="og:image" content={contents.image ? contents.image : YAMAWAKE_OGP_URL} />
       <meta name="twitter:card" content="summary" />
       {/* <meta name="twitter:site" content="@" /> */}
       <meta name="twitter:title" content={contents.title} />
       <meta name="twitter:description" content={contents.description} />
-      <meta name="twitter:image" content={contents.image ? contents.image : `${bgImage.src}`} />
+      <meta name="twitter:image" content={contents.image ? contents.image : YAMAWAKE_OGP_URL} />
       <link
         rel="icon"
         href="/logo/yamawake-favicon/png/32px/yamawake-favicon-transparent-32×32.ico"

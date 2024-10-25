@@ -19,6 +19,7 @@ import { QuestionIcon } from "@chakra-ui/icons";
 import useEarlyUserReward from "../../hooks/useEarlyUserReward";
 import { formatEtherInBig } from "lib/utils";
 import { CONTRACT_ADDRESSES } from "lib/constants/contracts";
+import { YMWK_LOGO_URL } from "lib/constants";
 import TxSentToast from "../shared/TxSentToast";
 
 export default function EarlyUserReward({
@@ -70,8 +71,7 @@ export default function EarlyUserReward({
             address: CONTRACT_ADDRESSES[chainId].YMWK,
             symbol: "YMWK",
             decimals: 18,
-            image:
-              "https://yamawake.xyz/logo/yamawake-App-icon/png/64px/yamawake-App-icon-transparent-64×64.png",
+            image: YMWK_LOGO_URL,
           },
         });
       } catch (error) {
