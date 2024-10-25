@@ -198,6 +198,7 @@ export default memo(function DetailPage({
             address: token.id,
             symbol: token.symbol,
             decimals: parseInt(token.decimals),
+            image: metaData.logoURL,
           },
         });
       } catch (error) {

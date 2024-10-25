@@ -11,3 +11,9 @@ export const SAMPLE_DISCLAIMERS = `By participating in this token auction event,
 3. This protocol is not intended to comply with specific laws and regulations of any jurisdiction. It is your responsibility to understand and comply with the relevant laws and regulations applicable to you.
 4. The operation of this protocol is standardized for all users, and no special privileges or advantages are provided to any individual or entity. The protocol operates based on its predetermined rules in codes.
 5. In the event of any bugs, defects, or malfunctions in the protocol, no party, including the protocol developers, organizers, or any associated individuals or entities, shall be held liable for any losses, damages, or issues arising from such incidents. You understand that the protocol is a complex system, and there is inherent risk in using it.`;
+
+export const YMWK_LOGO_URL =
+  "https://yamawake.xyz/logo/yamawake-App-icon/png/64px/yamawake-App-icon-transparent-64×64.png";
+export const YAMAWAKE_LOGO_URL =
+  "https://yamawake.xyz/logo/yamawake-lockup/png/yamawake-lockup-transparent.png";
+export const YAMAWAKE_OGP_URL = "https://yamawake.xyz/images/ogp.png";

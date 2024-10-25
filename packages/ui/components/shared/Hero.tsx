@@ -1,6 +1,6 @@
 import Router from "next/router";
 import type { Chain } from "viem/chains";
-import { Button, Flex, Heading, Stack, HStack, useToast } from "@chakra-ui/react";
+import { Button, Flex, Heading, Stack, HStack, Image, useToast } from "@chakra-ui/react";
 import { KeyedMutator } from "swr";
 import { User } from "lib/types";
 import SignInButton from "./SignInButton";
@@ -35,24 +35,18 @@ export default function Hero({
       minH="50vh"
       px={{ base: 2, md: 8 }}
       mb={16}
-      bg={`linear-gradient(rgba(0, 0, 0, .6),  rgba(0, 0, 0, .6)), url("${bgImage.src}")`}
+      bg={`linear-gradient(rgba(0, 18, 18, .6),  rgba(0, 18, 18, .6)), url("${bgImage.src}")`}
       bgRepeat={"no-repeat"}
       bgSize={"cover"}
       bgPos={"center"}
       {...rest}
     >
       <Stack spacing={{ base: 4, lg: 8 }} w={{ base: "100%", md: "40%" }} align={"center"}>
-        <Heading
-          as="h1"
-          size={{ base: "lg", md: "xl" }}
-          fontWeight="bold"
-          color="primary.800"
-          textAlign={"center"}
-          whiteSpace="pre-line"
-          lineHeight={{ base: 1.25, md: 1.4 }}
-        >
-          {title}
-        </Heading>
+        <Image
+          height={"50px"}
+          alt={title}
+          src={"/logo/yamawake-lockup/svg/yamawake-lockup-transparent.svg"}
+        />
         <Heading
           as="h2"
           size={{ base: "sm", md: "md" }}
