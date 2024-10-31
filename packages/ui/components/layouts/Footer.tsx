@@ -12,6 +12,7 @@ import {
 } from "@chakra-ui/react";
 import { AiFillGithub } from "react-icons/ai";
 import gitbook from "assets/images/gitbook.svg";
+import discord from "assets/images/discord-mark-white.png";
 import { useLocale } from "../../hooks/useLocale";
 import SvgCommunityLogoBlack from "../svgs/CommunityLogoBlack";
 
@@ -31,6 +32,18 @@ export default function Footer() {
                 _hover={{ opacity: 0.8 }}
               >
                 <SvgCommunityLogoBlack width="2.5rem" height="2.5rem" />
+              </Link>
+            </Tooltip>
+            <Tooltip hasArrow label={<Text whiteSpace={"pre-wrap"}>Discord</Text>}>
+              <Link
+                href="https://discord.gg/FQYXqVBEnh"
+                target={"_blank"}
+                fontSize={"3xl"}
+                opacity={0.85}
+                _hover={{ opacity: 0.6 }}
+                padding={"0.3125rem"}
+              >
+                <Image w={"30px"} src={discord.src} />
               </Link>
             </Tooltip>
             <Tooltip hasArrow label={<Text whiteSpace={"pre-wrap"}>GitHub</Text>}>
