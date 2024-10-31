@@ -24,6 +24,9 @@ export default function MetaTags(props: MetaTagProps | undefined) {
   return (
     <Head>
       <title>{contents.title}</title>
+      {process.env.NEXT_PUBLIC_ENV !== "mainnet" && (
+        <meta name="robots" content="noindex,nofollow" />
+      )}
       <meta name="description" content={contents.description} />
       <meta property="og:title" content={contents.title} />
       <meta property="og:description" content={contents.description} />
