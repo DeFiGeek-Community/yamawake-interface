@@ -3,6 +3,7 @@ export default {
   SIGN_IN_WITH_ETHEREUM: "Ethereumアドレスでログイン",
   SIGN_IN_WITH_ETHEREUM_AS_SAFE: "Safeアカウントとしてログイン",
   CONNECT_WALLET: "ウォレットの接続",
+  CONNECT_SAFE_SIGNER_WALLET: "Safeオーナーのウォレットへ接続",
   DASHBOARD: "ダッシュボード",
   SIGNED_IN_AS: "{{address}}でログイン中",
   SIGN_OUT_AND_DISCONNECT: "ログアウト & 切断",

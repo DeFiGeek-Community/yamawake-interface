@@ -3,6 +3,7 @@ export default {
   SIGN_IN_WITH_ETHEREUM: "Sign in as Ethereum address",
   SIGN_IN_WITH_ETHEREUM_AS_SAFE: "Sign in as Safe account",
   CONNECT_WALLET: "Connect wallet",
+  CONNECT_SAFE_SIGNER_WALLET: "Connect to Safe onwer wallet",
   DASHBOARD: "Dashboard",
   SIGNED_IN_AS: "Signed in as {{address}}",
   SIGN_OUT_AND_DISCONNECT: "Sign out and Disconnect",
