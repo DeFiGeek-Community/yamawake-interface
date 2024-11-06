@@ -18,10 +18,12 @@ export default function ProvidersList({
   isOpen,
   onConnectSuccess,
   onClose,
+  title,
 }: {
   isOpen: boolean;
   onConnectSuccess?: ({ address, chainId }: { address: `0x${string}`; chainId: number }) => void;
   onClose: () => void;
+  title?: string;
 }) {
   const { requestedChain } = useRequestedChain();
   const toast = useToast({ position: "top-right", isClosable: true });
@@ -56,7 +58,7 @@ export default function ProvidersList({
     <Modal isOpen={isOpen} onClose={onClose} closeOnOverlayClick={false}>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>{t("CONNECT_WALLET")}</ModalHeader>
+        <ModalHeader>{title ?? t("CONNECT_WALLET")}</ModalHeader>
         <ModalCloseButton />
         <ModalBody pb={6}>
           <Stack spacing={4}>

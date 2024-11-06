@@ -113,6 +113,7 @@ export default function SafeSignInButton({
       />
       {!isConnected && (
         <ProvidersList
+          title={t("CONNECT_SAFE_SIGNER_WALLET")}
           isOpen={providersListDisclosure.isOpen}
           onClose={providersListDisclosure.onClose}
           onConnectSuccess={async ({
