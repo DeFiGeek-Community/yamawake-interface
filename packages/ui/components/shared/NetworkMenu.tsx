@@ -1,4 +1,4 @@
-import { Tag, Menu, MenuButton, MenuList, MenuItem } from "@chakra-ui/react";
+import { Tag, Menu, MenuButton, MenuList, MenuItem, chakra } from "@chakra-ui/react";
 import { Chain } from "@wagmi/core";
 import { isSupportedChain } from "lib/utils/chain";
 import { CHAIN_INFO } from "lib/constants/chains";
@@ -22,21 +22,25 @@ export default function NetworkMenu({
         cursor={allowNetworkChange ? "pointer" : "not-allowed"}
       >
         <Tag
-          size={"lg"}
-          display={{ base: "none", md: "flex" }}
+          size={{ base: "lg", md: "lg" }}
           variant="solid"
           colorScheme={allowNetworkChange ? "green" : "gray"}
         >
           {!isSupportedChain(chain.id) ? (
-            "Unsupported Chain"
+            <chakra.span display={{ base: "none", md: "inline" }}>Unsupported Chain</chakra.span>
           ) : (
             <>
-              <ChainLogo chainId={chain.id} mr={1} />
-              {chain.name}
+              <ChainLogo
+                chainId={chain.id}
+                mr={1}
+                h={{ base: "14px", md: undefined }}
+                w={{ base: "14px", md: undefined }}
+              />
+              <chakra.span display={{ base: "none", md: "inline" }}>{chain.name}</chakra.span>
             </>
           )}
           {chain.testnet && (
-            <Tag ml={2} size={"sm"}>
+            <Tag ml={2} size={"sm"} display={{ base: "none", md: "inline-flex" }}>
               Testnet
             </Tag>
           )}

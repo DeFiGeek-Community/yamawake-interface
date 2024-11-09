@@ -53,8 +53,8 @@ export default function ParticipatedAuctions({
       {!isLoadingParticipatedAuctions &&
         participatedAuctions &&
         participatedAuctions.length === 0 && (
-          <Flex minH={"25vh"} justifyContent="center" alignItems={"center"}>
-            <Text fontSize={"lg"} opacity={".75"} textAlign={"center"}>
+          <Flex minH={"25vh"} w={"full"} justifyContent="center" alignItems={"center"}>
+            <Text fontSize={"lg"} opacity={".75"} textAlign={"center"} w={"full"}>
               {t("NO_SALE")}
             </Text>
           </Flex>

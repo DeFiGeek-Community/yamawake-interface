@@ -322,7 +322,7 @@ export default function Header({ title = "Yamawake", allowNetworkChange = true }
       bg={"chakra-body-bg"}
       opacity={0.975}
     >
-      <Container maxW="container.2xl" px={{ base: 2, md: 4 }}>
+      <Container maxW="container.2xl" px={{ base: 1, md: 4 }}>
         <Flex as="header" py="4" justifyContent="space-between" alignItems="center">
           <HStack>
             <Heading
