@@ -30,12 +30,7 @@ export default function NetworkMenu({
             <chakra.span display={{ base: "none", md: "inline" }}>Unsupported Chain</chakra.span>
           ) : (
             <>
-              <ChainLogo
-                chainId={chain.id}
-                mr={1}
-                h={{ base: "14px", md: undefined }}
-                w={{ base: "14px", md: undefined }}
-              />
+              <ChainLogo chainId={chain.id} mr={1} />
               <chakra.span display={{ base: "none", md: "inline" }}>{chain.name}</chakra.span>
             </>
           )}
