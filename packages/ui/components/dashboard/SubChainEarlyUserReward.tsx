@@ -250,7 +250,7 @@ export default function SubChainEarlyUserReward({
             <chakra.p color={"gray.400"}>{t("FEE")}</chakra.p>
             <chakra.div>
               <chakra.p textAlign={"right"} fontSize={"2xl"}>
-                {fee.data ? formatEtherInBig(fee.data.toString()).toFixed(3) : "-"}
+                {fee.data ? formatEtherInBig(fee.data.toString()).toFixed(5) : "-"}
                 <chakra.span color={"gray.400"} fontSize={"lg"} ml={1}>
                   {feeTokens[feeTokenIndex].symbol}
                   <chakra.span fontSize={"xs"}> + TX Fee</chakra.span>
