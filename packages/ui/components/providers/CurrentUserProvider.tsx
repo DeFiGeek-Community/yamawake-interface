@@ -33,10 +33,15 @@ export const CurrentUserProvider: FC<{ children: ReactNode }> = ({ children }) =
       });
   };
 
-  const processSignIn = async (params: SignInParams, redirect: boolean) => {
-    await signIn(params);
-    if (redirect) {
-      router.push(getLinkPath(router.asPath, params.chainId));
+  const processReSignIn = async (params: SignInParams, redirect: boolean) => {
+    try {
+      await fetch("/api/logout", { method: "POST", credentials: "same-origin" });
+      await signIn(params);
+      if (redirect) {
+        router.push(getLinkPath(router.asPath, params.chainId));
+      }
+    } catch (e) {
+      logout();
     }
   };
 
@@ -52,7 +57,7 @@ export const CurrentUserProvider: FC<{ children: ReactNode }> = ({ children }) =
       // Force sign out if the connection is missing or signed in with Safe account
       logout();
     } else if (chain && (data.address != address || data.chainId != chain.id)) {
-      processSignIn(
+      processReSignIn(
         {
           title: t("SIGN_IN_WITH_ETHEREUM"),
           targetAddress: address,
