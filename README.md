@@ -1,4 +1,6 @@
-# bulk-auction-interface
+# yamawake-interface
+
+This Nextjs application is designed for [Yamawake](https://yamawake.xyz/).
 
 ### Set up configs
 
