@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useAccount } from "wagmi";
+import { OpenPanelComponent } from "@openpanel/nextjs";
 import { chakra, Alert, AlertIcon, useColorMode } from "@chakra-ui/react";
 import { useLocale } from "../../hooks/useLocale";
 import { useRequestedChain } from "../../hooks/useRequestedChain";
@@ -14,6 +16,7 @@ export default function Layout({
   children: React.ReactNode;
 } & HeaderProps) {
   const { requestedChain, connectedChain } = useRequestedChain();
+  const { address } = useAccount();
   const { t } = useLocale();
   const [chain, setChain] =
     useState<ReturnType<typeof useRequestedChain>["connectedChain"]>(undefined);
@@ -32,6 +35,13 @@ export default function Layout({
 
   return (
     <LayoutContext.Provider value={{ allowNetworkChange, setAllowNetworkChange }}>
+      <OpenPanelComponent
+        clientId={process.env.NEXT_PUBLIC_OPENPANEL_CLIENT_ID!}
+        trackScreenViews={true}
+        // trackAttributes={true}
+        // trackOutgoingLinks={true}
+        profileId={address}
+      />
       <Header title={headerProps.title} allowNetworkChange={allowNetworkChange} />
       {chain && chain?.id !== requestedChain.id && (
         <chakra.div px={{ base: 0, md: 8 }} mt={1} position={"absolute"} w={"full"} zIndex={"10"}>
