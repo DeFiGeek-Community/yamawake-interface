@@ -26,6 +26,7 @@
     "@chakra-ui/theme-tools": "^2.1.2",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
+    "@openpanel/nextjs": "^1.0.6",
     "@safe-global/api-kit": "^2.4.3",
     "@safe-global/protocol-kit": "^4.0.3",
     "@safe-global/safe-core-sdk-types": "^5.0.3",
