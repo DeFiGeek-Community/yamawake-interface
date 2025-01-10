@@ -129,11 +129,15 @@ export default {
   EARLY_USER_REWARD_HELP:
     "Early users are rewarded with claimable YMWK tokens.\n\n(For Auction Participants)\nThe claimable tokens are awarded based on the bid amount once claiming the tokens purchased in the auction.\n\n(For Auction Owners)\nThe claimable tokens are awarded based on the sales amount once withdrawing the total raised after the auction ends.\n\nEarly user rewards will end once the budget of 50 million YMWK has been claimed. Even if you have the eligibility, you cannot claim if all the budget has been claimed.",
   CLAIMABLE: "Claimable",
+  VE_YMWK: "veYMWK",
   VE_YMWK_REWARD: "veYMWK Rewards",
-  VE_YMWK_REWARD_HELP: "Comming soon...",
+  VE_YMWK_REWARD_HELP:
+    "By locking YMWK tokens for a specified period, non-transferable veYMWK tokens are issued. The minimum lock period is one week, and the maximum is 52 weeks (approximately 4 years). Locked YMWK tokens cannot be withdrawn until the end of the lock period. \nLocking 1 YMWK for 4 years issues 1 veYMWK, which linearly depreciates over time, reaching 0 veYMWK after 4 years. Weeks are calculated starting every Thursday at 00:00 (UTC).",
   YMWK_LOCKED: "YMWK Locked",
   LOCKED_UNTIL: "Locked until",
   REWARDS: "Rewards",
+  REWARDS_HELP:
+    "As a reward for veYMWK holders, newly issued YMWK tokens and fee income from auctions are distributed according to the balance of veYMWK held at the start of each week.",
   COMMING_SOON: "Comming soon...",
   RAW_DATA: "Raw data",
   TEMPLATE: "Template",
@@ -165,4 +169,12 @@ export default {
   DESTINATION_ADDRESS_ON_L1_HELP: "Receiving address is required when using a contract wallet.",
   ERROR_ADDRESS_FORMAT: "Invalid address format",
   ERROR_NOT_ENOUGH_BALANCE_TO_PAY_FEE: "Not enough balance to pay fee",
+
+  // VotingEscrow
+  VE_CREATE_LOCK: "Create lock",
+  VE_INCREASE_AMOUNT: "Increase lock amount",
+  VE_INCREASE_UNLOCK_TIME: "Increase lock",
+  VE_WITHDRAW: "Withdraw YMWK",
+  INPUT_LOCK_AMOUNT: "Input lock amount",
+  SELECT_UNLOCK_DATE: "Select unlock date",
 };

@@ -44,3 +44,5 @@ apps/web/tests/e2e/videos/
 subgraph/generated
 subgraph/tests/.latest.json
 subgraph/tests/.bin
+
+memo.md

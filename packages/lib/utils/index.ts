@@ -179,3 +179,10 @@ export const getLinkPath = (path: string, chainId: number): string => {
     return `?chainId=${chainId}`;
   }
 };
+
+export const getRoundedWeekTimestamp = (date?: Date): number => {
+  date = date || new Date();
+  const WEEK = 3600 * 24 * 7;
+  const timestamp = date.getTime();
+  return Math.floor(timestamp / 1000 / WEEK) * WEEK * 1000;
+};
