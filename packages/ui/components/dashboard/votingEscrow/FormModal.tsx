@@ -26,7 +26,7 @@ import {
 import { useContractRead, erc20ABI, useNetwork } from "wagmi";
 import { DatePicker, CustomProvider } from "rsuite";
 import { jaJP, enUS } from "rsuite/locales";
-import { format, addYears, addWeeks, addMonths, addDays } from "date-fns";
+import { format, addYears, addDays } from "date-fns";
 import { tokenAmountFormat, getRoundedWeekTimestamp } from "lib/utils";
 import type { SafeComponentProps } from "lib/types";
 import { LockType } from "lib/types/VotingEscrow";
@@ -106,11 +106,12 @@ export default function FormModal({ account, safeAddress, type, isOpen, onClose 
     chainId: Number(chain?.id), // TODO
     targetAddress: chain ? (CONTRACT_ADDRESSES[chain.id].YMWK as `0x${string}`) : "0x",
     owner: safeAddress || account || "0x",
+    safeAddress: safeAddress,
     spender: chain ? (CONTRACT_ADDRESSES[chain.id].VOTING_ESCROW as `0x${string}`) : "0x",
     amount: BigInt(formikProps.values.value) * BigInt(1e18),
     onSuccessWrite(data) {
       toast({
-        title: t("TRANSACTION_SENT"),
+        title: safeAddress ? t("SAFE_TRANSACTION_PROPOSED") : t("TRANSACTION_SENT"),
         status: "success",
         duration: 5000,
         render: (props) => <TxSentToast txid={data.hash} {...props} />,
@@ -324,6 +325,7 @@ export default function FormModal({ account, safeAddress, type, isOpen, onClose 
                     <FormErrorMessage>{formikProps.errors.unlockTime}</FormErrorMessage>
                   </FormControl>
                 )}
+
                 {(type === LockType.CREATE_LOCK || type === LockType.INCREASE_AMOUNT) && (
                   <>
                     {Big(approvals.allowance.toString()).gte(
@@ -335,7 +337,11 @@ export default function FormModal({ account, safeAddress, type, isOpen, onClose 
                         variant="solid"
                         colorScheme="green"
                         type="submit"
-                        isLoading={writeFn.isLoading || waitFn.isLoading}
+                        isLoading={
+                          writeFn.isLoading ||
+                          waitFn.isLoading ||
+                          (writeFn.isSuccess && waitFn.isIdle)
+                        }
                         isDisabled={chain?.unsupported || !writeFn.write || !formikProps.isValid}
                       >
                         {type === LockType.CREATE_LOCK
@@ -349,7 +355,11 @@ export default function FormModal({ account, safeAddress, type, isOpen, onClose 
                         variant="solid"
                         colorScheme="blue"
                         onClick={approvals.writeFn.write}
-                        isLoading={approvals.writeFn.isLoading || approvals.waitFn.isLoading}
+                        isLoading={
+                          approvals.writeFn.isLoading ||
+                          approvals.waitFn.isLoading ||
+                          (approvals.writeFn.isSuccess && approvals.waitFn.isIdle)
+                        }
                         isDisabled={
                           chain?.unsupported || !approvals.writeFn.write || !formikProps.isValid
                         }

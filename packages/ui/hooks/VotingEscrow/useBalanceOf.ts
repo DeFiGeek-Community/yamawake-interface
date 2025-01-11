@@ -12,7 +12,7 @@ export default function useBalanceOf(
     address: chain ? CONTRACT_ADDRESSES[chain.id].VOTING_ESCROW : "0x",
     abi: VotingEscrowABI,
   };
-  console.log(config, address);
+
   const readFn = useContractRead<typeof VotingEscrowABI, "balanceOf", bigint>({
     ...config,
     functionName: "balanceOf",
