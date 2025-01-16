@@ -12,9 +12,8 @@ import type { SafeComponentProps } from "lib/types";
 export default function Reward({ account, safeAddress }: SafeComponentProps) {
   const { t } = useLocale();
   const toast = useToast({ position: "top-right", isClosable: true });
-  const { readFn: tokens } = useTokens();
-  // TODO readFn or prepareFn
-  const { readFn, prepareFn: claimableTokens } = useClaimableTokens({ account, safeAddress });
+  const { readFn: feeTokens } = useTokens();
+  const { prepareFn: claimableTokens } = useClaimableTokens({ account, safeAddress });
   const { writeFn, waitFn } = useMint({
     account,
     safeAddress,
@@ -82,10 +81,10 @@ export default function Reward({ account, safeAddress }: SafeComponentProps) {
               {t("CLAIM")}
             </Button>
           </HStack>
-          {typeof tokens.data === "undefined" && <Spinner />}
-          {!!tokens.data &&
+          {typeof feeTokens.data === "undefined" && <Spinner />}
+          {!!feeTokens.data &&
             !!account &&
-            tokens.data.map((token: `0x${string}`) => (
+            feeTokens.data.map((token: `0x${string}`) => (
               <FeeReward
                 key={token}
                 account={account}
