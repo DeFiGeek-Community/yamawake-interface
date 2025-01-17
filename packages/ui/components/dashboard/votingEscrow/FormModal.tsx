@@ -162,7 +162,7 @@ export default function FormModal({ account, safeAddress, type, isOpen, onClose 
     callbacks: {
       onSuccessWrite(data) {
         toast({
-          title: t("TRANSACTION_SENT"),
+          title: safeAddress ? t("SAFE_TRANSACTION_PROPOSED") : t("TRANSACTION_SENT"),
           status: "success",
           duration: 5000,
           render: (props) => <TxSentToast txid={data.hash} {...props} />,
