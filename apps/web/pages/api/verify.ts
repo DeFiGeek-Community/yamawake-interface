@@ -42,9 +42,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         const fields = await siweMessage.verify({ signature }, { provider });
 
         if (fields.data.nonce !== req.session.nonce)
-          return res.status(422).json({ message: "Invalid nonce." });
+          return res.status(422).json({ error: "Invalid nonce." });
         if (fields.data.chainId !== chain.id)
-          return res.status(422).json({ message: "Invalid chain." });
+          return res.status(422).json({ error: "Invalid chain." });
 
         if (fields.data.resources && isAddress(fields.data.resources[0])) {
           // Sign in as a Safe address owner
@@ -57,7 +57,10 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
           });
           const isOwner = await safeAccount.read.isOwner([fields.data.address]);
 
-          if (!isOwner) return res.status(422).json({ ok: false });
+          if (!isOwner)
+            return res.status(422).json({
+              error: `${fields.data.address} is not a owner of ${safeAddress}`,
+            });
         } else {
           // To ensure that resources are emply
           delete fields.data.resources;
@@ -66,8 +69,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         req.session.siwe = fields.data;
         await req.session.save();
         res.json({ ok: true });
-      } catch (_error) {
-        res.status(422).json({ ok: false });
+      } catch (_error: unknown) {
+        res.status(422).json({ error: _error instanceof Error ? _error.message : String(_error) });
       }
       break;
     default:

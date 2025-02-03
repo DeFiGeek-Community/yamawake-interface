@@ -54,11 +54,12 @@ export function useSIWE(): {
         body: JSON.stringify({ message, signature, chainId }),
       });
 
-      if (!verifyRes.ok) setError(new Error("Error verifying message"));
+      const res = await verifyRes.json();
+      if (!verifyRes.ok) setError(new Error(res.error ? res.error : "Error verifying message"));
 
       setLoading(false);
       setAddress(address as `0x${string}`);
-    } catch (error) {
+    } catch (error: unknown) {
       setLoading(false);
       setAddress(null);
       setError(error instanceof Error ? error : new Error(String(error)));
