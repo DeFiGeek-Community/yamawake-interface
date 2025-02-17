@@ -1,4 +1,4 @@
-import { TEMPLATE_V1_NAME } from "lib/constants/templates";
+import { TEMPLATE_V1_5_NAME, TEMPLATE_V1_NAME } from "lib/constants/templates";
 import { AuctionProps, MetaData } from "lib/types/Auction";
 import Render500 from "../errors/500";
 import { KeyedMutator } from "swr";
@@ -30,6 +30,8 @@ export default memo(function AuctionDetail(props: DetailPageParams) {
   // Add detail page components as needed
   switch (props.auctionProps.templateAuctionMap.templateName) {
     case TEMPLATE_V1_NAME:
+      return <TemplateV1Detail {...props} />;
+    case TEMPLATE_V1_5_NAME:
       return <TemplateV1Detail {...props} />;
     default:
       return <Render500 error={new Error("Invalid template")} />;
