@@ -17,7 +17,7 @@
 .rs-picker-toggle-value {
     color: inherit !important;
 }
-.rs-picker-default .rs-btn, .rs-picker-default .rs-picker-toggle.rs-picker-toggle-active .rs-picker-toggle-textbox {
+.rs-picker-default .rs-btn, .rs-picker-default .rs-picker-toggle.rs-picker-toggle-active .rs-picker-toggle-textbox, .rs-picker-input-group, .rs-date-range-input, .rs-input {
     background-color: inherit!important;
     background: inherit!important;
 }
@@ -47,4 +47,8 @@
 
 .rs-picker-toggle-textbox:not(.rs-picker-toggle-read-only) + .rs-picker-toggle-value {
     visibility: hidden;
+}
+
+.rs-picker-popup {
+    z-index: 10000 !important;
 }
