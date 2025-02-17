@@ -253,6 +253,9 @@ importers:
       lib:
         specifier: workspace:*
         version: link:../lib
+      moment:
+        specifier: ^2.30.1
+        version: 2.30.1
       next:
         specifier: ^14.0.4
         version: 14.2.24(@babel/core@7.26.9)(@playwright/test@1.50.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
