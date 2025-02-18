@@ -255,6 +255,7 @@ export default function AuctionForm({
               flex="1"
               name="allocatedAmount"
               value={formikProps.values.allocatedAmount}
+              isDisabled={!tokenData}
               min={0}
               max={Number.MAX_SAFE_INTEGER}
               onBlur={formikProps.handleBlur}

@@ -230,11 +230,11 @@ export default function useAuctionForm({
     owner: safeAddress || address,
     spender: CONTRACT_ADDRESSES[chainId]?.FACTORY,
     safeAddress: safeAddress,
-    amount: BigInt(
-      Big(debouncedAuction.allocatedAmount)
-        .mul(Big(10).pow(tokenData ? tokenData.decimals : 0))
-        .toString(),
-    ),
+    amount: tokenData
+      ? BigInt(
+          Big(debouncedAuction.allocatedAmount).mul(Big(10).pow(tokenData.decimals)).toString(),
+        )
+      : undefined,
 
     onSuccessWrite(data) {
       onApprovalTxSent && onApprovalTxSent(data);

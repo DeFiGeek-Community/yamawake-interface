@@ -27,7 +27,7 @@ import { useContractRead, erc20ABI, useNetwork } from "wagmi";
 import { DatePicker, CustomProvider } from "rsuite";
 import { jaJP, enUS } from "rsuite/locales";
 import { format, addYears, addDays } from "date-fns";
-import { tokenAmountFormat, getRoundedWeekTimestamp } from "lib/utils";
+import { tokenAmountFormat, getRoundedWeekTimestamp, toMinUnit } from "lib/utils";
 import type { SafeComponentProps } from "lib/types";
 import { LockType } from "lib/types/VotingEscrow";
 import { CONTRACT_ADDRESSES } from "lib/constants/contracts";
@@ -46,7 +46,7 @@ type FormModalProps = SafeComponentProps & {
 };
 
 type LockFormValues = {
-  value: number;
+  value: string;
   unlockTime: number | null;
 };
 
@@ -56,7 +56,7 @@ export default function FormModal({ account, safeAddress, type, isOpen, onClose 
   const { chain } = useNetwork();
   const toast = useToast({ position: "top-right", isClosable: true });
   const initData: LockFormValues = {
-    value: 0,
+    value: "0",
     unlockTime: null,
   };
   const buttonOptions = [
@@ -108,7 +108,7 @@ export default function FormModal({ account, safeAddress, type, isOpen, onClose 
     owner: safeAddress || account || "0x",
     safeAddress: safeAddress,
     spender: chain ? (CONTRACT_ADDRESSES[chain.id].VOTING_ESCROW as `0x${string}`) : "0x",
-    amount: BigInt(formikProps.values.value) * BigInt(1e18),
+    amount: toMinUnit(formikProps.values.value, 18),
     onSuccessWrite(data) {
       toast({
         title: safeAddress ? t("SAFE_TRANSACTION_PROPOSED") : t("TRANSACTION_SENT"),
@@ -154,7 +154,7 @@ export default function FormModal({ account, safeAddress, type, isOpen, onClose 
     account,
     safeAddress,
     type,
-    value: BigInt(formikProps.values.value) * BigInt(1e18),
+    value: toMinUnit(formikProps.values.value, 18),
     unlockTime: formikProps.values.unlockTime
       ? Math.floor(formikProps.values.unlockTime / 1000)
       : null,
@@ -234,10 +234,7 @@ export default function FormModal({ account, safeAddress, type, isOpen, onClose 
                             max={Number.MAX_SAFE_INTEGER}
                             onBlur={formikProps.handleBlur}
                             onChange={(strVal: string, val: number) =>
-                              formikProps.setFieldValue(
-                                "value",
-                                strVal && Number(strVal) === val ? strVal : isNaN(val) ? 0 : val,
-                              )
+                              formikProps.setFieldValue("value", strVal)
                             }
                           >
                             <NumberInputField />
