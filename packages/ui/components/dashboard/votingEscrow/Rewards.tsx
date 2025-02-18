@@ -39,6 +39,7 @@ export default function Reward({ account, safeAddress }: SafeComponentProps) {
           status: "success",
           duration: 5000,
         });
+        claimableTokens.refetch();
       },
       onErrorConfirm(e) {
         toast({

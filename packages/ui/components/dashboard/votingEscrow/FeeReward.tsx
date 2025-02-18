@@ -41,6 +41,7 @@ export default function Reward({
           status: "success",
           duration: 5000,
         });
+        prepareFn.refetch();
       },
       onErrorConfirm(e) {
         toast({
