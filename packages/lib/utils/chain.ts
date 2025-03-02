@@ -74,7 +74,11 @@ export const getRPCEndpoints = (chainId: number): HttpTransport[] => {
   const chain = CHAIN_INFO[chainId];
   if (!chain) throw Error("Chain id is invalid");
 
+  const chainName = chain.name.toLowerCase() === "ethereum" ? "mainnet" : chain.name.toLowerCase();
+
   const endpoints: HttpTransport[] = [];
+  ["foundry", "hardhat", "localhost"].includes(chainName) &&
+    endpoints.push(http(`http://localhost:8545`));
   chain.rpcUrls.infura &&
     endpoints.push(
       http(`${chain.rpcUrls.infura.http[0]}/${process.env.NEXT_PUBLIC_INFURA_API_TOKEN}`),
@@ -83,7 +87,7 @@ export const getRPCEndpoints = (chainId: number): HttpTransport[] => {
     endpoints.push(
       http(`${chain.rpcUrls.alchemy.http[0]}/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}`),
     );
-  endpoints.push(http(`${chain.rpcUrls.public.http[0]}`));
+  chain.rpcUrls.public && endpoints.push(http(`${chain.rpcUrls.public.http[0]}`));
 
   return endpoints;
 };

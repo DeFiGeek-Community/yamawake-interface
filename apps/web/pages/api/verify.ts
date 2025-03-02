@@ -2,7 +2,7 @@ import { withIronSessionApiRoute } from "iron-session/next";
 import { NextApiRequest, NextApiResponse } from "next";
 import { SiweMessage } from "siwe";
 import { ethers, Network } from "ethers";
-import { getSupportedChain } from "lib/utils/chain";
+import { getRPCEndpoints, getSupportedChain } from "lib/utils/chain";
 import { IronSessionOptions } from "iron-session";
 import { getContract, isAddress, PublicClient } from "viem";
 import SafeABI from "lib/constants/abis/Safe.json";
@@ -26,15 +26,12 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         const chain = getSupportedChain(Number(chainId));
         if (!chain) throw Error("Unsupported chain");
 
-        const chainName =
-          chain.name.toLowerCase() === "ethereum" ? "mainnet" : chain.name.toLowerCase();
-
+        const endpoints = getRPCEndpoints(chain.id);
+        if (endpoints.length === 0) throw Error("RPC endpoint not found");
         // Requires ethersjs provider for EIP1271
         // Reference) https://github.com/spruceid/siwe/blob/main/packages/siwe/lib/client.ts#L348C15-L348C22
         const provider = new ethers.JsonRpcProvider(
-          ["foundry", "hardhat", "localhost"].includes(chainName)
-            ? `http://localhost:8545`
-            : chain.rpcUrls.public.http[0],
+          endpoints[0].toString(),
           Network.from(chain.id),
           { staticNetwork: true },
         );
