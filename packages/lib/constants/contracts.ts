@@ -15,10 +15,10 @@ type ContractAddresses = {
 export const CONTRACT_ADDRESSES: ContractAddresses = {
   [mainnet.id]: {
     // V1.5 Contracts -->
-    MINTER: "0x",
-    VOTING_ESCROW: "0x",
-    REWARD_GAUGE: "0x",
-    FEE_DISTRIBUTOR: "0x",
+    MINTER: "0x5D0dA8882f95dC27EBa915F3ea266Bcc3D6bAdE4",
+    VOTING_ESCROW: "0x168c2F7D4924bd6e4282F7eDBb0cFDcca1c7d113",
+    REWARD_GAUGE: "0x772b86f1AfA923908BA8e8F27e8aCBA6A01b1118",
+    FEE_DISTRIBUTOR: "0x0d99BfC6367AdD8b199fA530168dcd893317A0c9",
     // <--
     FACTORY: "0x3Ee0952314739e2c4270F0ecE989cf73F5891243",
     // Receiver
