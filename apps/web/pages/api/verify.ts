@@ -2,7 +2,7 @@ import { withIronSessionApiRoute } from "iron-session/next";
 import { NextApiRequest, NextApiResponse } from "next";
 import { SiweMessage } from "siwe";
 import { ethers, Network } from "ethers";
-import { getSupportedChain } from "lib/utils/chain";
+import { getRPCEndpoints, getSupportedChain } from "lib/utils/chain";
 import { IronSessionOptions } from "iron-session";
 import { getContract, isAddress, PublicClient } from "viem";
 import SafeABI from "lib/constants/abis/Safe.json";
@@ -26,15 +26,12 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         const chain = getSupportedChain(Number(chainId));
         if (!chain) throw Error("Unsupported chain");
 
-        const chainName =
-          chain.name.toLowerCase() === "ethereum" ? "mainnet" : chain.name.toLowerCase();
-
+        const endpoints = getRPCEndpoints(chain.id);
+        if (endpoints.length === 0) throw Error("RPC endpoint not found");
         // Requires ethersjs provider for EIP1271
         // Reference) https://github.com/spruceid/siwe/blob/main/packages/siwe/lib/client.ts#L348C15-L348C22
         const provider = new ethers.JsonRpcProvider(
-          ["foundry", "hardhat", "localhost"].includes(chainName)
-            ? `http://localhost:8545`
-            : chain.rpcUrls.public.http[0],
+          endpoints[0].toString(),
           Network.from(chain.id),
           { staticNetwork: true },
         );
@@ -42,9 +39,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         const fields = await siweMessage.verify({ signature }, { provider });
 
         if (fields.data.nonce !== req.session.nonce)
-          return res.status(422).json({ message: "Invalid nonce." });
+          return res.status(422).json({ error: "Invalid nonce." });
         if (fields.data.chainId !== chain.id)
-          return res.status(422).json({ message: "Invalid chain." });
+          return res.status(422).json({ error: "Invalid chain." });
 
         if (fields.data.resources && isAddress(fields.data.resources[0])) {
           // Sign in as a Safe address owner
@@ -57,7 +54,10 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
           });
           const isOwner = await safeAccount.read.isOwner([fields.data.address]);
 
-          if (!isOwner) return res.status(422).json({ ok: false });
+          if (!isOwner)
+            return res.status(422).json({
+              error: `${fields.data.address} is not a owner of ${safeAddress}`,
+            });
         } else {
           // To ensure that resources are emply
           delete fields.data.resources;
@@ -66,8 +66,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         req.session.siwe = fields.data;
         await req.session.save();
         res.json({ ok: true });
-      } catch (_error) {
-        res.status(422).json({ ok: false });
+      } catch (_error: unknown) {
+        res.status(422).json({ error: _error instanceof Error ? _error.message : String(_error) });
       }
       break;
     default:

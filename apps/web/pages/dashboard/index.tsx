@@ -16,7 +16,7 @@ import CurrentUserContext from "ui/contexts/CurrentUserContext";
 import LayoutContext from "ui/contexts/LayoutContext";
 import EarlyUserReward from "ui/components/dashboard/EarlyUserReward";
 import SubChainEarlyUserReward from "ui/components/dashboard/SubChainEarlyUserReward";
-import VeReward from "ui/components/dashboard/VeReward";
+import VotingEscrow from "ui/components/dashboard/votingEscrow/index";
 import MyAuctions from "ui/components/dashboard/MyAuctions";
 import ParticipatedAuctions from "ui/components/dashboard/ParticipatedAuctions";
 import { useLocale } from "ui/hooks/useLocale";
@@ -79,7 +79,7 @@ export default function DashboardPage() {
             safeAddress={currentUser?.safeAccount}
           />
         )}
-        <VeReward />
+        <VotingEscrow account={address} safeAddress={currentUser?.safeAccount} />
       </Grid>
 
       <Tabs mt={{ base: 4, md: 8 }}>

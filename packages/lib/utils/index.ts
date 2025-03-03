@@ -179,3 +179,44 @@ export const getLinkPath = (path: string, chainId: number): string => {
     return `?chainId=${chainId}`;
   }
 };
+
+export const getRoundedWeekTimestamp = (date?: Date): number => {
+  date = date || new Date();
+  const WEEK = 3600 * 24 * 7;
+  const timestamp = date.getTime();
+  return Math.floor(timestamp / 1000 / WEEK) * WEEK * 1000;
+};
+
+export const safeParseBigInt = (input: string): bigint => {
+  const numericString = input.replace(/[^0-9]/g, "");
+  if (numericString === "") return BigInt(0);
+
+  try {
+    return BigInt(numericString);
+  } catch (error) {
+    console.warn(`Could not convert ${input} to BigInt`);
+    return BigInt(0);
+  }
+};
+
+export const toMinUnit = (value: bigint | string, decimals: number) => {
+  const str = value.toString();
+  const decimalPos = str.indexOf(".");
+
+  let fractionDigits = 0;
+  let integerPart = str;
+  if (decimalPos >= 0) {
+    fractionDigits = str.length - 1 - decimalPos;
+    integerPart = str.slice(0, decimalPos) + str.slice(decimalPos + 1);
+  }
+  let big = safeParseBigInt(integerPart);
+
+  const totalShift = decimals - fractionDigits;
+  if (totalShift > 0) {
+    big *= 10n ** BigInt(totalShift);
+  } else if (totalShift < 0) {
+    const diff = BigInt(-totalShift);
+    big = big / 10n ** diff;
+  }
+  return big;
+};

@@ -15,7 +15,7 @@ import { useLocale } from "../useLocale";
 import { AuctionForm } from "lib/types/Auction";
 import Big, { multiply } from "lib/utils/bignumber";
 import FactoryABI from "lib/constants/abis/Factory.json";
-import { TEMPLATE_V1_NAME } from "lib/constants/templates";
+import { TEMPLATE_V1_5_NAME } from "lib/constants/templates";
 import { CONTRACT_ADDRESSES } from "lib/constants/contracts";
 import { creatingAuctionAtom, waitingCreationTxAtom } from "lib/store";
 import { useSafeContractWrite } from "../Safe";
@@ -57,7 +57,7 @@ export default function useAuctionForm({
   const [creatingAuction, setCreatingAuction] = useAtom(creatingAuctionAtom);
   const { t } = useLocale();
   const emptyAuction: AuctionForm = {
-    templateName: TEMPLATE_V1_NAME,
+    templateName: TEMPLATE_V1_5_NAME,
     token: null,
     startingAt: now + 60 * 60 * 24 * 7 * 1000,
     eventDuration: 60 * 60 * 24 * 7,
@@ -230,11 +230,11 @@ export default function useAuctionForm({
     owner: safeAddress || address,
     spender: CONTRACT_ADDRESSES[chainId]?.FACTORY,
     safeAddress: safeAddress,
-    amount: BigInt(
-      Big(debouncedAuction.allocatedAmount)
-        .mul(Big(10).pow(tokenData ? tokenData.decimals : 0))
-        .toString(),
-    ),
+    amount: tokenData
+      ? BigInt(
+          Big(debouncedAuction.allocatedAmount).mul(Big(10).pow(tokenData.decimals)).toString(),
+        )
+      : undefined,
 
     onSuccessWrite(data) {
       onApprovalTxSent && onApprovalTxSent(data);

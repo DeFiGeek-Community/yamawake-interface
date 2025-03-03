@@ -3,7 +3,11 @@ import { FormLabel, Select, Spinner, Tooltip, Link } from "@chakra-ui/react";
 import { QuestionIcon, ExternalLinkIcon } from "@chakra-ui/icons";
 import { ethers } from "ethers";
 import { Template } from "lib/types/Auction";
-import { COMPATIBLE_TEMPLATES, TEMPLATE_V1_NAME } from "lib/constants/templates";
+import {
+  COMPATIBLE_TEMPLATES,
+  TEMPLATE_V1_5_NAME,
+  TEMPLATE_V1_NAME,
+} from "lib/constants/templates";
 import { useLocale } from "../../hooks/useLocale";
 import TemplateV1AuctionForm from "./TemplateV1/AuctionForm";
 import useTemplates from "../../hooks/useTemplates";
@@ -20,7 +24,7 @@ export type AuctionFormWrapperParams = {
 
 export default function AuctionFormWrapper(props: AuctionFormWrapperParams) {
   const { data: templateData } = useTemplates(props.chainId);
-  const [templateName, setTemplateName] = useState<string | undefined>(TEMPLATE_V1_NAME);
+  const [templateName, setTemplateName] = useState<string | undefined>(TEMPLATE_V1_5_NAME);
   const { t } = useLocale();
   useEffect(() => {
     if (!templateData) return;
@@ -78,7 +82,9 @@ export default function AuctionFormWrapper(props: AuctionFormWrapperParams) {
       {
         // Add conditions below as needed
       }
-      {templateName === TEMPLATE_V1_NAME && <TemplateV1AuctionForm {...props} />}
+      {(templateName === TEMPLATE_V1_NAME || templateName === TEMPLATE_V1_5_NAME) && (
+        <TemplateV1AuctionForm {...props} />
+      )}
     </>
   );
 }
