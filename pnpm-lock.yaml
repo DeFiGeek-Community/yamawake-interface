@@ -75,7 +75,7 @@ importers:
         specifier: ^6.1.0
         version: 6.1.0(graphql@16.10.0)
       iron-session:
-        specifier: ^6.3.1
+        specifier: 6.3.1
         version: 6.3.1(express@4.21.2)(next@14.2.24(@playwright/test@1.50.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       jotai:
         specifier: ^2.6.0
