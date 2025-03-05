@@ -11,8 +11,8 @@ import { CHAIN_INFO } from "../constants/chains";
 const { chains, publicClient, webSocketPublicClient } = configureChains<Chain>(
   Object.values(CHAIN_INFO),
   [
-    infuraProvider({ apiKey: process.env.NEXT_PUBLIC_INFURA_API_TOKEN! }),
     alchemyProvider({ apiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY! }),
+    infuraProvider({ apiKey: process.env.NEXT_PUBLIC_INFURA_API_TOKEN! }),
     publicProvider(),
   ],
 );

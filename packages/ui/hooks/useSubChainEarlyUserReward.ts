@@ -17,7 +17,7 @@ export default function useSubChainEarlyUserReward({
   destinationAddress,
   feeToken,
   shouldClaim,
-  watch = true,
+  watch = false,
   onSuccessSendScoreWrite,
   onErrorSendScoreWrite,
   onSuccessSendScoreConfirm,
@@ -176,6 +176,7 @@ export default function useSubChainEarlyUserReward({
     hash: sendScore.data?.hash,
     safeAddress,
     onSuccess(data) {
+      readScore.refetch();
       onSuccessSendScoreConfirm && onSuccessSendScoreConfirm(data);
     },
     onError(e: Error) {
@@ -194,7 +195,7 @@ export default function useSubChainEarlyUserReward({
     abi: erc20ABI,
     functionName: "balanceOf",
     args: [safeAddress || address || "0x"],
-    watch: true,
+    watch,
     enabled: (!!safeAddress || !!address) && feeToken !== zeroAddress,
   });
 
