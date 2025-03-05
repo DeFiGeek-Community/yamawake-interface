@@ -66,11 +66,14 @@ export default function DashboardPage() {
         mt={{ base: 4, md: 8 }}
       >
         {!!chainInfo && !chainInfo.sourceId && (
-          <EarlyUserReward
-            chainId={chainInfo.id}
-            address={address}
-            safeAddress={currentUser?.safeAccount}
-          />
+          <>
+            <EarlyUserReward
+              chainId={chainInfo.id}
+              address={address}
+              safeAddress={currentUser?.safeAccount}
+            />
+            <VotingEscrow account={address} safeAddress={currentUser?.safeAccount} />
+          </>
         )}
         {!!chainInfo && !!chainInfo.sourceId && (
           <SubChainEarlyUserReward
@@ -79,7 +82,6 @@ export default function DashboardPage() {
             safeAddress={currentUser?.safeAccount}
           />
         )}
-        <VotingEscrow account={address} safeAddress={currentUser?.safeAccount} />
       </Grid>
 
       <Tabs mt={{ base: 4, md: 8 }}>

@@ -131,7 +131,7 @@ export default {
   VE_YMWK: "veYMWK",
   VE_YMWK_REWARD: "veYMWKリワード",
   VE_YMWK_REWARD_HELP:
-    "YMWKトークンを一定期間ロックすることで、移転不可のveYMWKトークンを発行します。ロック期間の最小単位は1週間、最大期間は52週間(≒ 4年間)で、ロックしたYMWKトークンはロック期間終了まで引き出しできません。\n1YMWKを4年間ロックすると1veYMWKが発行され、時間経過により線形に減衰し、4年後に0veYMWKになります。週は毎週木曜日0時(UTC)を起点として計算されます。",
+    "YMWKトークンを一定期間ロックすることで、移転不可のveYMWKトークンを発行します。ロック期間の最小単位は1週間、最大期間は208週間(≒ 4年間)で、ロックしたYMWKトークンはロック期間終了まで引き出しできません。\n1YMWKを4年間ロックすると1veYMWKが発行され、時間経過により線形に減衰し、4年後に0veYMWKになります。週は毎週木曜日0時(UTC)を起点として計算されます。",
   YMWK_LOCKED: "ロック中のYMWK",
   LOCKED_UNTIL: "ロック終了日時",
   REWARDS: "リワード",
@@ -176,4 +176,6 @@ export default {
   VE_WITHDRAW: "引き出す",
   INPUT_LOCK_AMOUNT: "ロック額",
   SELECT_UNLOCK_DATE: "ロック期間を選択",
+  AVE_LOCK_TIME: "全アカウント平均ロック期間",
+  YEARS: "年",
 };
