@@ -72,7 +72,11 @@ export default function DashboardPage() {
               address={address}
               safeAddress={currentUser?.safeAccount}
             />
-            <VotingEscrow account={address} safeAddress={currentUser?.safeAccount} />
+            <VotingEscrow
+              chainId={chainInfo.id}
+              account={address}
+              safeAddress={currentUser?.safeAccount}
+            />
           </>
         )}
         {!!chainInfo && !!chainInfo.sourceId && (
