@@ -132,7 +132,7 @@ export default {
   VE_YMWK: "veYMWK",
   VE_YMWK_REWARD: "veYMWK Rewards",
   VE_YMWK_REWARD_HELP:
-    "By locking YMWK tokens for a specified period, non-transferable veYMWK tokens are issued. The minimum lock period is one week, and the maximum is 52 weeks (approximately 4 years). Locked YMWK tokens cannot be withdrawn until the end of the lock period. \nLocking 1 YMWK for 4 years issues 1 veYMWK, which linearly depreciates over time, reaching 0 veYMWK after 4 years. Weeks are calculated starting every Thursday at 00:00 (UTC).",
+    "By locking YMWK tokens for a specified period, non-transferable veYMWK tokens are issued. The minimum lock period is one week, and the maximum is 208 weeks (approximately 4 years). Locked YMWK tokens cannot be withdrawn until the end of the lock period. \nLocking 1 YMWK for 4 years issues 1 veYMWK, which linearly depreciates over time, reaching 0 veYMWK after 4 years. Weeks are calculated starting every Thursday at 00:00 (UTC).",
   YMWK_LOCKED: "YMWK Locked",
   LOCKED_UNTIL: "Locked until",
   REWARDS: "Rewards",
@@ -177,4 +177,6 @@ export default {
   VE_WITHDRAW: "Withdraw YMWK",
   INPUT_LOCK_AMOUNT: "Input lock amount",
   SELECT_UNLOCK_DATE: "Select unlock date",
+  AVE_LOCK_TIME: "Average lock duration for all accounts",
+  YEARS: "Years",
 };

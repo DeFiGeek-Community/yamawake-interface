@@ -15,7 +15,22 @@ export default function LockStats({ account, safeAddress }: SafeComponentProps) 
   const targetAccount = safeAddress || account;
 
   const { data: balance, error: balanceError } = useBalanceOf(targetAccount, true);
-  const { data: locked, error: lockedError } = useLocked(targetAccount, true);
+  const {
+    locked: lockedData,
+    totalSupply: totalSupplyData,
+    totalLockedYMWK: totalLockedYMWKData,
+  } = useLocked(targetAccount, true);
+  const { data: locked, error: lockedError } = lockedData;
+  const { data: totalSupply, error: totalSupplyError } = totalSupplyData;
+  const { data: totalLockedYMWK, error: totalLockedYMWKError } = totalLockedYMWKData;
+  const totalSupplyInFormat = totalSupply ? tokenAmountFormat(totalSupply.toString(), 18, 2) : "-";
+  const share = `${totalSupply && balance ? ((Number(balance) / Number(totalSupply)) * 100).toFixed(3) : "-"}%`;
+  const year = 365;
+  const maxLockTime = 4 * year;
+  const averageLockTime =
+    totalSupply && totalLockedYMWK
+      ? (((Number(totalSupply) / Number(totalLockedYMWK)) * maxLockTime) / year).toFixed(2)
+      : "-";
 
   return (
     <>
@@ -30,6 +45,11 @@ export default function LockStats({ account, safeAddress }: SafeComponentProps) 
           <chakra.span color={"gray.400"} fontSize={"lg"} ml={1}>
             veYMWK
           </chakra.span>
+        </chakra.p>
+      </HStack>
+      <HStack justifyContent={"flex-end"} mt={-1}>
+        <chakra.p color={"gray.400"} fontSize={"sm"}>
+          / {totalSupplyInFormat} veYMWK (My Share {share})
         </chakra.p>
       </HStack>
       <HStack justifyContent={"space-between"} mt={1}>
@@ -55,6 +75,11 @@ export default function LockStats({ account, safeAddress }: SafeComponentProps) 
           ) : (
             <>{format(new Date(Number(locked[1]) * 1000), "yyyy / MM / dd")}</>
           )}
+        </chakra.p>
+      </HStack>
+      <HStack justifyContent={"flex-end"} mt={-1}>
+        <chakra.p color={"gray.400"} fontSize={"sm"}>
+          {t("AVE_LOCK_TIME")}: {averageLockTime} {t("YEARS")}
         </chakra.p>
       </HStack>
 
