@@ -178,4 +178,6 @@ export default {
   SELECT_UNLOCK_DATE: "ロック期間を選択",
   AVE_LOCK_TIME: "全アカウント平均ロック期間",
   YEARS: "年",
+  YMWK_APR_HELP: "現在のYMWK年間発行量 / 総veYMWK * 100",
+  ETH_APR_HELP: "今週のAPRを予測するものでも保証するものでもありません。",
 };
