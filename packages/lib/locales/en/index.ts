@@ -179,4 +179,6 @@ export default {
   SELECT_UNLOCK_DATE: "Select unlock date",
   AVE_LOCK_TIME: "Average lock duration for all accounts",
   YEARS: "Years",
+  YMWK_APR_HELP: "Inflation rate of YMWK / Total supply of veYMWK * 100",
+  ETH_APR_HELP: "This is neither a prediction nor a guarantee of this week’s APY.",
 };
