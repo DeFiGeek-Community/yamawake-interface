@@ -34,7 +34,6 @@ export default function useEarlyUserReward({
     ...config,
     functionName: "scores",
     args: [safeAddress || address],
-    watch: true,
     enabled: isSupportedChain(chainId) && !!address,
   });
 
@@ -60,6 +59,7 @@ export default function useEarlyUserReward({
     hash: writeFn.data?.hash,
     safeAddress,
     onSuccess(data) {
+      readFn.refetch();
       onSuccessConfirm && onSuccessConfirm(data);
     },
     onError(e: Error) {
