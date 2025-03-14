@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import {
   chakra,
   Button,
@@ -143,6 +143,15 @@ export default function AuctionForm({
       duration: 2000,
     });
   };
+
+  const ethPerTokenStr = useMemo(() => {
+    const { minRaisedAmount, allocatedAmount } = formikProps.values;
+    if (!tokenData || !minRaisedAmount || !allocatedAmount || Number(allocatedAmount) === 0) {
+      return "";
+    }
+    const ratio = divide(minRaisedAmount, allocatedAmount).toString();
+    return `1 ${tokenData.symbol} = ${ratio} ETH at Minimum total raised`;
+  }, [tokenData, formikProps.values.minRaisedAmount, formikProps.values.allocatedAmount]);
 
   return (
     <div>
@@ -331,13 +340,7 @@ export default function AuctionForm({
             <chakra.div px={2}>ETH</chakra.div>
           </Flex>
           <chakra.p color={"gray.400"} fontSize={"sm"}>
-            {!!tokenData &&
-              !!formikProps.values.minRaisedAmount &&
-              !!formikProps.values.allocatedAmount &&
-              `1 ${tokenData.symbol} = ${divide(
-                formikProps.values.minRaisedAmount,
-                formikProps.values.allocatedAmount,
-              ).toString()} ETH at Minimum total raised`}
+            {ethPerTokenStr}
           </chakra.p>
           <FormErrorMessage>{formikProps.errors.minRaisedAmount}</FormErrorMessage>
         </FormControl>

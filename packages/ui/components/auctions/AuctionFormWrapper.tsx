@@ -24,7 +24,9 @@ export type AuctionFormWrapperParams = {
 
 export default function AuctionFormWrapper(props: AuctionFormWrapperParams) {
   const { data: templateData } = useTemplates(props.chainId);
-  const [templateName, setTemplateName] = useState<string | undefined>(TEMPLATE_V1_5_NAME);
+  const [templateName, setTemplateName] = useState<string | undefined>(
+    COMPATIBLE_TEMPLATES[props.chainId][0],
+  );
   const { t } = useLocale();
   useEffect(() => {
     if (!templateData) return;
