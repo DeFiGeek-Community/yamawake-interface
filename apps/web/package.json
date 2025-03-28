@@ -17,15 +17,15 @@
     "assets": "workspace:*",
     "cypress-wait-until": "^2.0.1",
     "lib": "workspace:*",
-    "next": "^14.0.4",
+    "next": "^14.2.26",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "ui": "workspace:*"
   },
   "devDependencies": {
     "@synthetixio/synpress": "3.7.2-beta.10",
-    "@types/node": "^20.10.4",
-    "@types/react": "^18.2.45",
+    "@types/node": "^20.17.28",
+    "@types/react": "^18.3.20",
     "@types/react-dom": "^18.2.18",
     "cypress": "^12.17.4",
     "cypress-dotenv": "^2.0.0",
@@ -34,9 +34,9 @@
     "eslint-config-custom": "workspace:*",
     "ethers": "^6.9.0",
     "ethers5": "npm:ethers@^5.7.2",
-    "start-server-and-test": "^2.0.3",
+    "start-server-and-test": "^2.0.11",
     "tsconfig": "workspace:*",
-    "typescript": "^5.3.3"
+    "typescript": "^5.8.2"
   },
   "browserslist": [
     ">0.2%",
