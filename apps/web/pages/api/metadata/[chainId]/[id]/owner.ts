@@ -1,13 +1,13 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { withIronSessionApiRoute } from "iron-session/next";
 import { PublicClient, getContract } from "viem";
 import { Chain } from "viem/chains";
-import { IronSession, IronSessionOptions } from "iron-session";
+import { getIronSession, type SessionOptions } from "iron-session";
 import { getDefaultChain, getSupportedChain } from "lib/utils/chain";
 import { getViemProvider } from "lib/utils/serverside";
 import BaseTemplateABI from "lib/constants/abis/BaseTemplate.json";
+import type { YamawakeSession } from "lib/types/iron-session";
 
-const ironOptions: IronSessionOptions = {
+const ironOptions: SessionOptions = {
   cookieName: process.env.IRON_SESSION_COOKIE_NAME!,
   password: process.env.IRON_SESSION_PASSWORD!,
   cookieOptions: {
@@ -16,7 +16,7 @@ const ironOptions: IronSessionOptions = {
 };
 
 const getContractOwner = (
-  session: IronSession,
+  session: YamawakeSession,
   contractAddress: `0x${string}`,
   chainId: number,
 ): Promise<string> => {
@@ -50,8 +50,9 @@ const getContractOwner = (
   });
 };
 
-const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { method } = req;
+  const session = await getIronSession(req, res, ironOptions);
   switch (method) {
     case "GET":
       try {
@@ -63,7 +64,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
           return res.status(404).end("No auction found");
         }
 
-        const owner = await getContractOwner(req.session, id as `0x${string}`, Number(chainId));
+        const owner = await getContractOwner(session, id as `0x${string}`, Number(chainId));
         res.json({ owner });
       } catch (_error: any) {
         console.log(_error.message);
@@ -74,6 +75,4 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       res.setHeader("Allow", ["GET"]);
       res.status(405).end(`Method ${method} Not Allowed`);
   }
-};
-
-export default withIronSessionApiRoute(handler, ironOptions);
+}

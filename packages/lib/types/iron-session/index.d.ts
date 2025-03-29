@@ -7,3 +7,8 @@ declare module "iron-session" {
     siwe?: SiweMessage;
   }
 }
+
+export type YamawakeSession = IronSession<{
+  nonce?: string;
+  siwe?: SiweMessage;
+}>;

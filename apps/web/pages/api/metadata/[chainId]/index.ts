@@ -1,6 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { withIronSessionApiRoute } from "iron-session/next";
-import type { IronSessionOptions, IronSession } from "iron-session";
+import { getIronSession, type SessionOptions } from "iron-session";
 import { getContract, PublicClient, GetContractReturnType, Transport } from "viem";
 import { Chain } from "viem/chains";
 import { getSupportedChain, isSupportedChain } from "lib/utils/chain";
@@ -8,8 +7,9 @@ import { getViemProvider } from "lib/utils/serverside";
 import { DBClient } from "lib/dynamodb/metaData";
 import BaseTemplateABI from "lib/constants/abis/BaseTemplate.json";
 import { MetaData } from "lib/types/Auction";
+import type { YamawakeSession } from "lib/types/iron-session";
 
-const ironOptions: IronSessionOptions = {
+const ironOptions: SessionOptions = {
   cookieName: process.env.IRON_SESSION_COOKIE_NAME!,
   password: process.env.IRON_SESSION_PASSWORD!,
   cookieOptions: {
@@ -26,7 +26,7 @@ const dbClient = new DBClient({
 
 const requireContractOwner = (
   body: any,
-  session: IronSession,
+  session: YamawakeSession,
   chainId: number,
 ): Promise<{
   metaData: MetaData;
@@ -64,14 +64,15 @@ const requireContractOwner = (
   });
 };
 
-const requireAvailableNetwork = (req: NextApiRequest): number => {
-  if (!req.session.siwe) throw new Error("Sign in required");
-  if (!isSupportedChain(req.session.siwe.chainId)) throw new Error("Wrong network");
-  return req.session.siwe.chainId;
+const requireAvailableNetwork = (session: YamawakeSession): number => {
+  if (!session.siwe) throw new Error("Sign in required");
+  if (!isSupportedChain(session.siwe.chainId)) throw new Error("Wrong network");
+  return session.siwe.chainId;
 };
 
-const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { method } = req;
+  const session = await getIronSession(req, res, ironOptions);
   switch (method) {
     case "GET":
       try {
@@ -95,7 +96,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       break;
     case "POST":
       try {
-        const sessionChainId = requireAvailableNetwork(req);
+        const sessionChainId = requireAvailableNetwork(session);
         const { chainId } = req.query;
 
         // To prevent editing off-chain data related to a contract on a different chain than the user signed,
@@ -105,7 +106,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         if (Number(chainId) !== sessionChainId)
           throw new Error("Network does not match. Please logout and login again");
 
-        const { metaData } = await requireContractOwner(req.body, req.session, Number(chainId));
+        const { metaData } = await requireContractOwner(req.body, session, Number(chainId));
 
         const result = await dbClient.addMetaData(metaData);
         res.json({ result });
@@ -116,12 +117,12 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       break;
     case "PUT":
       try {
-        const sessionChainId = requireAvailableNetwork(req);
+        const sessionChainId = requireAvailableNetwork(session);
         const { chainId } = req.query;
         if (Number(chainId) !== sessionChainId)
           throw new Error("Network does not match. Please logout and login again");
 
-        const { metaData } = await requireContractOwner(req.body, req.session, Number(chainId));
+        const { metaData } = await requireContractOwner(req.body, session, Number(chainId));
 
         const result = await dbClient.updateAuction(metaData);
         res.json({ result });
@@ -134,6 +135,4 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       res.setHeader("Allow", ["GET", "POST", "PUT"]);
       res.status(405).end(`Method ${method} Not Allowed`);
   }
-};
-
-export default withIronSessionApiRoute(handler, ironOptions);
+}

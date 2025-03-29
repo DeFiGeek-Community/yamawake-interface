@@ -1,17 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { withIronSessionApiRoute } from "iron-session/next";
 import { Chain } from "viem/chains";
 import { DBClient } from "lib/dynamodb/metaData";
-import { IronSessionOptions } from "iron-session";
 import { getDefaultChain, getSupportedChain } from "lib/utils/chain";
-
-const ironOptions: IronSessionOptions = {
-  cookieName: process.env.IRON_SESSION_COOKIE_NAME!,
-  password: process.env.IRON_SESSION_PASSWORD!,
-  cookieOptions: {
-    secure: process.env.NODE_ENV === "production",
-  },
-};
 
 const dbClient = new DBClient({
   region: process.env._AWS_REGION as string,
@@ -20,7 +10,7 @@ const dbClient = new DBClient({
   tableName: process.env._AWS_DYNAMO_TABLE_NAME as string,
 });
 
-const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { method } = req;
   switch (method) {
     case "GET":
@@ -45,6 +35,4 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       res.setHeader("Allow", ["GET"]);
       res.status(405).end(`Method ${method} Not Allowed`);
   }
-};
-
-export default withIronSessionApiRoute(handler, ironOptions);
+}
