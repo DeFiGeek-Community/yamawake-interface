@@ -1,14 +1,14 @@
-import { withIronSessionApiRoute } from "iron-session/next";
 import { NextApiRequest, NextApiResponse } from "next";
 import { SiweMessage } from "siwe";
 import { ethers, Network } from "ethers";
 import { getRPCEndpoints, getSupportedChain } from "lib/utils/chain";
-import { IronSessionOptions } from "iron-session";
+import { getIronSession, type SessionOptions } from "iron-session";
 import { getContract, isAddress, PublicClient } from "viem";
 import SafeABI from "lib/constants/abis/Safe.json";
 import { getViemProvider } from "lib/utils/serverside";
+import { YamawakeSession } from "lib/types/iron-session";
 
-const ironOptions: IronSessionOptions = {
+const ironOptions: SessionOptions = {
   cookieName: process.env.IRON_SESSION_COOKIE_NAME!,
   password: process.env.IRON_SESSION_PASSWORD!,
   cookieOptions: {
@@ -16,8 +16,9 @@ const ironOptions: IronSessionOptions = {
   },
 };
 
-const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { method } = req;
+  const session = await getIronSession<YamawakeSession>(req, res, ironOptions);
   switch (method) {
     case "POST":
       try {
@@ -38,7 +39,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
         const fields = await siweMessage.verify({ signature }, { provider });
 
-        if (fields.data.nonce !== req.session.nonce)
+        if (fields.data.nonce !== session.nonce)
           return res.status(422).json({ error: "Invalid nonce." });
         if (fields.data.chainId !== chain.id)
           return res.status(422).json({ error: "Invalid chain." });
@@ -63,8 +64,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
           delete fields.data.resources;
         }
 
-        req.session.siwe = fields.data;
-        await req.session.save();
+        session.siwe = fields.data;
+        await session.save();
         res.json({ ok: true });
       } catch (_error: unknown) {
         res.status(422).json({ error: _error instanceof Error ? _error.message : String(_error) });
@@ -74,6 +75,4 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       res.setHeader("Allow", ["POST"]);
       res.status(405).end(`Method ${method} Not Allowed`);
   }
-};
-
-export default withIronSessionApiRoute(handler, ironOptions);
+}
