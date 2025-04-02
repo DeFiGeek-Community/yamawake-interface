@@ -11,7 +11,13 @@ export enum QueryType {
 
 export const LIST_ACTIVE_AND_UPCOMING_SALE_QUERY = gql`
   query ListAuctions($skip: Int! = 0, $first: Int! = 50, $now: Int!) {
-    auctions(orderBy: startingAt, skip: $skip, first: $first, where: { closingAt_gt: $now }) {
+    auctions(
+      orderBy: startingAt
+      orderDirection: desc
+      skip: $skip
+      first: $first
+      where: { closingAt_gt: $now }
+    ) {
       id
       templateAuctionMap {
         id
@@ -52,6 +58,7 @@ export const LIST_ACTIVE_SALE_QUERY = gql`
   query ListAuctions($skip: Int! = 0, $first: Int! = 50, $now: Int!) {
     auctions(
       orderBy: startingAt
+      orderDirection: desc
       skip: $skip
       first: $first
       where: { startingAt_lte: $now, closingAt_gt: $now }
@@ -94,7 +101,13 @@ export const LIST_ACTIVE_SALE_QUERY = gql`
 
 export const LIST_UPCOMING_SALE_QUERY = gql`
   query ListAuctions($skip: Int! = 0, $first: Int! = 50, $now: Int!) {
-    auctions(orderBy: startingAt, skip: $skip, first: $first, where: { startingAt_gt: $now }) {
+    auctions(
+      orderBy: startingAt
+      orderDirection: desc
+      skip: $skip
+      first: $first
+      where: { startingAt_gt: $now }
+    ) {
       id
       templateAuctionMap {
         id
@@ -133,7 +146,13 @@ export const LIST_UPCOMING_SALE_QUERY = gql`
 
 export const LIST_CLOSED_SALE_QUERY = gql`
   query ListAuctions($skip: Int! = 0, $first: Int! = 50, $now: Int!) {
-    auctions(orderBy: startingAt, skip: $skip, first: $first, where: { closingAt_lt: $now }) {
+    auctions(
+      orderBy: startingAt
+      orderDirection: desc
+      skip: $skip
+      first: $first
+      where: { closingAt_lt: $now }
+    ) {
       id
       templateAuctionMap {
         id
@@ -172,7 +191,13 @@ export const LIST_CLOSED_SALE_QUERY = gql`
 
 export const LIST_MY_SALE_QUERY = gql`
   query MyAuctions($skip: Int! = 0, $first: Int! = 50, $id: ID!) {
-    auctions(orderBy: startingAt, skip: $skip, first: $first, where: { owner: $id }) {
+    auctions(
+      orderBy: startingAt
+      orderDirection: desc
+      skip: $skip
+      first: $first
+      where: { owner: $id }
+    ) {
       id
       templateAuctionMap {
         id
@@ -213,6 +238,7 @@ export const LIST_PARTICIPATED_SALE_QUERY = gql`
   query ParticipatedAuctions($skip: Int! = 0, $first: Int! = 50, $id: ID!) {
     auctions(
       orderBy: startingAt
+      orderDirection: desc
       skip: $skip
       first: $first
       where: { contributions_: { from: $id } }
