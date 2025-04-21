@@ -227,7 +227,7 @@ export default memo(function DetailPage({
           />
           <Box px={{ base: 0, md: 8 }} w={{ base: "full", md: "auto" }}>
             {chain && <ChainNameTag chainId={chain.id} />}
-            <Heading>{metaData.title ? metaData.title : "Unnamed Auction"}</Heading>
+            <Heading pt={2}>{metaData.title ? metaData.title : "Unnamed Auction"}</Heading>
             <HStack spacing={{ base: 4, lg: 4 }} mt={1}>
               <chakra.p fontSize={"sm"}>
                 <Tag mr={1} verticalAlign={"top"} size="sm">
