@@ -14,6 +14,12 @@ cp .env.sample .env
 
 Set up configs under `packages/lib/constants` as you need
 
+3. Install dependencies
+
+```bash
+pnpm i --frozen-lockfile
+```
+
 ### Build
 
 ```bash
