@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { createPublicClient, fallback, parseAbiItem } from "viem";
 import { useContractRead } from "wagmi";
+import { useInterval } from "@chakra-ui/react";
 import { CHAIN_INFO } from "lib/constants/chains";
 import { CONTRACT_ADDRESSES } from "lib/constants/contracts";
 import { getRPCEndpoints } from "lib/utils/chain";
@@ -52,7 +53,6 @@ export default function useCCIPStatus({
   const offRamps = useContractRead<typeof RouterABI, "getOffRamps", any[]>({
     ...destinationRouterContract,
     functionName: "getOffRamps",
-    watch: status !== "SUCCESS",
   });
 
   const [matchingOffRamps, setMatchingOffRamps] = useState<any[] | undefined>(undefined);
@@ -66,6 +66,16 @@ export default function useCCIPStatus({
   }, [offRamps.data]);
 
   useEffect(() => {
+    setStatus("IN_PROGRESS");
+    checkStatus();
+  }, [messageId, setStatus]);
+
+  useInterval(() => {
+    checkStatus();
+  }, 5000);
+
+  const checkStatus = () => {
+    if (!messageId || !matchingOffRamps || status === "SUCCESS" || status === "FAILURE") return;
     setIsError(false);
     if (messageId && matchingOffRamps) {
       for (const matchingOffRamp of matchingOffRamps) {
@@ -75,7 +85,7 @@ export default function useCCIPStatus({
         });
       }
     }
-  }, [messageId, matchingOffRamps]);
+  };
 
   const getLogs = async (matchingOffRamp: any) => {
     const offRampContract = {

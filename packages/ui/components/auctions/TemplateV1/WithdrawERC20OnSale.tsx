@@ -25,7 +25,7 @@ export default function WithdrawERC20({
   const toast = useToast({ position: "top-right", isClosable: true });
   const { t } = useLocale();
   const { chain: connectedChain } = useNetwork();
-  const { data: balance } = useContractRead({
+  const { data: balance, refetch } = useContractRead({
     address: auction.auctionToken.id as `0x${string}`,
     account: safeAddress || account || "0x",
     abi: erc20ABI,
@@ -62,6 +62,7 @@ export default function WithdrawERC20({
         status: "success",
         duration: 5000,
       });
+      refetch();
       onSuccessConfirm && onSuccessConfirm(data);
     },
     isReady:

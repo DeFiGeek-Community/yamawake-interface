@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useFormik } from "formik";
 import {
   Button,
@@ -130,6 +131,7 @@ export default function FormModal({ account, safeAddress, type, isOpen, onClose 
         status: "success",
         duration: 5000,
       });
+      formikProps.validateForm();
     },
     onErrorConfirm(e) {
       toast({
@@ -141,6 +143,15 @@ export default function FormModal({ account, safeAddress, type, isOpen, onClose 
     enabled:
       !!account && !!chain && (type === LockType.CREATE_LOCK || type === LockType.INCREASE_AMOUNT),
   });
+
+  const currentAllowance = useMemo(() => {
+    return approvals.allowance;
+  }, [approvals.allowance]);
+
+  const hasEnoughAllowance = useMemo(() => {
+    const formValue = formikProps.values.value || "0";
+    return Big(currentAllowance.toString()).gte(multiply(Big(formValue), Big(10).pow(18)));
+  }, [currentAllowance, formikProps.values.value]);
 
   const { data: balance } = useContractRead({
     address: chain ? (CONTRACT_ADDRESSES[chain.id].YMWK as `0x${string}`) : "0x",
@@ -158,7 +169,7 @@ export default function FormModal({ account, safeAddress, type, isOpen, onClose 
     unlockTime: formikProps.values.unlockTime
       ? Math.floor(formikProps.values.unlockTime / 1000)
       : null,
-    allowance: approvals.allowance,
+    allowance: currentAllowance,
     callbacks: {
       onSuccessWrite(data) {
         toast({
@@ -234,7 +245,7 @@ export default function FormModal({ account, safeAddress, type, isOpen, onClose 
                             max={Number.MAX_SAFE_INTEGER}
                             onBlur={formikProps.handleBlur}
                             onChange={(strVal: string, val: number) =>
-                              formikProps.setFieldValue("value", strVal)
+                              formikProps.setFieldValue("value", strVal || "0")
                             }
                           >
                             <NumberInputField />
@@ -325,9 +336,7 @@ export default function FormModal({ account, safeAddress, type, isOpen, onClose 
 
                 {(type === LockType.CREATE_LOCK || type === LockType.INCREASE_AMOUNT) && (
                   <>
-                    {Big(approvals.allowance.toString()).gte(
-                      multiply(Big(formikProps.values.value.toString()), Big(10).pow(18)),
-                    ) ? (
+                    {hasEnoughAllowance ? (
                       <Button
                         mt={4}
                         w={"full"}
