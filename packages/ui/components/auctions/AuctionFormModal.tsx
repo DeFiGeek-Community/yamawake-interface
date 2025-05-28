@@ -10,6 +10,7 @@ import {
 import { useToast, useColorMode } from "@chakra-ui/react";
 import { CustomProvider } from "rsuite";
 import { useAtom } from "jotai";
+import { useSWRConfig } from "swr";
 import { creatingAuctionAtom } from "lib/store";
 import { Steps } from "./Steps";
 import MetaDataForm from "./TemplateV1/MetaDataForm";
@@ -51,7 +52,7 @@ export default function AuctionFormModal({
   const { t } = useLocale();
   const [tx, setTx] = useState<string | undefined>(undefined);
   const [creatingAuction, setCreatingAuction] = useAtom(creatingAuctionAtom);
-
+  const { mutate } = useSWRConfig();
   const waitFn = useSafeWaitForTransaction({
     hash: tx as `0x${string}`,
     enabled: !!tx,
@@ -105,14 +106,17 @@ export default function AuctionFormModal({
     contractId: contractAddress,
     minRaisedAmount:
       creatingAuction && creatingAuction.minRaisedAmount ? creatingAuction.minRaisedAmount : 0,
-    onSubmitSuccess: (response) => {
-      handleClose();
+    onSubmitSuccess: async (response) => {
+      await mutate(`/api/metadata/${chainId}/${contractAddress?.toLowerCase()}`, undefined, {
+        revalidate: true,
+      });
       onInformationSaved && onInformationSaved();
       toast({
         title: t("SALE_INFORMATION_SUCCESSFULLY_SAVED"),
         status: "success",
         duration: 5000,
       });
+      handleClose();
     },
     onSubmitError: (e: any) => {
       toast({
