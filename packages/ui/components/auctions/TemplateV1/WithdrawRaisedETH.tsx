@@ -25,7 +25,11 @@ export default function WithdrawRaisedETH({
   const toast = useToast({ position: "top-right", isClosable: true });
   const { t } = useLocale();
   const { chain: connectedChain } = useNetwork();
-  const { data: balanceData, isLoading: isLoadingBalance } = useBalance({
+  const {
+    data: balanceData,
+    isLoading: isLoadingBalance,
+    refetch,
+  } = useBalance({
     address: auction.id as `0x${string}`,
   });
   const {
@@ -57,6 +61,7 @@ export default function WithdrawRaisedETH({
         status: "success",
         duration: 5000,
       });
+      refetch();
       onSuccessConfirm && onSuccessConfirm(data);
     },
     isReady:
