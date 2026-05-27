@@ -18,6 +18,7 @@
         "NEXT_PUBLIC_ENV",
         "IRON_SESSION_COOKIE_NAME",
         "IRON_SESSION_PASSWORD",
+        "SIWE_DOMAIN",
         "NODE_ENV",
         "_AWS_REGION",
         "_AWS_ACCESS_KEY_ID",

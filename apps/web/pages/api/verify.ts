@@ -37,8 +37,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           { staticNetwork: true },
         );
 
-        const domain = req.headers.host;
-        if (!domain) return res.status(400).json({ error: "Missing Host header." });
+        // Prefer a server-pinned canonical domain (immune to Host-header
+        // spoofing); fall back to the request Host when SIWE_DOMAIN is unset.
+        const domain = process.env.SIWE_DOMAIN || req.headers.host;
+        if (!domain) return res.status(400).json({ error: "Missing domain." });
         if (!session.nonce) return res.status(422).json({ error: "Invalid nonce." });
 
         // Bind the signature to this server's domain and the single-use,
