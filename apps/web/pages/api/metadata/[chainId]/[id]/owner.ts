@@ -66,9 +66,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         const owner = await getContractOwner(session, id as `0x${string}`, Number(chainId));
         res.json({ owner });
-      } catch (_error: any) {
-        console.log(_error.message);
-        res.status(500).end(_error.message);
+      } catch (_error) {
+        console.error(_error);
+        res.status(500).end("Internal Server Error");
       }
       break;
     default:

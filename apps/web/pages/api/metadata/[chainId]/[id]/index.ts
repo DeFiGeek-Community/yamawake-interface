@@ -26,9 +26,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         const metaData = await dbClient.fetchMetaData(id as string, requestedChain.id);
         res.json({ metaData });
-      } catch (_error: any) {
-        console.log(_error.message);
-        res.status(500).end(_error.message);
+      } catch (_error) {
+        console.error(_error);
+        res.status(500).end("Internal Server Error");
       }
       break;
     default:

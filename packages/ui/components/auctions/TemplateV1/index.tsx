@@ -123,6 +123,7 @@ export default memo(function DetailPage({
   });
 
   const { config, isError } = usePrepareSafeSendTransaction({
+    chainId,
     to: contractAddress,
     account: safeAddress || address,
     value: formikProps.values.amount ? BigInt(parseEther(formikProps.values.amount)) : undefined,

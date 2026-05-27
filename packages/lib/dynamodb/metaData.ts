@@ -64,7 +64,7 @@ export class DBClient {
   async fetchMetaData(auctionId: string, chainId: number): Promise<MetaData | undefined> {
     const command = new GetItemCommand({
       TableName: this.tableName,
-      Key: { AuctionId: { S: auctionId }, ChainId: { N: chainId.toString() } },
+      Key: { AuctionId: { S: auctionId.toLowerCase() }, ChainId: { N: chainId.toString() } },
     });
     const output = await this.client.send(command);
     const item = output.Item;
@@ -78,7 +78,7 @@ export class DBClient {
       RequestItems: {
         [tableName]: {
           Keys: auctionIds.map((id) => {
-            return { AuctionId: { S: id }, ChainId: { N: chainId.toString() } };
+            return { AuctionId: { S: id.toLowerCase() }, ChainId: { N: chainId.toString() } };
           }),
         },
       },

@@ -89,9 +89,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           lastEvaluatedKeyCreatedAt as string,
         );
         res.json({ metaData });
-      } catch (_error: any) {
-        console.log(_error);
-        res.status(500).end(String(_error));
+      } catch (_error) {
+        console.error(_error);
+        res.status(500).end("Internal Server Error");
       }
       break;
     case "POST":
@@ -111,8 +111,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const result = await dbClient.addMetaData(metaData);
         res.json({ result });
       } catch (_error) {
-        console.log(_error);
-        res.status(500).end(String(_error));
+        console.error(_error);
+        res.status(500).end("Internal Server Error");
       }
       break;
     case "PUT":
@@ -126,9 +126,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         const result = await dbClient.updateAuction(metaData);
         res.json({ result });
-      } catch (_error: any) {
-        console.log(_error);
-        res.status(500).end(String(_error));
+      } catch (_error) {
+        console.error(_error);
+        res.status(500).end("Internal Server Error");
       }
       break;
     default:
