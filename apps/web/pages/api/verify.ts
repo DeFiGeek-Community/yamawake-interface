@@ -37,10 +37,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           { staticNetwork: true },
         );
 
-        const fields = await siweMessage.verify({ signature }, { provider });
+        const domain = req.headers.host;
+        if (!domain) return res.status(400).json({ error: "Missing Host header." });
+        if (!session.nonce) return res.status(422).json({ error: "Invalid nonce." });
 
-        if (fields.data.nonce !== session.nonce)
-          return res.status(422).json({ error: "Invalid nonce." });
+        // Bind the signature to this server's domain and the single-use,
+        // server-issued nonce to prevent cross-domain phishing and replay.
+        const fields = await siweMessage.verify(
+          { signature, domain, nonce: session.nonce },
+          { provider },
+        );
+
         if (fields.data.chainId !== chain.id)
           return res.status(422).json({ error: "Invalid chain." });
 
@@ -65,10 +72,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
 
         session.siwe = fields.data;
+        // Invalidate the nonce so the same signature cannot be replayed.
+        session.nonce = undefined;
         await session.save();
         res.json({ ok: true });
       } catch (_error: unknown) {
-        res.status(422).json({ error: _error instanceof Error ? _error.message : String(_error) });
+        console.error("SIWE verification failed:", _error);
+        res.status(422).json({ error: "Verification failed." });
       }
       break;
     default:
