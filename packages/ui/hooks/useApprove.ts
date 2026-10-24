@@ -75,6 +75,7 @@ export default function useApprove({
   });
 
   const readFn = useContractRead({
+    chainId,
     address: targetAddress as `0x${string}`,
     abi: erc20ABI,
     functionName: "allowance",

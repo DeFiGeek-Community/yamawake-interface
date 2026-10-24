@@ -49,6 +49,8 @@ export class DBClient {
     const command = new ScanCommand({
       TableName: this.tableName,
       Limit: 10,
+      FilterExpression: "ChainId = :chainId",
+      ExpressionAttributeValues: { ":chainId": { N: chainId.toString() } },
       ExclusiveStartKey:
         lastEvaluatedKeyId && lastEvaluatedKeyCreatedAt
           ? {

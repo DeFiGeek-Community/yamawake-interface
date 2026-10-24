@@ -4,6 +4,7 @@
     "build": "dotenv -- turbo run build",
     "dev": "dotenv -- turbo run dev",
     "lint": "turbo run lint",
+    "test:security": "node --test tests/security/*.test.cjs",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "devDependencies": {

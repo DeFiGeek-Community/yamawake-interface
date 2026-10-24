@@ -17,7 +17,7 @@ import {
   getWalletClient,
   prepareSendTransaction,
 } from "@wagmi/core";
-import { assertActiveChain } from "./utils";
+import { assertActiveChain, assertProviderChain, resolveSafeChainId } from "./utils";
 
 export type SendTransactionArgs = {
   /** Chain ID used to validate if the walletClient is connected to the target chain */
@@ -69,11 +69,12 @@ export async function sendSafeTransaction({
   // `getWalletClient` isn't really "asynchronous" as we have already
   // initialized the Wallet Client upon user connection, so it will return
   // immediately.
+  chainId = resolveSafeChainId({ chainId });
   const walletClient = await getWalletClient({ chainId });
   const connectorConfig = getConfig();
   if (!walletClient || !connectorConfig.connector) throw new ConnectorNotFoundError();
 
-  if (chainId) assertActiveChain({ chainId });
+  assertActiveChain({ chainId });
 
   let args: SendTransactionParameters<Chain, Account>;
   if (mode === "prepared") {
@@ -110,6 +111,7 @@ export async function sendSafeTransaction({
 
   const provider = await connectorConfig.connector.getProvider();
   if (!provider) throw new Error("Provider is not set");
+  await assertProviderChain(provider, chainId);
   if (!args.account) throw new Error("account is not set");
 
   const signer = walletClient.account.address;
@@ -139,10 +141,11 @@ export async function sendSafeTransaction({
 
   const safeTransaction = await protocolKit.createTransaction({ transactions, options });
   const safeTxHash = await protocolKit.getTransactionHash(safeTransaction);
+  await assertProviderChain(provider, chainId);
   const signature = await protocolKit.signHash(safeTxHash);
   // Propose transaction to the service
   const apiKit = new SafeApiKit({
-    chainId: BigInt(chainId ?? (await connectorConfig.connector.getChainId())),
+    chainId: BigInt(chainId),
   });
   await apiKit.proposeTransaction({
     safeAddress,

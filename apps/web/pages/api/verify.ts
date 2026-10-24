@@ -1,90 +1,91 @@
-import { NextApiRequest, NextApiResponse } from "next";
+import type { NextApiRequest, NextApiResponse } from "next";
 import { SiweMessage } from "siwe";
 import { ethers, Network } from "ethers";
-import { getRPCEndpoints, getSupportedChain } from "lib/utils/chain";
-import { getIronSession, type SessionOptions } from "iron-session";
-import { getContract, isAddress, PublicClient } from "viem";
+import { getIronSession } from "iron-session";
+import { getContract, isAddress } from "viem";
 import SafeABI from "lib/constants/abis/Safe.json";
-import { getViemProvider } from "lib/utils/serverside";
-import { YamawakeSession } from "lib/types/iron-session";
-
-const ironOptions: SessionOptions = {
-  cookieName: process.env.IRON_SESSION_COOKIE_NAME!,
-  password: process.env.IRON_SESSION_PASSWORD!,
-  cookieOptions: {
-    secure: process.env.NODE_ENV === "production",
-  },
-};
+import ironOptions, { SESSION_TTL_SECONDS } from "lib/constants/ironOptions";
+import { getSupportedChain } from "lib/utils/chain";
+import { getServerRPCEndpoints, getViemProvider } from "lib/utils/serverside";
+import type { YamawakeSessionData } from "lib/types/iron-session";
+import { consumeNonce, NONCE_TTL_SECONDS } from "lib/dynamodb/authNonce";
+import { getSiweOrigin } from "lib/auth/session";
+import { ApiError, sendApiError } from "lib/auth/api";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { method } = req;
-  const session = await getIronSession<YamawakeSession>(req, res, ironOptions);
-  switch (method) {
-    case "POST":
-      try {
-        const { message, signature, chainId } = req.body;
-        const siweMessage = new SiweMessage(message);
-        const chain = getSupportedChain(Number(chainId));
-        if (!chain) throw Error("Unsupported chain");
-
-        const endpoints = getRPCEndpoints(chain.id);
-        if (endpoints.length === 0) throw Error("RPC endpoint not found");
-        // Requires ethersjs provider for EIP1271
-        // Reference) https://github.com/spruceid/siwe/blob/main/packages/siwe/lib/client.ts#L348C15-L348C22
-        const provider = new ethers.JsonRpcProvider(
-          endpoints[0].toString(),
-          Network.from(chain.id),
-          { staticNetwork: true },
-        );
-
-        // Prefer a server-pinned canonical domain (immune to Host-header
-        // spoofing); fall back to the request Host when SIWE_DOMAIN is unset.
-        const domain = process.env.SIWE_DOMAIN || req.headers.host;
-        if (!domain) return res.status(400).json({ error: "Missing domain." });
-        if (!session.nonce) return res.status(422).json({ error: "Invalid nonce." });
-
-        // Bind the signature to this server's domain and the single-use,
-        // server-issued nonce to prevent cross-domain phishing and replay.
-        const fields = await siweMessage.verify(
-          { signature, domain, nonce: session.nonce },
-          { provider },
-        );
-
-        if (fields.data.chainId !== chain.id)
-          return res.status(422).json({ error: "Invalid chain." });
-
-        if (fields.data.resources && isAddress(fields.data.resources[0])) {
-          // Sign in as a Safe address owner
-          const safeAddress = fields.data.resources[0];
-          const publicClient = getViemProvider(chain.id) as PublicClient;
-          const safeAccount = getContract({
-            address: safeAddress,
-            abi: SafeABI,
-            publicClient,
-          });
-          const isOwner = await safeAccount.read.isOwner([fields.data.address]);
-
-          if (!isOwner)
-            return res.status(422).json({
-              error: `${fields.data.address} is not a owner of ${safeAddress}`,
-            });
-        } else {
-          // To ensure that resources are emply
-          delete fields.data.resources;
-        }
-
-        session.siwe = fields.data;
-        // Invalidate the nonce so the same signature cannot be replayed.
-        session.nonce = undefined;
-        await session.save();
-        res.json({ ok: true });
-      } catch (_error: unknown) {
-        console.error("SIWE verification failed:", _error);
-        res.status(422).json({ error: "Verification failed." });
+  res.setHeader("Cache-Control", "no-store");
+  if (req.method !== "POST") {
+    res.setHeader("Allow", ["POST"]);
+    return res.status(405).end();
+  }
+  let provider: ethers.JsonRpcProvider | undefined;
+  try {
+    const origin = getSiweOrigin(req);
+    const session = await getIronSession<YamawakeSessionData>(req, res, ironOptions);
+    if (!session.nonce) throw new ApiError(422, "Invalid nonce.");
+    if (!req.body || typeof req.body !== "object" || Array.isArray(req.body)) {
+      throw new ApiError(400, "Invalid request.");
+    }
+    const { message, signature, chainId } = req.body;
+    if (typeof signature !== "string" || !Number.isSafeInteger(chainId)) {
+      throw new ApiError(400, "Invalid request.");
+    }
+    const siweMessage = new SiweMessage(message);
+    const chain = getSupportedChain(chainId);
+    if (!chain || siweMessage.chainId !== chain.id) throw new ApiError(422, "Invalid chain.");
+    const issuedAt = Date.parse(siweMessage.issuedAt || "");
+    if (
+      !Number.isFinite(issuedAt) ||
+      issuedAt > Date.now() + 60000 ||
+      issuedAt < Date.now() - NONCE_TTL_SECONDS * 1000
+    ) {
+      throw new ApiError(422, "Invalid message time.");
+    }
+    if (new URL(siweMessage.uri).href !== new URL(origin).href) {
+      throw new ApiError(422, "Invalid URI.");
+    }
+    if (
+      siweMessage.resources?.length &&
+      (siweMessage.resources.length !== 1 || !isAddress(siweMessage.resources[0]))
+    ) {
+      throw new ApiError(422, "Invalid Safe address.");
+    }
+    const endpoints = getServerRPCEndpoints(chain.id);
+    if (!endpoints.length) throw new Error("RPC endpoint not configured");
+    provider = new ethers.JsonRpcProvider(endpoints[0], Network.from(chain.id), {
+      staticNetwork: true,
+    });
+    const fields = await siweMessage.verify(
+      { signature, domain: new URL(origin).host, nonce: session.nonce },
+      { provider },
+    );
+    if (fields.data.resources?.length) {
+      const safe = getContract({
+        address: fields.data.resources[0] as `0x${string}`,
+        abi: SafeABI,
+        publicClient: getViemProvider(chain.id),
+      });
+      if (!(await safe.read.isOwner([fields.data.address]))) {
+        throw new ApiError(403, "You are not an owner of this Safe.");
       }
-      break;
-    default:
-      res.setHeader("Allow", ["POST"]);
-      res.status(405).end(`Method ${method} Not Allowed`);
+    } else {
+      delete fields.data.resources;
+    }
+    // This conditional write is the single-use boundary, including parallel requests.
+    if (!(await consumeNonce(session.nonce))) throw new ApiError(422, "Invalid nonce.");
+    session.siwe = fields.data;
+    session.expiresAt = Math.min(
+      Date.now() + SESSION_TTL_SECONDS * 1000,
+      fields.data.expirationTime ? Date.parse(fields.data.expirationTime) : Infinity,
+    );
+    session.nonce = undefined;
+    await session.save();
+    return res.json({ ok: true });
+  } catch (error) {
+    if (error instanceof ApiError) return sendApiError(error, res);
+    // SIWE errors may contain the signed message. Keep the public response generic.
+    return res.status(422).json({ error: "Verification failed." });
+  } finally {
+    provider?.destroy();
   }
 }
