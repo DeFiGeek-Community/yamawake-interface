@@ -1,32 +1,30 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import { getIronSession, type SessionOptions } from "iron-session";
-import type { YamawakeSession } from "lib/types/iron-session";
-
-const ironOptions: SessionOptions = {
-  cookieName: process.env.IRON_SESSION_COOKIE_NAME!,
-  password: process.env.IRON_SESSION_PASSWORD!,
-  cookieOptions: {
-    secure: process.env.NODE_ENV === "production",
-  },
-};
+import type { NextApiRequest, NextApiResponse } from "next";
+import { getIronSession } from "iron-session";
+import ironOptions from "lib/constants/ironOptions";
+import type { YamawakeSessionData } from "lib/types/iron-session";
+import { requireSession } from "lib/auth/session";
+import { ApiError, sendApiError } from "lib/auth/api";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { method } = req;
-  const session = await getIronSession<YamawakeSession>(req, res, ironOptions);
-  switch (method) {
-    case "GET":
-      res.send({
-        user: session.siwe
-          ? {
-              address: session.siwe.address,
-              chainId: session.siwe.chainId,
-              safeAccount: session.siwe.resources && session.siwe.resources[0],
-            }
-          : null,
+  res.setHeader("Cache-Control", "no-store");
+  if (req.method !== "GET") {
+    res.setHeader("Allow", ["GET"]);
+    return res.status(405).end();
+  }
+  try {
+    const session = await getIronSession<YamawakeSessionData>(req, res, ironOptions);
+    if (!session.siwe) return res.json({ user: null });
+    try {
+      const siwe = requireSession(session);
+      return res.json({
+        user: { address: siwe.address, chainId: siwe.chainId, safeAccount: siwe.resources?.[0] },
       });
-      break;
-    default:
-      res.setHeader("Allow", ["GET"]);
-      res.status(405).end(`Method ${method} Not Allowed`);
+    } catch (error) {
+      if (!(error instanceof ApiError)) throw error;
+      session.destroy();
+      return res.json({ user: null });
+    }
+  } catch (error) {
+    return sendApiError(error, res);
   }
 }

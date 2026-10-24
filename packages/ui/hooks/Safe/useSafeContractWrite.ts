@@ -118,6 +118,7 @@ function mutationFn(config: UseSafeContractWriteArgs<Abi, string, WriteContractM
       ? writeSafeContract({
           mode: "prepared",
           request: config.request,
+          chainId: config.request.chainId,
           safeAddress: config.safeAddress,
         })
       : writeContract({
@@ -285,6 +286,7 @@ export function useSafeContractWrite<
     mutate,
     nonce,
     request,
+    safeAddress,
     value,
   ]) as MutationFn<TMode, TAbi, TFunctionName, void>;
 
@@ -336,6 +338,7 @@ export function useSafeContractWrite<
     mutateAsync,
     nonce,
     request,
+    safeAddress,
     value,
   ]) as MutationFn<TMode, TAbi, TFunctionName, Promise<WriteContractResult>>;
 

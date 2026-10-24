@@ -46,3 +46,6 @@ subgraph/tests/.latest.json
 subgraph/tests/.bin
 
 memo.md
+
+# Generated dependency audit reports
+/artifacts/

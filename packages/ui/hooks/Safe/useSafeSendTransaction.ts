@@ -186,6 +186,7 @@ export function useSafeSendTransaction<TMode extends "prepared" | undefined = un
       nonce,
       to,
       value,
+      safeAddress,
     ],
   );
 

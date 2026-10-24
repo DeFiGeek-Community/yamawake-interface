@@ -5,7 +5,8 @@
   "types": "./index.tsx",
   "license": "MIT",
   "scripts": {
-    "lint": "eslint \"**/*.ts*\""
+    "lint": "eslint \"**/*.ts*\"",
+    "typecheck": "tsc --noEmit --incremental false"
   },
   "devDependencies": {
     "@types/react": "^18.3.29",
@@ -21,8 +22,8 @@
     "chartjs-adapter-moment": "^1.0.1",
     "ethers": "^6.16.0",
     "lib": "workspace:*",
-    "moment": "^2.30.1",
-    "next": "^15.5.16",
+    "moment": "^2.31.0",
+    "next": "^15.5.28",
     "rc-progress": "^3.5.1",
     "react-chartjs-2": "^5.3.1"
   },

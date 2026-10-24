@@ -1,0 +1,312 @@
+{
+  "expires": "2026-11-23",
+  "development": [
+    {
+      "package": "decompress",
+      "version": "4.2.1",
+      "advisories": {
+        "GHSA-mp2f-45pm-3cg9": "critical",
+        "GHSA-hrh2-vp3x-79xf": "critical"
+      }
+    },
+    {
+      "package": "extract-zip",
+      "version": "2.0.1",
+      "advisories": {
+        "GHSA-jmr9-qjv8-65gv": "high",
+        "GHSA-7pqw-9j4j-h8q3": "high"
+      }
+    },
+    {
+      "package": "gh-pages",
+      "version": "4.0.0",
+      "advisories": {
+        "GHSA-8mmm-9v2q-x3f9": "critical"
+      }
+    },
+    {
+      "package": "http-cache-semantics",
+      "version": "3.8.1",
+      "advisories": {
+        "GHSA-rc47-6667-2j5j": "high",
+        "GHSA-ch52-4w7c-c8xp": "high"
+      }
+    },
+    {
+      "package": "node-forge",
+      "version": "1.4.0",
+      "advisories": {
+        "GHSA-86w9-cpqp-85rv": "high"
+      }
+    },
+    {
+      "package": "webpack-dev-middleware",
+      "version": "5.3.4",
+      "advisories": {
+        "GHSA-g84c-rxfj-3j2c": "high"
+      }
+    }
+  ],
+  "subgraph": [
+    {
+      "package": "axios",
+      "version": "0.21.4",
+      "advisories": {
+        "GHSA-jr5f-v2jv-69x6": "high",
+        "GHSA-hfxv-24rg-xrqf": "high",
+        "GHSA-p92q-9vqr-4j8v": "high",
+        "GHSA-j5f8-grm9-p9fc": "high",
+        "GHSA-3g43-6gmg-66jw": "high",
+        "GHSA-pmwg-cvhr-8vh7": "high",
+        "GHSA-pf86-5x62-jrwf": "high",
+        "GHSA-6chq-wfr3-2hj9": "high",
+        "GHSA-43fc-jf86-j433": "high",
+        "GHSA-pjwm-pj3p-43mv": "high"
+      }
+    },
+    {
+      "package": "base-x",
+      "version": "3.0.9",
+      "advisories": {
+        "GHSA-xq7p-g2vc-g82p": "high"
+      }
+    },
+    {
+      "package": "brace-expansion",
+      "version": "1.1.11",
+      "advisories": {
+        "GHSA-mh99-v99m-4gvg": "high",
+        "GHSA-rgw5-rvv9-x895": "high",
+        "GHSA-3jxr-9vmj-r5cp": "high",
+        "GHSA-6j4f-fj2g-mc7p": "high",
+        "GHSA-qhr7-859c-m2p7": "high"
+      }
+    },
+    {
+      "package": "brace-expansion",
+      "version": "2.0.1",
+      "advisories": {
+        "GHSA-mh99-v99m-4gvg": "high",
+        "GHSA-rgw5-rvv9-x895": "high",
+        "GHSA-3jxr-9vmj-r5cp": "high",
+        "GHSA-6j4f-fj2g-mc7p": "high",
+        "GHSA-qhr7-859c-m2p7": "high"
+      }
+    },
+    {
+      "package": "braces",
+      "version": "3.0.2",
+      "advisories": {
+        "GHSA-grv7-fg5c-xmjg": "high"
+      }
+    },
+    {
+      "package": "cipher-base",
+      "version": "1.0.4",
+      "advisories": {
+        "GHSA-cpq7-6gpm-g9rc": "critical"
+      }
+    },
+    {
+      "package": "cross-spawn",
+      "version": "7.0.3",
+      "advisories": {
+        "GHSA-3xgq-45jj-v275": "high"
+      }
+    },
+    {
+      "package": "ejs",
+      "version": "3.1.6",
+      "advisories": {
+        "GHSA-phwq-j96m-2c2q": "critical"
+      }
+    },
+    {
+      "package": "elliptic",
+      "version": "6.5.4",
+      "advisories": {
+        "GHSA-vjh7-7g9h-fjfh": "critical"
+      }
+    },
+    {
+      "package": "form-data",
+      "version": "2.3.3",
+      "advisories": {
+        "GHSA-fjxv-7rqg-78g4": "critical",
+        "GHSA-hmw2-7cc7-3qxx": "high"
+      }
+    },
+    {
+      "package": "form-data",
+      "version": "2.5.1",
+      "advisories": {
+        "GHSA-fjxv-7rqg-78g4": "critical",
+        "GHSA-hmw2-7cc7-3qxx": "high"
+      }
+    },
+    {
+      "package": "immutable",
+      "version": "4.2.1",
+      "advisories": {
+        "GHSA-wf6x-7x77-mvgw": "high",
+        "GHSA-v56q-mh7h-f735": "high",
+        "GHSA-xvcm-6775-5m9r": "high"
+      }
+    },
+    {
+      "package": "js-yaml",
+      "version": "3.14.1",
+      "advisories": {
+        "GHSA-52cp-r559-cp3m": "high",
+        "GHSA-5p4m-2wfm-xmqj": "high",
+        "GHSA-2883-xcg3-v3hh": "high"
+      }
+    },
+    {
+      "package": "js-yaml",
+      "version": "4.1.0",
+      "advisories": {
+        "GHSA-52cp-r559-cp3m": "high",
+        "GHSA-5p4m-2wfm-xmqj": "high",
+        "GHSA-2883-xcg3-v3hh": "high"
+      }
+    },
+    {
+      "package": "minimatch",
+      "version": "3.1.2",
+      "advisories": {
+        "GHSA-3ppc-4f35-3m26": "high",
+        "GHSA-7r86-cg39-jmmj": "high",
+        "GHSA-23c5-xmqv-rm74": "high"
+      }
+    },
+    {
+      "package": "minimatch",
+      "version": "5.1.6",
+      "advisories": {
+        "GHSA-3ppc-4f35-3m26": "high",
+        "GHSA-7r86-cg39-jmmj": "high",
+        "GHSA-23c5-xmqv-rm74": "high"
+      }
+    },
+    {
+      "package": "minimatch",
+      "version": "8.0.4",
+      "advisories": {
+        "GHSA-3ppc-4f35-3m26": "high",
+        "GHSA-7r86-cg39-jmmj": "high",
+        "GHSA-23c5-xmqv-rm74": "high"
+      }
+    },
+    {
+      "package": "nanoid",
+      "version": "3.3.7",
+      "advisories": {
+        "GHSA-28wg-ghj8-5hjv": "high",
+        "GHSA-2v37-7h3g-55p8": "high",
+        "GHSA-xwg4-73v4-xw9w": "high"
+      }
+    },
+    {
+      "package": "parse-duration",
+      "version": "1.1.0",
+      "advisories": {
+        "GHSA-hcrg-fc28-fcg5": "high"
+      }
+    },
+    {
+      "package": "pbkdf2",
+      "version": "3.1.2",
+      "advisories": {
+        "GHSA-h7cp-r72f-jxh6": "critical",
+        "GHSA-v62p-rq8g-8h59": "critical"
+      }
+    },
+    {
+      "package": "picomatch",
+      "version": "2.3.1",
+      "advisories": {
+        "GHSA-c2c7-rcm5-vvqj": "high"
+      }
+    },
+    {
+      "package": "protobufjs",
+      "version": "6.11.4",
+      "advisories": {
+        "GHSA-66ff-xgx4-vchm": "high",
+        "GHSA-75px-5xx7-5xc7": "high",
+        "GHSA-jvwf-75h9-cwgg": "high",
+        "GHSA-685m-2w69-288q": "high",
+        "GHSA-xq3m-2v4x-88gg": "critical",
+        "GHSA-wcpc-wj8m-hjx6": "high"
+      }
+    },
+    {
+      "package": "secp256k1",
+      "version": "4.0.3",
+      "advisories": {
+        "GHSA-584q-6j8j-r5pm": "high"
+      }
+    },
+    {
+      "package": "semver",
+      "version": "7.3.5",
+      "advisories": {
+        "GHSA-c2qf-rxjj-qqgw": "high"
+      }
+    },
+    {
+      "package": "semver",
+      "version": "7.4.0",
+      "advisories": {
+        "GHSA-c2qf-rxjj-qqgw": "high"
+      }
+    },
+    {
+      "package": "sha.js",
+      "version": "2.4.11",
+      "advisories": {
+        "GHSA-95m3-7q98-8xr5": "critical"
+      }
+    },
+    {
+      "package": "tar",
+      "version": "6.2.0",
+      "advisories": {
+        "GHSA-34x7-hfp2-rc4v": "high",
+        "GHSA-8qq5-rm4j-mr97": "high",
+        "GHSA-83g3-92jg-28cx": "high",
+        "GHSA-qffp-2rhf-9h96": "high",
+        "GHSA-9ppj-qmqm-q256": "high",
+        "GHSA-r6q2-hw4h-h46w": "high",
+        "GHSA-23hp-3jrh-7fpw": "critical",
+        "GHSA-8x88-c5mf-7j5w": "high",
+        "GHSA-r292-9mhp-454m": "high"
+      }
+    },
+    {
+      "package": "tar-fs",
+      "version": "1.16.3",
+      "advisories": {
+        "GHSA-vj76-c3g6-qr5v": "high",
+        "GHSA-8cj5-5rvv-wf4v": "high",
+        "GHSA-pq67-2wwv-3xjx": "high"
+      }
+    },
+    {
+      "package": "tmp",
+      "version": "0.2.1",
+      "advisories": {
+        "GHSA-ph9p-34f9-6g65": "high"
+      }
+    },
+    {
+      "package": "ws",
+      "version": "7.5.9",
+      "advisories": {
+        "GHSA-3h5v-q93c-6h6q": "high",
+        "GHSA-96hv-2xvq-fx4p": "high"
+      }
+    }
+  ]
+}
