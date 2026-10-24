@@ -228,6 +228,25 @@ test("storage failure cannot issue a nonce or authenticate a user", async () => 
   assert.equal(nonce.getHeader("set-cookie"), undefined);
 });
 
+test("production authentication rejects missing, short and public sample session secrets", async () => {
+  for (const password of ["", "short", "complex_password_at_least_32_characters_long"]) {
+    const f = fixture();
+    const cookie = await f.validSession();
+    f.env.IRON_SESSION_PASSWORD = password;
+    const nonce = response();
+    await f.nonce({ method: "GET", headers: { host: "audit.example" } }, nonce);
+    assert.equal(nonce.statusCode, 503);
+    assert.equal(f.state.commands.length, 0);
+    const metadata = response();
+    await f.metadata(
+      { method: "POST", query: { chainId: "1" }, headers: { cookie }, body: {} },
+      metadata,
+    );
+    assert.equal(metadata.statusCode, 503);
+    assert.equal(f.state.writes.length, 0);
+  }
+});
+
 test("production domain, URI and chain are bound to the request", async () => {
   const f = fixture();
   const c = await f.challenge();

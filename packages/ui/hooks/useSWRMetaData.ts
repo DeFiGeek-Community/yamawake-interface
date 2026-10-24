@@ -10,10 +10,7 @@ const useSWRMetaData = (
 ): SWRResponse<{ metaData: MetaData } | undefined, Error> => {
   const { t } = useLocale();
 
-  if (!chainId) return useSWR(undefined);
-
-  const chain = getSupportedChain(chainId);
-  if (!chain) return useSWR(undefined);
+  const chain = chainId ? getSupportedChain(chainId) : undefined;
 
   const fetcher = (url: string): Promise<{ metaData: MetaData } | undefined> =>
     fetch(url)
@@ -29,7 +26,7 @@ const useSWRMetaData = (
         };
       });
   return useSWR<{ metaData: MetaData } | undefined, Error>(
-    `/api/metadata/${chain.id}/${id}`,
+    chain && id ? `/api/metadata/${chain.id}/${id}` : null,
     fetcher,
     {
       errorRetryCount: 2,

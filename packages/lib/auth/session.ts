@@ -4,6 +4,7 @@ import { getSupportedChain } from "../utils/chain";
 import { ApiError } from "./api";
 
 export function getSiweOrigin(req: NextApiRequest): string {
+  assertSessionConfiguration();
   const domain =
     process.env.SIWE_DOMAIN || (process.env.NODE_ENV !== "production" && req.headers.host);
   if (!domain) throw new ApiError(503, "Authentication is not configured.");
@@ -23,6 +24,7 @@ export function getSiweOrigin(req: NextApiRequest): string {
 }
 
 export function requireSession(session: YamawakeSession, chainId?: number) {
+  assertSessionConfiguration();
   const { siwe, expiresAt } = session;
   const now = Date.now();
   if (
@@ -38,4 +40,16 @@ export function requireSession(session: YamawakeSession, chainId?: number) {
     throw new ApiError(403, "Session network does not match.");
   }
   return siwe;
+}
+
+function assertSessionConfiguration() {
+  if (process.env.NODE_ENV !== "production") return;
+  const password = process.env.IRON_SESSION_PASSWORD;
+  if (
+    !password ||
+    password.length < 32 ||
+    password === "complex_password_at_least_32_characters_long"
+  ) {
+    throw new ApiError(503, "Authentication is not configured.");
+  }
 }

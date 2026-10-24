@@ -54,6 +54,7 @@ function createLoader(mocks = {}, env = {}) {
         Date,
         URL,
         Buffer,
+        atob,
         setTimeout,
         clearTimeout,
         console: { ...console, error() {} },

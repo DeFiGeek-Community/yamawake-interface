@@ -11,7 +11,8 @@
     "test": "start-server-and-test 'pnpm start' http://localhost:3000 'pnpm synpress:run'",
     "test:headless": "start-server-and-test 'pnpm start' http://localhost:3000 'pnpm synpress:run --headless'",
     "test:build": "pnpm build && start-server-and-test 'pnpm start' http://localhost:3000 'pnpm synpress:run'",
-    "test:build:headless": "pnpm build && start-server-and-test 'pnpm start' http://localhost:3000 'pnpm synpress:run --headless'"
+    "test:build:headless": "pnpm build && start-server-and-test 'pnpm start' http://localhost:3000 'pnpm synpress:run --headless'",
+    "typecheck": "tsc --noEmit --incremental false"
   },
   "dependencies": {
     "assets": "workspace:*",
