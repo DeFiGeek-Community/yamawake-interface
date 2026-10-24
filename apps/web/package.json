@@ -11,13 +11,14 @@
     "test": "start-server-and-test 'pnpm start' http://localhost:3000 'pnpm synpress:run'",
     "test:headless": "start-server-and-test 'pnpm start' http://localhost:3000 'pnpm synpress:run --headless'",
     "test:build": "pnpm build && start-server-and-test 'pnpm start' http://localhost:3000 'pnpm synpress:run'",
-    "test:build:headless": "pnpm build && start-server-and-test 'pnpm start' http://localhost:3000 'pnpm synpress:run --headless'"
+    "test:build:headless": "pnpm build && start-server-and-test 'pnpm start' http://localhost:3000 'pnpm synpress:run --headless'",
+    "typecheck": "tsc --noEmit --incremental false"
   },
   "dependencies": {
     "assets": "workspace:*",
     "cypress-wait-until": "^2.0.1",
     "lib": "workspace:*",
-    "next": "^15.5.16",
+    "next": "^15.5.28",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "ui": "workspace:*"

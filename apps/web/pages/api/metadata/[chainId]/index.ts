@@ -1,21 +1,11 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import { getIronSession, type SessionOptions } from "iron-session";
-import { getContract, PublicClient, GetContractReturnType, Transport } from "viem";
-import { Chain } from "viem/chains";
-import { getSupportedChain, isSupportedChain } from "lib/utils/chain";
-import { getViemProvider } from "lib/utils/serverside";
+import type { NextApiRequest, NextApiResponse } from "next";
+import { getIronSession } from "iron-session";
+import ironOptions from "lib/constants/ironOptions";
+import type { YamawakeSessionData } from "lib/types/iron-session";
 import { DBClient } from "lib/dynamodb/metaData";
-import BaseTemplateABI from "lib/constants/abis/BaseTemplate.json";
-import { MetaData } from "lib/types/Auction";
-import type { YamawakeSession } from "lib/types/iron-session";
-
-const ironOptions: SessionOptions = {
-  cookieName: process.env.IRON_SESSION_COOKIE_NAME!,
-  password: process.env.IRON_SESSION_PASSWORD!,
-  cookieOptions: {
-    secure: process.env.NODE_ENV === "production",
-  },
-};
+import { parseMetaData, requireChain, requireAddress, sendApiError } from "lib/auth/api";
+import { requireAuctionOwner } from "lib/auth/authorization";
+import { requireSession } from "lib/auth/session";
 
 const dbClient = new DBClient({
   region: process.env._AWS_REGION as string,
@@ -24,115 +14,36 @@ const dbClient = new DBClient({
   tableName: process.env._AWS_DYNAMO_TABLE_NAME as string,
 });
 
-const requireContractOwner = (
-  body: any,
-  session: YamawakeSession,
-  chainId: number,
-): Promise<{
-  metaData: MetaData;
-  auctionContract: GetContractReturnType<typeof BaseTemplateABI, PublicClient>;
-  provider: PublicClient<Transport, Chain | undefined>;
-}> => {
-  return new Promise(async (resolve, reject) => {
-    if (!session.siwe) return reject("Unauthorized");
-    const metaData = Object.assign(body, { chainId });
-    const provider = getViemProvider(chainId) as PublicClient;
-    const auctionContract = getContract({
-      address: metaData.id,
-      abi: BaseTemplateABI,
-      publicClient: provider,
-    });
-    try {
-      const contractOwner = await auctionContract.read.owner();
-      if (
-        (!session.siwe.resources && contractOwner === session.siwe.address) ||
-        (session.siwe.resources && contractOwner === session.siwe.resources[0])
-      ) {
-        resolve({ metaData, auctionContract, provider });
-      } else {
-        reject("You are not the owner of this contract");
-      }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        reject(error.name);
-        console.error(`[ERROR] ${error.name} ${error.message}`);
-      } else {
-        reject("Unknown error");
-        console.error(`[ERROR] Unknown error ${error}`);
-      }
-    }
-  });
-};
-
-const requireAvailableNetwork = (session: YamawakeSession): number => {
-  if (!session.siwe) throw new Error("Sign in required");
-  if (!isSupportedChain(session.siwe.chainId)) throw new Error("Wrong network");
-  return session.siwe.chainId;
-};
+export const config = { api: { bodyParser: { sizeLimit: "16kb" } } };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { method } = req;
-  const session = await getIronSession(req, res, ironOptions);
-  switch (method) {
-    case "GET":
-      try {
-        const { lastEvaluatedKeyId, lastEvaluatedKeyCreatedAt, chainId } = req.query;
-        let requestedChain: Chain | undefined;
-        if (typeof chainId === "string") {
-          requestedChain = getSupportedChain(chainId);
-        }
-        if (!requestedChain) return res.status(404).end("No auction found");
-
-        const metaData = await dbClient.scanMetaData(
-          requestedChain.id,
-          lastEvaluatedKeyId as string,
-          lastEvaluatedKeyCreatedAt as string,
-        );
-        res.json({ metaData });
-      } catch (_error: any) {
-        console.log(_error);
-        res.status(500).end(String(_error));
-      }
-      break;
-    case "POST":
-      try {
-        const sessionChainId = requireAvailableNetwork(session);
-        const { chainId } = req.query;
-
-        // To prevent editing off-chain data related to a contract on a different chain than the user signed,
-        // ensure that the requested chainId matches the chainId included in the session.
-        // Even without this check, data on the requested chain will only be updated if the user is the owner of the contract for the requested chainId,
-        // but this behavior would not be expected by the application, so it might be better to check just in case.
-        if (Number(chainId) !== sessionChainId)
-          throw new Error("Network does not match. Please logout and login again");
-
-        const { metaData } = await requireContractOwner(req.body, session, Number(chainId));
-
-        const result = await dbClient.addMetaData(metaData);
-        res.json({ result });
-      } catch (_error) {
-        console.log(_error);
-        res.status(500).end(String(_error));
-      }
-      break;
-    case "PUT":
-      try {
-        const sessionChainId = requireAvailableNetwork(session);
-        const { chainId } = req.query;
-        if (Number(chainId) !== sessionChainId)
-          throw new Error("Network does not match. Please logout and login again");
-
-        const { metaData } = await requireContractOwner(req.body, session, Number(chainId));
-
-        const result = await dbClient.updateAuction(metaData);
-        res.json({ result });
-      } catch (_error: any) {
-        console.log(_error);
-        res.status(500).end(String(_error));
-      }
-      break;
-    default:
-      res.setHeader("Allow", ["GET", "POST", "PUT"]);
-      res.status(405).end(`Method ${method} Not Allowed`);
+  res.setHeader("Cache-Control", "no-store");
+  if (!["GET", "POST", "PUT"].includes(req.method || "")) {
+    res.setHeader("Allow", ["GET", "POST", "PUT"]);
+    return res.status(405).end();
+  }
+  try {
+    const chain = requireChain(req.query.chainId);
+    if (req.method === "GET") {
+      const { lastEvaluatedKeyId, lastEvaluatedKeyCreatedAt } = req.query;
+      if (lastEvaluatedKeyId !== undefined) requireAddress(lastEvaluatedKeyId);
+      const metaData = await dbClient.scanMetaData(
+        chain.id,
+        lastEvaluatedKeyId as string | undefined,
+        typeof lastEvaluatedKeyCreatedAt === "string" ? lastEvaluatedKeyCreatedAt : undefined,
+      );
+      return res.json({ metaData });
+    }
+    const session = await getIronSession<YamawakeSessionData>(req, res, ironOptions);
+    requireSession(session, chain.id);
+    const metaData = parseMetaData(req.body, chain.id);
+    await requireAuctionOwner(session, metaData.id as `0x${string}`, chain.id);
+    const result =
+      req.method === "POST"
+        ? await dbClient.addMetaData(metaData)
+        : await dbClient.updateAuction(metaData);
+    return res.json({ result });
+  } catch (error) {
+    return sendApiError(error, res);
   }
 }

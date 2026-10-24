@@ -1,7 +1,7 @@
 export const ETHER_DECIMALS_FOR_VIEW = 3;
 
 export const URL_REGEX = new RegExp(
-  /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/,
+  /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/,
 );
 
 export const SAMPLE_DISCLAIMERS = `By participating in this token auction event, you acknowledge and agree to the following terms:

@@ -18,7 +18,7 @@ import {
 } from "@wagmi/core";
 import Safe, { SafeTransactionOptionalProps } from "@safe-global/protocol-kit";
 import SafeApiKit from "@safe-global/api-kit";
-import { assertActiveChain } from "./utils";
+import { assertActiveChain, assertProviderChain, resolveSafeChainId } from "./utils";
 
 export type WriteContractMode = "prepared" | undefined;
 
@@ -74,17 +74,18 @@ export async function writeSafeContract<
     | (WriteContractUnpreparedArgs<TAbi, TFunctionName> & { safeAddress: `0x${string}` })
     | (WriteContractPreparedArgs<TAbi, TFunctionName> & { safeAddress: `0x${string}` }),
 ): Promise<WriteContractResult> {
-  const walletClient = await getWalletClient({ chainId: config.chainId });
+  const chainId = resolveSafeChainId(config);
+  const walletClient = await getWalletClient({ chainId });
   const connectorConfig = getConfig();
   if (!walletClient || !connectorConfig.connector) throw new ConnectorNotFoundError();
-  if (config.chainId) assertActiveChain({ chainId: config.chainId });
+  assertActiveChain({ chainId });
 
   let request: WriteContractParameters<TAbi, TFunctionName, Chain, Account>;
   if (config.mode === "prepared") {
     request = config.request;
   } else {
     const { chainId: _, mode: __, ...args } = config;
-    const res = await prepareWriteContract(args as PrepareWriteContractConfig);
+    const res = await prepareWriteContract({ ...args, chainId } as PrepareWriteContractConfig);
     request = res.request as unknown as WriteContractParameters<
       TAbi,
       TFunctionName,
@@ -95,13 +96,13 @@ export async function writeSafeContract<
 
   const provider = await connectorConfig.connector.getProvider();
   if (!provider) throw new Error("Provider is not set");
+  await assertProviderChain(provider, chainId);
   if (!request.account) throw new Error("account is not set");
 
   const signer = walletClient.account.address;
 
   let protocolKit = await Safe.init({
     provider,
-    // provider: "https://sepolia.infura.io/v3/2d24771d8ce44aaeb3706efa74f9693e",
     signer,
     safeAddress: config.safeAddress,
   });
@@ -134,8 +135,8 @@ export async function writeSafeContract<
 
   const safeTransaction = await protocolKit.createTransaction({ transactions, options });
   const safeTxHash = await protocolKit.getTransactionHash(safeTransaction);
+  await assertProviderChain(provider, chainId);
   const signature = await protocolKit.signHash(safeTxHash);
-  const chainId = await connectorConfig.connector.getChainId();
   // Propose transaction to the service
   const apiKit = new SafeApiKit({
     chainId: BigInt(chainId),

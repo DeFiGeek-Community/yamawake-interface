@@ -1,23 +1,25 @@
 import { type PublicClient, createPublicClient, fallback, http } from "viem";
 import { getSupportedChain } from "./chain";
 
-export const getViemProvider = (chainId: number): PublicClient => {
+export const getServerRPCEndpoints = (chainId: number): string[] => {
   const chain = getSupportedChain(chainId);
   if (!chain) throw new Error("Wrong network");
 
-  const publicEndpoints = chain.rpcUrls.public.http.map((url) => http(url));
+  const publicEndpoints = [...chain.rpcUrls.public.http];
   const thirdpartyEndpoints = [];
   if (chain.rpcUrls.infura && process.env.INFURA_API_TOKEN) {
-    thirdpartyEndpoints.push(
-      http(`${chain.rpcUrls.infura.http[0]}/${process.env.INFURA_API_TOKEN}`),
-    );
+    thirdpartyEndpoints.push(`${chain.rpcUrls.infura.http[0]}/${process.env.INFURA_API_TOKEN}`);
   }
   if (chain.rpcUrls.alchemy && process.env.ALCHEMY_API_KEY) {
-    thirdpartyEndpoints.push(
-      http(`${chain.rpcUrls.alchemy.http[0]}/${process.env.ALCHEMY_API_KEY}`),
-    );
+    thirdpartyEndpoints.push(`${chain.rpcUrls.alchemy.http[0]}/${process.env.ALCHEMY_API_KEY}`);
   }
-  const fallbackEndpoints = fallback([...thirdpartyEndpoints, ...publicEndpoints]);
+  return [...thirdpartyEndpoints, ...publicEndpoints];
+};
+
+export const getViemProvider = (chainId: number): PublicClient => {
+  const chain = getSupportedChain(chainId);
+  if (!chain) throw new Error("Wrong network");
+  const fallbackEndpoints = fallback(getServerRPCEndpoints(chainId).map((url) => http(url)));
 
   const client = createPublicClient({
     chain,

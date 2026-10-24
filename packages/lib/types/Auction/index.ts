@@ -1,4 +1,5 @@
 import { AbiCoder } from "ethers";
+import { isAddress } from "viem";
 import { URL_REGEX } from "../../constants";
 
 export abstract class BaseAuction implements AuctionProps {
@@ -165,8 +166,8 @@ export type MetaDataError = {
 
 export const validateMetaData = (metaData: MetaData, minRaisedAmount?: number): MetaDataError => {
   const errors: MetaDataError = {};
-  if (typeof metaData.id !== "string") {
-    errors.id = "Contract address is required";
+  if (typeof metaData.id !== "string" || !isAddress(metaData.id)) {
+    errors.id = "Valid contract address is required";
   }
   if (typeof metaData.chainId !== "number") {
     errors.chainId = "ChainId is required";

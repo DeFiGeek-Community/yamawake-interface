@@ -1,7 +1,6 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import { Chain } from "viem/chains";
+import type { NextApiRequest, NextApiResponse } from "next";
 import { DBClient } from "lib/dynamodb/metaData";
-import { getDefaultChain, getSupportedChain } from "lib/utils/chain";
+import { requireAddress, requireChain, sendApiError } from "lib/auth/api";
 
 const dbClient = new DBClient({
   region: process.env._AWS_REGION as string,
@@ -11,28 +10,15 @@ const dbClient = new DBClient({
 });
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { method } = req;
-  switch (method) {
-    case "GET":
-      try {
-        const { id, chainId } = req.query;
-        // requireAvailableNetwork(chainId);
-        let requestedChain: Chain;
-        if (typeof chainId === "string") {
-          requestedChain = getSupportedChain(chainId) ?? getDefaultChain();
-        } else {
-          return res.status(404).end("No auction found");
-        }
-
-        const metaData = await dbClient.fetchMetaData(id as string, requestedChain.id);
-        res.json({ metaData });
-      } catch (_error: any) {
-        console.log(_error.message);
-        res.status(500).end(_error.message);
-      }
-      break;
-    default:
-      res.setHeader("Allow", ["GET"]);
-      res.status(405).end(`Method ${method} Not Allowed`);
+  if (req.method !== "GET") {
+    res.setHeader("Allow", ["GET"]);
+    return res.status(405).end();
+  }
+  try {
+    const chain = requireChain(req.query.chainId);
+    const address = requireAddress(req.query.id);
+    return res.json({ metaData: await dbClient.fetchMetaData(address, chain.id) });
+  } catch (error) {
+    return sendApiError(error, res);
   }
 }

@@ -1,0 +1,28 @@
+version: 1
+applications:
+  - appRoot: apps/web
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install "$(cat .node-version)"
+            - nvm use "$(cat .node-version)"
+            - node --version
+            - npm install --global "$(node -p 'require("./package.json").packageManager')"
+            - pnpm --version
+            - pnpm install --frozen-lockfile --ignore-scripts
+        build:
+          commands:
+            - export NEXT_PUBLIC_GIT_ID="$AWS_COMMIT_ID"
+            - node scripts/write-amplify-env.cjs
+            - pnpm build
+      artifacts:
+        baseDirectory: apps/web/.next
+        files:
+          - "**/*"
+      cache:
+        paths:
+          - node_modules/**/*
+          - apps/web/.next/cache/**/*
+          - apps/web/node_modules/**/*
+      buildPath: /
